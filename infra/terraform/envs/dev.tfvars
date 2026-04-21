@@ -36,20 +36,20 @@ frontend_image_tag = "latest"
 acm_certificate_arn = ""
 
 # GitHub OIDC
-github_org_repo             = "YOUR-ORG/makit"
+github_org_repo             = "hobbong21/Make.IT_Ai-Assistant_platform"
 github_deploy_branch        = "main"
 # Set false in staging/prod since only ONE OIDC provider per account is allowed.
 create_github_oidc_provider = true
 
 # TF state backend
-tfstate_bucket_name = "makit-tfstate-REPLACE-ACCOUNT"
+tfstate_bucket_name = "makit-tfstate-034362055784"
 tfstate_lock_table  = "makit-tfstate-lock"
 
 # Monitoring
-alarm_email_subscribers          = ["devops@example.com"]
+alarm_email_subscribers          = ["hobbong21@gmail.com"]
 bedrock_daily_cost_usd_threshold = 25
 
 # PRR-017/018: app config wired into ECS task-def env.
 cors_allowed_origins = "http://localhost,http://localhost:8080,http://localhost:8083"
-jwt_issuer           = "https://makit.dev.example.com"
+jwt_issuer           = "https://makit.humanaid.digital/dev"
 jwt_audience         = "makit-web"

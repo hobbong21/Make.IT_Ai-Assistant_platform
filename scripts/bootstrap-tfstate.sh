@@ -18,7 +18,7 @@ set -euo pipefail
 AWS_PROFILE=""
 REGION="ap-northeast-2"
 BUCKET=""
-TABLE="makit-tflock"
+TABLE="makit-tfstate-lock"
 DRY_RUN="false"
 
 while [[ $# -gt 0 ]]; do
@@ -48,7 +48,7 @@ echo "    Account: $ACCOUNT_ID"
 echo "    Caller : $CALLER_ARN"
 
 if [[ -z "$BUCKET" ]]; then
-  BUCKET="makit-tfstate-${ACCOUNT_ID}-${REGION}"
+  BUCKET="makit-tfstate-${ACCOUNT_ID}"
 fi
 echo "[*] Region: $REGION"
 echo "[*] Bucket: $BUCKET"

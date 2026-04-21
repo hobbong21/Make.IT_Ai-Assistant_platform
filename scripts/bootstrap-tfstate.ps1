@@ -34,7 +34,7 @@ param(
     [string]$Profile = "",
     [string]$Region  = "ap-northeast-2",
     [string]$Bucket  = "",
-    [string]$Table   = "makit-tflock",
+    [string]$Table   = "makit-tfstate-lock",
     [switch]$DryRun
 )
 
@@ -67,7 +67,7 @@ $CallerArn = $identity.Arn
 Write-Host "    Account: $AccountId"
 Write-Host "    Caller : $CallerArn"
 
-if (-not $Bucket) { $Bucket = "makit-tfstate-$AccountId-$Region" }
+if (-not $Bucket) { $Bucket = "makit-tfstate-$AccountId" }
 Write-Host "[*] Region: $Region"
 Write-Host "[*] Bucket: $Bucket"
 Write-Host "[*] Table : $Table"

@@ -34,17 +34,17 @@ frontend_image_tag = "latest"
 
 acm_certificate_arn = ""
 
-github_org_repo             = "YOUR-ORG/makit"
+github_org_repo             = "hobbong21/Make.IT_Ai-Assistant_platform"
 github_deploy_branch        = "main"
 create_github_oidc_provider = false
 
-tfstate_bucket_name = "makit-tfstate-REPLACE-ACCOUNT"
+tfstate_bucket_name = "makit-tfstate-034362055784"
 tfstate_lock_table  = "makit-tfstate-lock"
 
-alarm_email_subscribers          = ["devops@example.com"]
+alarm_email_subscribers          = ["hobbong21@gmail.com"]
 bedrock_daily_cost_usd_threshold = 50
 
 # PRR-017/018: app config wired into ECS task-def env.
-cors_allowed_origins = "https://makit-staging.example.com"
-jwt_issuer           = "https://makit.staging.example.com"
+cors_allowed_origins = "https://makit.humanaid.digital"
+jwt_issuer           = "https://makit.humanaid.digital/staging"
 jwt_audience         = "makit-web"

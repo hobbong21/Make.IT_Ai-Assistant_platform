@@ -33,22 +33,21 @@ backend_image_tag  = "latest"
 frontend_image_tag = "latest"
 
 # Provide ACM cert ARN for HTTPS
-acm_certificate_arn = "arn:aws:acm:ap-northeast-2:REPLACE-ACCOUNT:certificate/REPLACE-CERT-ID"
+acm_certificate_arn = "arn:aws:acm:ap-northeast-2:034362055784:certificate/f61815b6-1d9f-46a5-a3e6-27771e0edf48"
 
-github_org_repo             = "YOUR-ORG/makit"
+github_org_repo             = "hobbong21/Make.IT_Ai-Assistant_platform"
 github_deploy_branch        = "main"
 create_github_oidc_provider = false
 
-tfstate_bucket_name = "makit-tfstate-REPLACE-ACCOUNT"
+tfstate_bucket_name = "makit-tfstate-034362055784"
 tfstate_lock_table  = "makit-tfstate-lock"
 
-alarm_email_subscribers          = ["oncall@example.com", "devops@example.com"]
+alarm_email_subscribers          = ["hobbong21@gmail.com"]
 # PRR-043: app-side DailyCostUSD alarm removed for v1 (no publisher). Kept for
 # backward compat; has no effect until a Micrometer→CloudWatch bridge ships.
 bedrock_daily_cost_usd_threshold = 100
 
 # PRR-017/018: app config wired into ECS task-def env.
-# Replace with the real prod domain once known (must be HTTPS).
-cors_allowed_origins = "https://makit.example.com"
-jwt_issuer           = "https://makit.prod.example.com"
+cors_allowed_origins = "https://makit.humanaid.digital"
+jwt_issuer           = "https://makit.humanaid.digital"
 jwt_audience         = "makit-web"
