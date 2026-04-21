@@ -11,8 +11,56 @@ env:
   TF_VERSION: "1.8.5"
 
 jobs:
+  # Gate: skip all deployment jobs until the operator has bootstrapped AWS
+  # (run `terraform apply -var-file=envs/dev.tfvars` locally once to create
+  # the GitHub OIDC provider + IAM role, then set AWS_ROLE_ARN and
+  # ECR_REGISTRY as GitHub Secrets).
+  bootstrap-check:
+    name: Check bootstrap readiness
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          HAS_ROLE: ${{ secrets.AWS_ROLE_ARN != '' }}
+          HAS_REGISTRY: ${{ secrets.ECR_REGISTRY != '' }}
+          HAS_STATE_BUCKET: ${{ secrets.TF_STATE_BUCKET != '' }}
+          HAS_STATE_LOCK: ${{ secrets.TF_STATE_LOCK_TABLE != '' }}
+        run: |
+          if [ "$HAS_ROLE" = "true" ] && [ "$HAS_REGISTRY" = "true" ] \
+             && [ "$HAS_STATE_BUCKET" = "true" ] && [ "$HAS_STATE_LOCK" = "true" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "All required secrets present — proceeding."
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "## ⚠️ Deployment skipped — bootstrap required";
+              echo "";
+              echo "One or more required GitHub Secrets are missing:";
+              echo "- AWS_ROLE_ARN: ${HAS_ROLE}";
+              echo "- ECR_REGISTRY: ${HAS_REGISTRY}";
+              echo "- TF_STATE_BUCKET: ${HAS_STATE_BUCKET}";
+              echo "- TF_STATE_LOCK_TABLE: ${HAS_STATE_LOCK}";
+              echo "";
+              echo "### Bootstrap steps (one-time, run on a machine with AWS CLI):";
+              echo "1. \`./scripts/bootstrap-tfstate.sh\` (or .ps1) — creates S3 state bucket + DynamoDB lock table";
+              echo "2. \`cd infra/terraform && terraform init -backend-config=... && terraform apply -var-file=envs/dev.tfvars\`";
+              echo "3. Grab \`github_oidc_role_arn\` from \`terraform output\`";
+              echo "4. Go to Settings → Secrets and variables → Actions and set:";
+              echo "   - AWS_ROLE_ARN (from step 3)";
+              echo "   - ECR_REGISTRY (e.g. 034362055784.dkr.ecr.ap-northeast-2.amazonaws.com)";
+              echo "   - TF_STATE_BUCKET (e.g. makit-tfstate-034362055784)";
+              echo "   - TF_STATE_LOCK_TABLE (e.g. makit-tfstate-lock)";
+              echo "5. Re-run this workflow (Actions tab → Run workflow).";
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::AWS deployment secrets not configured — jobs skipped. See job summary for bootstrap steps."
+          fi
+
   build-and-push:
     name: Build & push images to ECR
+    needs: bootstrap-check
+    if: needs.bootstrap-check.outputs.ready == 'true'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
