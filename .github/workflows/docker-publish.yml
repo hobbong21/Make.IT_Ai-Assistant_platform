@@ -1,16 +1,41 @@
 name: Docker Build & Deploy
 
-# NOTE: `push` trigger intentionally disabled until first-time bootstrap is complete.
-# Run locally once:
-#   1. scripts/bootstrap-tfstate.ps1
-#   2. terraform apply -var-file=envs/dev.tfvars (creates GitHub OIDC role)
-#   3. Set GitHub Secrets: AWS_ROLE_ARN, ECR_REGISTRY, TF_STATE_BUCKET, TF_STATE_LOCK_TABLE
-#   4. Re-enable push trigger below + commit
-# Meanwhile, use Actions tab → "Run workflow" to trigger manually.
+# ═══════════════════════════════════════════════════════════════════════════
+# WORKFLOW DISABLED — all triggers removed until first-time bootstrap is done.
+# ═══════════════════════════════════════════════════════════════════════════
+# Reason: AWS resources don't exist yet (chicken-and-egg):
+#   Terraform creates the GitHub OIDC role, but this workflow needs that role
+#   to run Terraform. First-time bootstrap must happen locally.
+#
+# Enable this workflow by uncommenting the triggers below AFTER:
+#   1. scripts/bootstrap-tfstate.ps1            — creates S3 state bucket + DynamoDB lock
+#   2. cd infra/terraform && terraform init ... — initializes backend
+#   3. terraform apply -var-file=envs/dev.tfvars — creates OIDC role + infra
+#   4. terraform output -raw github_oidc_role_arn → note the ARN
+#   5. GitHub Settings → Secrets and variables → Actions → add 4 secrets:
+#        AWS_ROLE_ARN          (from step 4)
+#        ECR_REGISTRY          (e.g. 034362055784.dkr.ecr.ap-northeast-2.amazonaws.com)
+#        TF_STATE_BUCKET       (e.g. makit-tfstate-034362055784)
+#        TF_STATE_LOCK_TABLE   (e.g. makit-tfstate-lock)
+#   6. GitHub Settings → Environments → create dev/staging/prod (+ reviewers)
+#
+# Then replace the two lines below with:
+#   on:
+#     push:
+#       branches: [main]
+#     workflow_dispatch:
+# ═══════════════════════════════════════════════════════════════════════════
 on:
+  # Push trigger stays OFF until bootstrap completes. Uncomment after setup.
   # push:
   #   branches: [main]
-  workflow_dispatch:
+  workflow_dispatch:   # Manual trigger only. bootstrap-check gate will skip
+                       # downstream jobs until AWS secrets are populated.
+
+# Cancel older runs on the same ref so stale workflow versions don't linger.
+concurrency:
+  group: docker-publish-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   AWS_REGION: ap-northeast-2
@@ -109,7 +134,8 @@ jobs:
 
   deploy-dev:
     name: Deploy to dev (Terraform)
-    needs: build-and-push
+    needs: [bootstrap-check, build-and-push]
+    if: needs.bootstrap-check.outputs.ready == 'true'
     runs-on: ubuntu-latest
     environment: dev
     permissions:
@@ -161,7 +187,8 @@ jobs:
 
   deploy-staging:
     name: Deploy to staging (manual approval)
-    needs: deploy-dev
+    needs: [bootstrap-check, deploy-dev]
+    if: needs.bootstrap-check.outputs.ready == 'true'
     runs-on: ubuntu-latest
     environment: staging   # GitHub Environment — configure required reviewers here
     permissions:
@@ -202,7 +229,8 @@ jobs:
 
   deploy-prod:
     name: Deploy to prod (manual approval)
-    needs: deploy-staging
+    needs: [bootstrap-check, deploy-staging]
+    if: needs.bootstrap-check.outputs.ready == 'true'
     runs-on: ubuntu-latest
     environment: prod      # GitHub Environment — configure required reviewers here
     permissions:
