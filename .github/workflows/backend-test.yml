@@ -1,0 +1,64 @@
+name: Backend Test
+
+on:
+  pull_request:
+    paths:
+      - 'backend/**'
+      - 'pom.xml'
+      - '.github/workflows/backend-test.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg15
+        env:
+          POSTGRES_DB: makit_test
+          POSTGRES_USER: makit_user
+          POSTGRES_PASSWORD: test
+        options: >-
+          --health-cmd="pg_isready -U makit_user -d makit_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=3s
+          --health-retries=5
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Maven verify
+        working-directory: backend
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/makit_test
+          SPRING_DATASOURCE_USERNAME: makit_user
+          SPRING_DATASOURCE_PASSWORD: test
+          SPRING_REDIS_HOST: localhost
+          SPRING_REDIS_PORT: "6379"
+          JWT_SECRET: test-secret-at-least-32-characters-long-for-hs256
+          AWS_REGION: ap-northeast-2
+        run: mvn -B verify
+
+      - name: Upload surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: backend/target/surefire-reports/
+          if-no-files-found: ignore

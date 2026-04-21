@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+jwt:
+  secret: dGVzdC1zZWNyZXQtMzItYnl0ZS1taW5pbXVtLWZvci1obWFjLXNoYTI1Ng==
+  access-token-ttl: PT15M
+  refresh-token-ttl: P7D
+
+ai:
+  bedrock:
+    enabled: false

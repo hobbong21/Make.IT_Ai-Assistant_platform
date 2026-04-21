@@ -1,0 +1,35 @@
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Build output
+target/
+*.class
+backend/target/
+
+# Node / frontend tooling (if added later)
+node_modules/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude skill caches
+.claude/skills/*/cache/
+.claude/skills/*/.cache/
+
+# Misc
+*.tmp
+*.swp

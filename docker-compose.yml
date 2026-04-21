@@ -1,0 +1,91 @@
+services:
+
+  database:
+    image: pgvector/pgvector:pg15
+    container_name: makit-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-makit}
+      POSTGRES_USER: ${DB_USER:-makit_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks: [makit-network]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: makit-redis
+    networks: [makit-network]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: makit-backend:latest
+    container_name: makit-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SERVER_PORT: "8083"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${DB_NAME:-makit}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-makit_user}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+      SPRING_REDIS_HOST: ${REDIS_HOST:-redis}
+      SPRING_REDIS_PORT: ${REDIS_PORT:-6379}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET required}
+      AWS_REGION: ${AWS_REGION:-ap-northeast-2}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      S3_BUCKET: ${S3_BUCKET:-makit-assets}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost,http://localhost:80,http://localhost:3000,http://localhost:5173}
+    ports:
+      - "8083:8083"
+    depends_on:
+      database: { condition: service_healthy }
+      redis:    { condition: service_healthy }
+    networks: [makit-network]
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8083/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: makit-frontend:latest
+    container_name: makit-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      backend: { condition: service_healthy }
+    networks: [makit-network]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  makit-network:
+    driver: bridge

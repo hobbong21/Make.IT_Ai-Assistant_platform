@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaKIT - 모든 서비스 | Human.Ai.D</title>
+    <link rel="stylesheet" href="css/all-services-styles.css">
+    <link rel="stylesheet" href="css/common.css">
+</head>
+<body>
+    <noscript><div class="makit-noscript">이 페이지는 JavaScript가 필요합니다. 브라우저에서 JavaScript를 활성화해주세요.</div></noscript>
+    <!-- 상단 네비게이션 -->
+    <nav class="top-nav">
+        <div class="top-nav-container">
+            <a href="index.html" class="nav-back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5"></path>
+                    <path d="M12 19l-7-7 7-7"></path>
+                </svg>
+                플랫폼으로 돌아가기
+            </a>
+        </div>
+    </nav>
+
+    <div class="app-container">
+        <!-- 사이드바 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-text">MaKIT</div>
+                </div>
+                <button class="sidebar-toggle">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m6 9 6 6 6-6"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Home</div>
+                    <a href="index.html" class="nav-item">
+                        <span>Overview</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
+                            <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        </svg>
+                    </a>
+                    <a href="all-services.html" class="nav-item active">
+                        <span>All Services</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Services by Category</div>
+                    
+                    <div class="nav-dropdown">
+                        <div class="nav-dropdown-header">
+                            <span>AX Data Intelligence</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m9 18 6-6-6-6"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="nav-dropdown">
+                        <div class="nav-dropdown-header">
+                            <span>AX Marketing Intelligence</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m9 18 6-6-6-6"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="nav-dropdown">
+                        <div class="nav-dropdown-header">
+                            <span>AX Commerce Brain</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m9 18 6-6-6-6"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="intro.html" class="nav-item go-to-web">
+                    <span>Go to Web</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14 21 3"></path>
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    </svg>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="main-content">
+            <div class="content-wrapper">
+                <!-- 헤더 섹션 -->
+                <div class="page-header">
+                    <h1 class="page-title">모든 서비스</h1>
+                    <p class="page-subtitle">MaKIT의 AI 기반 마케팅 솔루션을 카테고리별로 탐색해보세요</p>
+                </div>
+
+                <!-- 검색 및 필터 -->
+                <div class="search-filter-section">
+                    <div class="search-box">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <input type="text" placeholder="서비스 검색..." class="search-input">
+                    </div>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-category="all">전체</button>
+                        <button class="filter-tab" data-category="data">Data Intelligence</button>
+                        <button class="filter-tab" data-category="marketing">Marketing Intelligence</button>
+                        <button class="filter-tab" data-category="commerce">Commerce Brain</button>
+                    </div>
+                </div>
+
+                <!-- 서비스 그리드 -->
+                <div class="services-container">
+                    <!-- AX Data Intelligence -->
+                    <div class="category-section" data-category="data">
+                        <h2 class="category-title">
+                            <span class="category-icon">🧠</span>
+                            AX Data Intelligence
+                        </h2>
+                        <div class="services-grid">
+                            <div class="service-card">
+                                <div class="service-header">
+                                    <div class="service-icon">📝</div>
+                                    <div class="service-status">활성</div>
+                                </div>
+                                <h3 class="service-title">자연어 분석</h3>
+                                <p class="service-description">텍스트 데이터를 AI로 분석하여 감정, 의도, 키워드를 추출합니다</p>
+                                <div class="service-tags">
+                                    <span class="tag">NLP</span>
+                                    <span class="tag">감정분석</span>
+                                    <span class="tag">키워드추출</span>
+                                </div>
+                                <button class="service-button">서비스 사용</button>
+                            </div>
+
+                            <div class="service-card">
+                                <div class="service-header">
+                                    <div class="service-icon">💬</div>
+                                    <div class="service-status">활성</div>
+                                </div>
+                                <h3 class="service-title">유튜브 댓글 분석</h3>
+                                <p class="service-description">유튜브 댓글을 수집하고 분석하여 사용자 반응을 파악합니다</p>
+                                <div class="service-tags">
+                                    <span class="tag">YouTube API</span>
+                                    <span class="tag">댓글분석</span>
+                                    <span class="tag">트렌드</span>
+                                </div>
+                                <button class="service-button">서비스 사용</button>
+                            </div>
+
+                            <div class="service-card">
+                                <div class="service-header">
+                                    <div class="service-icon">📊</div>
+                                    <div class="service-status">활성</div>
+                                </div>
+                                <h3 class="service-title">유튜브 영향력 분석</h3>
+                                <p class="service-description">채널과 영상의 영향력을 측정하고 성과를 분석합니다</p>
+                                <div class="service-tags">
+                                    <span class="tag">영향력측정</span>
+                                    <span class="tag">성과분석</span>
+                                    <span class="tag">인사이트</span>
+                                </div>
+                                <button class="service-button">서비스 사용</button>
+                            </div>
+
+                            <div class="service-card">
+                                <div class="service-header">
+                                    <div class="service-icon">🌐</div>
+                                    <div class="service-status">활성</div>
+                                </div>
+                                <h3 class="service-title">웹사이트 URL 분석</h3>
+                                <p class="service-description">웹사이트 콘텐츠를 분석하여 SEO와 사용자 경험을 개선합니다</p>
+                                <div class="service-tags">
+                                    <span class="tag">SEO분석</span>
+                                    <span class="tag">콘텐츠분석</span>
+                                    <span class="tag">UX개선</span>
+                                </div>
+                                <button class="service-button">서비스 사용</button>
+                            </div>
+
+                            <div class="service-card">
+                                <div class="service-header">
+                                    <div class="service-icon">🔍</div>
+                                    <div class="service-status">활성</div>
+                                </div>
+                                <h3 class="service-title">유튜브 키워드 채널 검색</h3>
+                                <p class="service-description">키워드 기반으로 관련 채널을 찾고 경쟁사를 분석합니다</p>
+                                <div class="service-tags">
+                                    <span class="tag">키워드검색</span>
+                                    <span class="tag">채널분석</span>
+                                    <span class="tag">경쟁분석</span>
+                                </div>
+                                <button class="service-button">서비스 사용</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AX Marketing Intelligence -->
+                    <div class="category-section" data-category="marketing">
+                        <h2 class="category-title">
+                            <span class="category-icon">🎨</span>
+                            AX Marketing Intelligence
+                        </h2>
+                        <div class="services-grid">
+                            <div class="service-card">
+                                <div class="service-header">
+                                    <div class="service-icon">📱</div>
+                                    <div class="service-status">활성</div>
+                                </div>
+                                <h3 class="service-title">인스타그램 피드 생성</h3>
+                                <p class="service-description">AI가 브랜드에 맞는 인스타그램 피드 콘텐츠를 자동 생성합니다</p>
+                                <div class="service-tags">
+                                    <span class="tag">콘텐츠생성</span>
+                                    <span class="tag">Instagram</span>
+                                    <span class="tag">자동화</span>
+                                </div>
+                                <button class="service-button">서비스 사용</button>
+                            </div>
+
+                            <div class="service-card">
+                                <div class="service-header">
+                                    <div class="service-icon">✂️</div>
+                                    <div class="service-status">활성</div>
+                                </div>
+                                <h3 class="service-title">배경 제거</h3>
+                                <p class="service-description">AI 기술로 이미지에서 배경을 정확하게 제거합니다</p>
+                                <div class="service-tags">
+                                    <span class="tag">이미지편집</span>
+                                    <span class="tag">배경제거</span>
+                                    <span class="tag">AI처리</span>
+                                </div>
+                                <button class="service-button">서비스 사용</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AX Commerce Brain -->
+                    <div class="category-section" data-category="commerce">
+                        <h2 class="category-title">
+                            <span class="category-icon">🛒</span>
+                            AX Commerce Brain
+                        </h2>
+                        <div class="services-grid">
+                            <div class="service-card">
+                                <div class="service-header">
+                                    <div class="service-icon">🤖</div>
+                                    <div class="service-status">활성</div>
+                                </div>
+                                <h3 class="service-title">고객 응대 AI 챗봇</h3>
+                                <p class="service-description">24시간 고객 문의에 자동으로 응답하는 지능형 챗봇</p>
+                                <div class="service-tags">
+                                    <span class="tag">챗봇</span>
+                                    <span class="tag">고객서비스</span>
+                                    <span class="tag">자동응답</span>
+                                </div>
+                                <button class="service-button">서비스 사용</button>
+                            </div>
+
+                            <div class="service-card">
+                                <div class="service-header">
+                                    <div class="service-icon">⭐</div>
+                                    <div class="service-status">활성</div>
+                                </div>
+                                <h3 class="service-title">상품 리뷰 분석</h3>
+                                <p class="service-description">고객 리뷰를 분석하여 상품 개선점과 만족도를 파악합니다</p>
+                                <div class="service-tags">
+                                    <span class="tag">리뷰분석</span>
+                                    <span class="tag">만족도조사</span>
+                                    <span class="tag">개선점도출</span>
+                                </div>
+                                <button class="service-button">서비스 사용</button>
+                            </div>
+
+                            <div class="service-card">
+                                <div class="service-header">
+                                    <div class="service-icon">📸</div>
+                                    <div class="service-status">활성</div>
+                                </div>
+                                <h3 class="service-title">이미지 + 모델컷 생성</h3>
+                                <p class="service-description">상품 이미지에 AI 모델을 합성하여 전문적인 모델컷을 생성합니다</p>
+                                <div class="service-tags">
+                                    <span class="tag">이미지생성</span>
+                                    <span class="tag">모델합성</span>
+                                    <span class="tag">상품촬영</span>
+                                </div>
+                                <button class="service-button">서비스 사용</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/pages/all-services.js"></script>
+</body>
+</html>

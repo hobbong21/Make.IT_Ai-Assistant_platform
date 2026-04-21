@@ -1,0 +1,28 @@
+.git
+.github
+.claude
+.idea
+.vscode
+_workspace
+0. Design1_Mokup
+target
+logs
+node_modules
+*.md
+.env
+.env.*
+!.env.example
+.DS_Store
+*.class
+*.log
+
+# Stale root duplicates (canonical source is frontend/ — see _workspace/04_frontend_cleanup_notes.md)
+/index.html
+/intro.html
+/login.html
+/all-services.html
+/service-detail.html
+/styles.css
+/intro-styles.css
+/all-services-styles.css
+/service-detail-styles.css

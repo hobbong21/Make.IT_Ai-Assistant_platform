@@ -1,0 +1,191 @@
+name: Docker Build & Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  TF_VERSION: "1.8.5"
+
+jobs:
+  build-and-push:
+    name: Build & push images to ECR
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      image_tag: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & push backend
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/makit-backend:${{ github.sha }} \
+            -t $ECR_REGISTRY/makit-backend:latest \
+            ./backend
+          docker push $ECR_REGISTRY/makit-backend:${{ github.sha }}
+          docker push $ECR_REGISTRY/makit-backend:latest
+
+      - name: Build & push frontend
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/makit-frontend:${{ github.sha }} \
+            -t $ECR_REGISTRY/makit-frontend:latest \
+            .
+          docker push $ECR_REGISTRY/makit-frontend:${{ github.sha }}
+          docker push $ECR_REGISTRY/makit-frontend:latest
+
+  deploy-dev:
+    name: Deploy to dev (Terraform)
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: dev
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init (dev)
+        working-directory: infra/terraform
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+            -backend-config="key=makit/dev/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ secrets.TF_STATE_LOCK_TABLE }}" \
+            -backend-config="encrypt=true" \
+            -reconfigure
+
+      - name: Terraform Apply (dev)
+        working-directory: infra/terraform
+        run: |
+          terraform apply \
+            -var-file=envs/dev.tfvars \
+            -var="backend_image_tag=${{ needs.build-and-push.outputs.image_tag }}" \
+            -var="frontend_image_tag=${{ needs.build-and-push.outputs.image_tag }}" \
+            -auto-approve
+
+      - name: Smoke test (dev)
+        run: |
+          ALB=$(cd infra/terraform && terraform output -raw alb_dns_name)
+          echo "Probing http://$ALB"
+          for i in {1..30}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "http://$ALB/healthz" || true)
+            if [ "$code" = "200" ]; then echo "OK"; exit 0; fi
+            sleep 10
+          done
+          echo "Smoke test failed"; exit 1
+
+  deploy-staging:
+    name: Deploy to staging (manual approval)
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    environment: staging   # GitHub Environment — configure required reviewers here
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init (staging)
+        working-directory: infra/terraform
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+            -backend-config="key=makit/staging/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ secrets.TF_STATE_LOCK_TABLE }}" \
+            -backend-config="encrypt=true" \
+            -reconfigure
+
+      - name: Terraform Apply (staging)
+        working-directory: infra/terraform
+        run: |
+          terraform apply \
+            -var-file=envs/staging.tfvars \
+            -var="backend_image_tag=${{ needs.build-and-push.outputs.image_tag }}" \
+            -var="frontend_image_tag=${{ needs.build-and-push.outputs.image_tag }}" \
+            -auto-approve
+
+  deploy-prod:
+    name: Deploy to prod (manual approval)
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment: prod      # GitHub Environment — configure required reviewers here
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init (prod)
+        working-directory: infra/terraform
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+            -backend-config="key=makit/prod/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ secrets.TF_STATE_LOCK_TABLE }}" \
+            -backend-config="encrypt=true" \
+            -reconfigure
+
+      - name: Terraform Plan (prod)
+        working-directory: infra/terraform
+        run: |
+          terraform plan \
+            -var-file=envs/prod.tfvars \
+            -var="backend_image_tag=${{ needs.build-and-push.outputs.image_tag }}" \
+            -var="frontend_image_tag=${{ needs.build-and-push.outputs.image_tag }}" \
+            -out=prod.plan
+
+      - name: Terraform Apply (prod)
+        working-directory: infra/terraform
+        run: terraform apply prod.plan
