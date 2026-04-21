@@ -1,8 +1,15 @@
 name: Docker Build & Deploy
 
+# NOTE: `push` trigger intentionally disabled until first-time bootstrap is complete.
+# Run locally once:
+#   1. scripts/bootstrap-tfstate.ps1
+#   2. terraform apply -var-file=envs/dev.tfvars (creates GitHub OIDC role)
+#   3. Set GitHub Secrets: AWS_ROLE_ARN, ECR_REGISTRY, TF_STATE_BUCKET, TF_STATE_LOCK_TABLE
+#   4. Re-enable push trigger below + commit
+# Meanwhile, use Actions tab → "Run workflow" to trigger manually.
 on:
-  push:
-    branches: [main]
+  # push:
+  #   branches: [main]
   workflow_dispatch:
 
 env:
