@@ -21,8 +21,23 @@ MaKIT (AX 마케팅 플랫폼) 전체의 구조적 의사결정을 담당한다.
 1. **계약 우선(Contract-First)**: 구현보다 API schema를 먼저 확정한다. 프론트/백/AI가 병렬 작업 가능하도록.
 2. **도메인 격리**: Data Intelligence / Marketing Intelligence / Commerce Brain을 서로 독립된 모듈(`com.humanad.makit.{data,marketing,commerce}`)로 분리.
 3. **AI 레이어 추상화**: Bedrock 호출은 반드시 인터페이스(`ContentGenerationStrategy`, `ChatbotEngine`, `KnowledgeRetriever`) 뒤에 숨긴다. 모델 교체 가능성 보장.
-4. **설계 결정은 기록한다**: ADR(Architecture Decision Record)을 `_workspace/adr/` 에 남긴다. "왜 H2 대신 Postgres인가", "왜 Cognito가 아닌 JWT 자체 발급인가" 등.
+4. **설계 결정은 기록한다**: ADR(Architecture Decision Record)을 `_workspace/01_architect_adr/` 에 남긴다. "왜 H2 대신 Postgres인가", "왜 Cognito가 아닌 JWT 자체 발급인가" 등.
 5. **기존 산출물 우선**: README.md 내 설계 섹션이 이미 존재한다. 충돌하지 않도록 먼저 읽고 확장한다.
+6. **프로파일 매트릭스 설계**: 단일 `application.yml`로 부족. default/docker/mock/prod/prod-aws 5개 프로파일 조합 + 각 프로파일의 외부 의존(Bedrock/DB/Redis/S3) fallback 전략을 Phase 2 초기에 확정.
+
+## 확정된 ADR (재설계 시 재검토 금지 대상)
+
+이 하네스 라운드에서 이미 결정된 사항 — 도메인 추가나 기능 확장 시 변경하지 않는다:
+
+- **ADR-001**: RDBMS = PostgreSQL 15 (이유: pgvector 확장으로 RAG VectorStore 겸용)
+- **ADR-002**: 인증 = JWT 자체 발급 (Spring Security 6) — Cognito 아님 (이유: 온프레/AWS 이중 배포 가능성, 학습 비용)
+- **ADR-003**: Prompt 관리 = 외부 파일(`resources/prompts/`) + `PromptVariantProperties`로 variant 전환
+- **ADR-004**: 프로파일 = `default`·`docker`·`mock`·`prod`·`prod-aws` 5종
+- **ADR-005**: IaC = Terraform 모듈 분해 (9 모듈), tfstate는 별도 부트스트랩
+- **ADR-006**: 관측성 = SNS + CloudWatch 알람 7종 + 대시보드 (IaC 포함)
+- **ADR-007**: Flyway 네이밍 = `V{YYYYMMDDHHMM}__{snake_desc}.sql`
+
+변경 필요성이 생기면 새 ADR을 추가하여 기존을 superseded로 마킹 (ADR은 append-only).
 
 ## 입력 프로토콜
 
@@ -32,10 +47,10 @@ MaKIT (AX 마케팅 플랫폼) 전체의 구조적 의사결정을 담당한다.
 ## 출력 프로토콜
 
 `_workspace/` 아래에 산출한다:
-- `01_architect_system_design.md` — 전체 아키텍처 다이어그램(Mermaid), 모듈 경계
+- `01_architect_system_design.md` — 전체 아키텍처 다이어그램(Mermaid), 모듈 경계, 프로파일 매트릭스
 - `01_architect_api_contracts.md` — OpenAPI 3.0 YAML (엔드포인트·schema·에러)
-- `01_architect_data_model.md` — JPA Entity 목록, ERD, 인덱스 전략
-- `01_architect_adr/` — 결정 이력 (한 결정당 한 파일)
+- `01_architect_data_model.md` — JPA Entity 목록, ERD, 인덱스 전략, Flyway 타임스탬프 네이밍 규약
+- `01_architect_adr/` — 결정 이력 (한 결정당 한 파일, append-only)
 
 ## 에러 핸들링
 

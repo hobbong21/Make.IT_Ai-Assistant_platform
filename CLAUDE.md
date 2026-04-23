@@ -6,7 +6,7 @@
 
 **트리거:** MaKIT / AX 마케팅 플랫폼 / 백엔드 / AI 통합 / 프론트 연동 / 배포 / QA 관련 작업 요청 시 `makit-dev-orchestrator` 스킬을 사용하라. 단순 질문(문서·설계 확인 등)은 직접 응답 가능.
 
-**실행 모드:** 에이전트 팀(Phase 3) + 서브 에이전트(Phase 2, 4, 5) 하이브리드. 모든 Agent 호출은 `model: "opus"`.
+**실행 모드:** 에이전트 팀(Phase 3) + 서브 에이전트(Phase 2, 4, 5.5, 5) 하이브리드. Phase 5.5는 PRR 전용 라운드. 모든 Agent 호출은 `model: "opus"`.
 
 **팀 구성:**
 - `architect` — 시스템 설계·API 계약·데이터 모델
@@ -14,7 +14,7 @@
 - `ai-engineer` — AWS Bedrock + RAG 통합
 - `frontend-engineer` — HTML/CSS/Vanilla JS API 연동
 - `devops-engineer` — Docker + AWS ECS + CI/CD
-- `qa-engineer` — 경계면 교차 비교 QA
+- `qa-engineer` — 경계면 교차 비교 QA + PRR(Production Readiness Review) 라운드
 
 **변경 이력:**
 
@@ -26,3 +26,4 @@
 | 2026-04-21 | root 중복 파일 정리 | 9개 파일 삭제 (index/intro/login/all-services/service-detail .html + 4 CSS) | 사용자 승인. `frontend/` 정식 소스 확립. `0. Design1_Mokup/` 아카이브 보존. |
 | 2026-04-21 | 운영 준비 라운드 완료 | backend (+5 Java: DemoUserSeeder/RateLimitFilter/DefaultS3ImageUploader/LoggingMdcFilter/prod-aws yml + pom deps), ai (실 스트리밍, PromptInjectionGuard, BedrockHealthIndicator, 버전닝), infra/terraform (9 모듈 35 파일, SNS+7알람+대시보드), 런북 §10-14 | PRR 1차 4 BLOCKER + 9 MAJOR → 수정 라운드 → 재검증 11/11 CONFIRMED FIXED. GO for `terraform apply`. |
 | 2026-04-21 | tfstate 부트스트랩 스크립트 작성 | scripts/bootstrap-tfstate.{sh,ps1} | 사용자 머신에서 실행하도록 제공 (이 환경에 AWS CLI 없음). 멱등, 버전닝+SSE+public-block+HTTPS-only 정책, DynamoDB PAY_PER_REQUEST. |
+| 2026-04-23 | **하네스 진화 (Phase 7 `/harness:evolve`)** | `.claude/agents/*` 6종 + `makit-dev-orchestrator/SKILL.md` + `_workspace/07_harness_evolution_2026-04-23.md` | v1-ops 라운드 학습을 하네스 정의에 역되먹임. backend-engineer에 cross-cutting(RateLimit/MDC/RequestId/Seeder/multi-profile/PRR 체크리스트), ai-engineer에 InjectionGuard/HealthIndicator/Mock/PromptVariant/실SSE/PRR 체크리스트, devops-engineer에 Terraform 9모듈/SNS+알람7+대시보드/tfstate 부트스트랩/PRR 체크리스트, qa-engineer에 **PRR 7범주 별도 라운드**와 BLOCKER/MAJOR/MINOR 등급 기준, frontend-engineer에 중복 정리 완료 상태 반영, architect에 확정 ADR 7개, 오케스트레이터에 **Phase 5.5 PRR 단계** 신설. 다음 세대 하네스는 운영 준비 상태에 더 가까운 초안에서 시작. |

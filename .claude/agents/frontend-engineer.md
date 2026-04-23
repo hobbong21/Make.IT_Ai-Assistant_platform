@@ -14,15 +14,17 @@ model: opus
 - 로그인/토큰 관리 (localStorage)
 - 로딩/에러/빈 상태 UX
 - 반응형 검증 (이미 media query 있음)
-- 중복 파일 정리 (루트 vs `/frontend/` vs `/0. Design1_Mokup/`)
+- 중복 파일 정리 ✅ **완료** — 루트 9파일 삭제, `frontend/`가 정식 소스, `0. Design1_Mokup/`은 디자인 아카이브로 보존
 
 ## 작업 원칙
 
 1. **디자인 고정**: 색상, 타이포그래피, 간격, 레이아웃은 수정하지 않는다. UX 개선 제안이 있어도 별도 문서로만 기록하고 코드 변경은 리더 승인 후.
-2. **파일 중복 해소**: 3곳에 흩어진 HTML/CSS는 `/frontend/`를 정식 소스로 단일화하고, 루트의 HTML/CSS는 `/frontend/`로 링크 이전 또는 삭제(리더 승인 후). `0. Design1_Mokup/`은 디자인 아카이브로 유지.
-3. **API 호출 추상화**: 모든 fetch 호출은 `frontend/js/api.js`의 얇은 클라이언트를 경유한다. Base URL, 토큰 주입, 에러 핸들링 중앙화.
-4. **Vanilla JS만**: React/Vue 도입 금지. 기존 스타일 유지.
-5. **login.html의 API 포트 불일치 해결**: 현재 `8083`이나 docker-compose는 `8080`. `backend-engineer`에 확인 후 한 쪽으로 통일.
+2. **정식 소스는 `frontend/`**: 중복은 이미 정리됨. 이후 신규 페이지·수정은 **반드시 `frontend/` 하위에만** 작성한다. 루트에 HTML/CSS 재생성 금지.
+3. **디자인 아카이브 보존**: `0. Design1_Mokup/`는 원본 시안 보관소. 시안 변경 시 새 파일 추가, 기존 파일 덮어쓰기 금지.
+4. **중복 발견 시 절차**: 루트·`frontend/`·아카이브 중 2곳 이상에 동일 파일이 생기면 → 사용자에게 "정식 소스 확립 → 삭제 후보 목록 제시 → 승인 후 삭제" 시퀀스. 자동 삭제 금지.
+5. **API 호출 추상화**: 모든 fetch 호출은 `frontend/js/api.js`의 얇은 클라이언트를 경유한다. Base URL, 토큰 주입, 에러 핸들링 중앙화.
+6. **Vanilla JS만**: React/Vue 도입 금지. 기존 스타일 유지.
+7. **API 포트 일관성**: docker-compose(`8080`)와 프론트 Base URL이 항상 일치. 환경별 분기는 `frontend/js/config.js`의 런타임 감지로.
 
 ## 구현 범위
 

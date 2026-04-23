@@ -12,7 +12,9 @@ Human.Ai.D의 MaKIT 플랫폼(AX Data Intelligence / AX Marketing Intelligence /
 **실행 모드**: 에이전트 팀 (기본) + 하이브리드
 - Phase 1-2: 파이프라인 (architect → 설계 확정)
 - Phase 3: 팬아웃 (backend·ai·frontend·devops 병렬)
-- Phase 4-5: 생성-검증 (구현 + incremental QA)
+- Phase 4: 생성-검증 (구현 + incremental 경계 QA)
+- Phase 5.5: **PRR** (Production Readiness Review — 운영 적합성 검증, 경계 QA와 별개 라운드)
+- Phase 5: 스모크 테스트 + 배포 리허설
 
 ## Phase 0: 컨텍스트 확인 (후속 작업 대응)
 
@@ -144,6 +146,41 @@ If bugs found, send detailed reproduction to the responsible agent via the team 
 
 버그 발견 → 해당 구현 에이전트가 수정 → QA 재검증.
 
+### Phase 5.5: PRR — Production Readiness Review
+
+경계면 QA(Phase 4)가 **기능 정합성**을 본다면 PRR은 **운영 적합성**을 본다. Phase 5 스모크 테스트 **전에** 반드시 수행한다.
+
+**실행 모드**: 서브 에이전트 (qa-engineer 단독) + 필요 시 관련 구현자 wake-up
+
+```
+Agent(subagent_type="general-purpose",
+      model="opus",
+      prompt="""
+You are 'qa-engineer'. Read .claude/agents/qa-engineer.md PRR sections.
+Execute PRR round. Write:
+  _workspace/08_prr_checklist.md (7-category template)
+  _workspace/08_prr_coverage.md (backend/ai/devops 소관 매핑)
+  _workspace/08_prr_report_{YYYY-MM-DD}.md (findings with BLOCKER/MAJOR/MINOR grades)
+
+Each finding must include:
+- grade (BLOCKER/MAJOR/MINOR)
+- owner (backend-engineer / ai-engineer / devops-engineer)
+- evidence (file:line or behavior)
+- fix recommendation
+""")
+```
+
+발견된 BLOCKER/MAJOR 항목 → 해당 구현 에이전트에 `SendMessage`로 수정 요청 → 수정 완료 → qa-engineer가 **재라운드** 실행(`08_prr_report_round2.md`) → "ALL CONFIRMED FIXED" 도달해야 Phase 5 GO.
+
+**PRR 7 범주**:
+1. 시크릿 관리 — 평문/하드코딩 검사
+2. IAM 최소 권한 — `*` 남용 검사
+3. AI 안전 — PromptInjectionGuard 커버리지
+4. 헬스체크 — 외부 의존 Actuator 노출
+5. Rate limit & 공격 표면 — 공개 API 보호
+6. 관측성 — SNS/알람/대시보드/메트릭
+7. IaC 하드닝 — tfstate 보안·마이그레이션 순서·actuator 제한
+
 ### Phase 5: 스모크 테스트 + 배포 준비
 
 devops-engineer가 `scripts/setup.sh` 실행 리허설:
@@ -167,13 +204,14 @@ devops-engineer가 `scripts/setup.sh` 실행 리허설:
 - 메시지: 의사결정·질의·경계 버그 보고
 
 **최종 산출물 경로** (사용자 지정):
-- `backend/**` — Spring Boot 프로젝트
-- `frontend/**` — 정리된 프론트
+- `backend/**` — Spring Boot 프로젝트 (5 프로파일 포함)
+- `frontend/**` — 정리된 프론트 (정식 소스)
 - `Dockerfile`, `docker-compose.yml`, `nginx.conf`, `.env.example`, `.dockerignore`
-- `scripts/setup.sh`, `scripts/deploy-aws.sh`
+- `scripts/setup.sh`, `scripts/deploy-aws.sh`, `scripts/bootstrap-tfstate.{sh,ps1}`
 - `.github/workflows/*.yml`
+- `infra/terraform/` — 9 모듈 + envs/{dev,staging,prod}.tfvars
 
-중간 파일(`_workspace/`)은 보존 — 사후 감사·재실행에 사용.
+중간 파일(`_workspace/`)은 보존 — 사후 감사·재실행에 사용. PRR 결과물(`08_prr_*`)과 진화 리포트(`07_harness_evolution_*.md`)는 특히 다음 세대 하네스 개선을 위한 핵심 입력.
 
 ## 에러 핸들링
 
@@ -197,7 +235,8 @@ devops-engineer가 `scripts/setup.sh` 실행 리허설:
 | 1 (분석) | 리더 단독 | 0 |
 | 2 (설계) | 서브 에이전트 | 1 (architect) |
 | 3 (구현) | **에이전트 팀** | 4 (backend, ai, frontend, devops) |
-| 4 (QA) | 서브 에이전트 (경계별 반복) | 1 (qa) |
+| 4 (경계 QA) | 서브 에이전트 (경계별 반복) | 1 (qa) |
+| **5.5 (PRR)** | **서브 에이전트 (라운드 반복)** | **1 (qa) + 수정 시 owner wake-up** |
 | 5 (스모크) | 서브 에이전트 | 1 (devops) |
 
 ## 테스트 시나리오
@@ -206,11 +245,12 @@ devops-engineer가 `scripts/setup.sh` 실행 리허설:
 1. 사용자: "MaKIT 하네스로 백엔드부터 배포까지 구축해줘"
 2. Phase 0: `_workspace/` 없음 → 초기 실행
 3. Phase 1: 리더가 범위 분석 → 3도메인 전체 + 배포
-4. Phase 2: architect 서브 에이전트 → 설계 파일 3종
+4. Phase 2: architect 서브 에이전트 → 설계 파일 3종 + ADR
 5. Phase 3: 팀 생성 → 11개 Task 분배 → 병렬 구현
 6. Phase 4: qa가 경계별 검증 → 버그 2개 발견 → 수정 → 재검증 통과
-7. Phase 5: `docker-compose up -d` 성공 → 스모크 8개 통과
-8. 릴리스 리포트 산출 + 사용자 피드백 요청
+7. **Phase 5.5 (PRR)**: qa가 7 범주 감사 → BLOCKER 2 + MAJOR 5 발견 → owner들 수정 → 재라운드 → ALL CONFIRMED FIXED
+8. Phase 5: `docker-compose up -d` 성공 → 스모크 8개 통과
+9. 릴리스 리포트 + 운영 준비 리포트(`99b_operations_readiness_report.md`) 산출 + 사용자 피드백 요청
 
 ### 에러 흐름 1 (architect 산출물 이상)
 1. Phase 2 후 architect의 API 계약에 필수 필드 누락

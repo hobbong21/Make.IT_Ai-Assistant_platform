@@ -23,6 +23,11 @@ MaKIT의 AI 기능 전체를 구현한다. Amazon Bedrock 호출부(Titan/Claude
 3. **비용 게이트**: Bedrock 호출은 반드시 `@RateLimiter`, 토큰 상한, 캐시(Redis) 앞단에 둔다. 체감 비용 폭발 방지.
 4. **회로 차단기(Circuit Breaker)**: `resilience4j` + 지수 백오프. Bedrock 불능 시 fallback(캐시된 응답 또는 템플릿 기반) 경로 보장.
 5. **관측성**: 모든 AI 호출은 modelId, inputTokens, outputTokens, latencyMs, costEstimate를 CloudWatch 메트릭으로 남긴다.
+6. **프롬프트 주입 방어 필수**: 사용자 입력을 Claude에 그대로 넘기지 않는다. `PromptInjectionGuard`로 사전 필터(시스템 지시 오버라이드 시도, role 탈취 패턴 등) → 차단 또는 sanitize 후 프롬프트 합성. Claude system prompt에 거부 규칙만 두는 것은 불충분.
+7. **헬스체크 노출**: `BedrockHealthIndicator`(Spring Actuator `HealthIndicator` 구현)로 `/actuator/health` 체인에 Bedrock 연결성 포함. devops-engineer의 ALB/ECS healthcheck가 이를 소비.
+8. **프로파일별 구현체 분기**: `application-mock.yml` → `MockBedrockService`(오프라인 dev), 그 외 → 실 Bedrock. `@ConditionalOnProperty` 또는 `@Profile`로 자동 전환. 자격 증명 없는 환경에서도 빌드/테스트가 돌아가야 한다.
+9. **프롬프트 버전닝**: `PromptVariantProperties`로 변형(v1/v2, A/B)을 코드 변경 없이 외부 설정으로 전환 가능하게. 프롬프트 디렉토리는 `prompts/{domain}/{task}/{variant}.md`.
+10. **스트리밍은 실구현**: 챗봇/장문 생성은 플레이스홀더 하드코딩 금지. `ChatStreamChunk` DTO + SSE(Server-Sent Events)로 실 Bedrock 스트리밍 래핑.
 
 ## 모델 매핑
 
@@ -60,14 +65,30 @@ MaKIT의 AI 기능 전체를 구현한다. Amazon Bedrock 호출부(Titan/Claude
 `backend/src/main/java/com/humanad/makit/ai/` 아래:
 ```
 ai/
-├── bedrock/           (BedrockService, BedrockClientConfig)
-├── content/           (ContentGenerationStrategy 및 구현체들)
-├── rag/               (RAGChatbotService, KnowledgeRetriever, VectorStore)
-├── embedding/         (EmbeddingService)
-└── prompt/            (PromptLoader + 템플릿)
+├── bedrock/           (BedrockService, BedrockClient, BedrockConfig, BedrockProperties,
+│                       BedrockHealthIndicator, BedrockFallbackProperties,
+│                       BedrockInvocation, BedrockInvocationException, MockBedrockService)
+├── content/           (ContentGenerationStrategy 구현체들, S3ImageUploader)
+├── rag/               (RAGChatbotEngine, PgVectorKnowledgeRetriever, TextChunker)
+├── embedding/         (TitanEmbeddingService)
+├── prompt/            (PromptLoader, PromptInjectionGuard, PromptVariantProperties)
+├── config/            (AsyncConfig, CacheConfig)
+└── dto/               (ChatRequest, ChatResponse, ChatStreamChunk, ContentType,
+                        ConversationContext, GeneratedContent, GeneratedImage,
+                        RetrievalOptions, RetrievedChunk, ...)
 ```
-프롬프트: `backend/src/main/resources/prompts/`
+프롬프트: `backend/src/main/resources/prompts/{commerce,data,marketing}/...`
 결정 이력: `_workspace/03_ai_decisions.md` (모델 선택 이유, 프롬프트 버전)
+비용/관측성: `_workspace/03_ai_cost_attribution.md`, `_workspace/03_ai_prompt_versioning.md`
+
+**Fallback 전략 표**:
+
+| 프로파일 | BedrockService 구현 | 근거 |
+|----------|---------------------|------|
+| `default`/`docker` | 실 Bedrock (리전 자격증명 필요) | 로컬·통합 개발 |
+| `mock` | `MockBedrockService` | 오프라인, CI에서 자격증명 없이 |
+| `prod-aws` | 실 Bedrock (IAM role) | 프로덕션 |
+| 회로 차단기 OPEN 시 | `BedrockFallbackProperties` 기반 응답 | 장애 격리 |
 
 ## 에러 핸들링
 
@@ -86,4 +107,17 @@ ai/
 ## 후속 작업 지침
 
 - 모델 교체/프롬프트 수정 요청 시: 기존 인터페이스는 유지, 구현체만 교체. 호환성 보장.
-- 프롬프트 개선 피드백은 `src/main/resources/prompts/*.md` 파일에 버전 주석 추가.
+- 프롬프트 개선은 **새 variant 파일**(`v2.md`)로 추가 후 `PromptVariantProperties`로 전환. 기존 파일 덮어쓰기 금지 — 롤백 경로 유지.
+- `BedrockHealthIndicator`가 실패를 드러내면 circuit breaker 상태·fallback 활성 여부를 `/actuator/health` 세부 응답에 포함.
+
+## PRR(Production Readiness Review) 체크리스트 — AI 범위
+
+Phase 5.5에서 qa-engineer가 검증하는 항목 중 ai 소관:
+
+- [ ] `PromptInjectionGuard`가 모든 사용자 입력 경로(챗봇·자연어 분석·리뷰·피드 생성)에 적용됨
+- [ ] `BedrockHealthIndicator`가 `/actuator/health`에 표출 (fallback 활성 시 status=OUT_OF_SERVICE 대신 detail만 WARNING)
+- [ ] 자격 증명 누락 시 앱이 기동 실패하지 않음 (`mock` 프로파일로 graceful degrade)
+- [ ] 모든 프롬프트가 `resources/prompts/`에 위치하며 variant가 최소 1개 등록됨
+- [ ] `@RateLimiter` + 토큰 상한(input/output)이 모든 Bedrock 호출에 적용
+- [ ] 비용 메트릭(modelId, tokens, latencyMs, costEstimate)이 CloudWatch에 실제 전송됨
+- [ ] SSE 스트리밍 엔드포인트의 heartbeat/timeout 설정 확인
