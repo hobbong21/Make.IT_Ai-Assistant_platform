@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Profile-aware logging configuration.
+
+    dev, docker, mock, default : human-readable coloured console
+    prod, prod-aws             : JSON (logstash-logback-encoder) for CloudWatch ingestion
+
+  MDC keys surfaced:
+    requestId (populated by com.humanad.makit.common.RequestIdFilter)
+    userId    (populated by LoggingMdcFilter when an authenticated principal is present)
+-->
+<configuration scan="true" scanPeriod="60 seconds">
+
+    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="makit"/>
+
+    <!-- ========================= Human-readable (dev / docker / mock) ========================= -->
+    <springProfile name="dev,docker,mock,default">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%X{requestId:-}] [%X{userId:-}] %cyan(%logger{36}) - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+        <logger name="com.humanad.makit" level="DEBUG"/>
+        <logger name="software.amazon.awssdk" level="WARN"/>
+    </springProfile>
+
+    <!-- ========================= JSON structured (prod / prod-aws) ========================= -->
+    <springProfile name="prod,prod-aws">
+        <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                <providers>
+                    <timestamp>
+                        <timeZone>UTC</timeZone>
+                    </timestamp>
+                    <version/>
+                    <logLevel/>
+                    <threadName/>
+                    <loggerName/>
+                    <message/>
+                    <mdc/>
+                    <stackTrace>
+                        <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                            <maxDepthPerThrowable>30</maxDepthPerThrowable>
+                            <maxLength>4096</maxLength>
+                            <rootCauseFirst>true</rootCauseFirst>
+                        </throwableConverter>
+                    </stackTrace>
+                    <pattern>
+                        <pattern>{"application":"${appName}"}</pattern>
+                    </pattern>
+                </providers>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="JSON_CONSOLE"/>
+        </root>
+        <logger name="com.humanad.makit" level="INFO"/>
+        <logger name="software.amazon.awssdk" level="WARN"/>
+    </springProfile>
+
+</configuration>

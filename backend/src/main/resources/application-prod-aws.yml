@@ -1,0 +1,41 @@
+# ---------------------------------------------------------------------------
+# Profile: prod-aws
+#
+# Extends `prod` with AWS-native secret / config injection. We deliberately
+# chose the "ECS injects secrets as env vars" path (see
+# _workspace/02_backend_secrets_integration.md) over embedding
+# spring-cloud-aws-secrets-manager so the app stays infra-agnostic and the same
+# code runs in `prod` (bare env vars) and `prod-aws` (env vars sourced from
+# Secrets Manager by ECS).
+#
+# Activate via: SPRING_PROFILES_ACTIVE=prod,prod-aws
+# ---------------------------------------------------------------------------
+
+spring:
+  config:
+    activate:
+      on-profile: prod-aws
+
+  datasource:
+    # DB password is injected by ECS from Secrets Manager ARN
+    # referenced by `secrets:` in the task definition. No code change needed.
+    password: ${DB_PASSWORD:${SPRING_DATASOURCE_PASSWORD}}
+
+  # PRR-016: ElastiCache replication group has transit_encryption_enabled=true
+  # in AWS; the Lettuce client must speak TLS or the server drops the socket.
+  data:
+    redis:
+      ssl:
+        enabled: true
+
+jwt:
+  # Same pattern: JWT_SECRET env var is populated by ECS from Secrets Manager.
+  # JwtTokenProvider enforces length >= 32 under any prod* profile.
+  secret: ${JWT_SECRET}
+
+logging:
+  # Ship JSON-structured logs to CloudWatch (see logback-spring.xml `prod` appender).
+  level:
+    root: INFO
+    com.humanad.makit: INFO
+    software.amazon.awssdk: WARN

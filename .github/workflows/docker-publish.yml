@@ -1,0 +1,274 @@
+name: Docker Build & Deploy
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WORKFLOW DISABLED — all triggers removed until first-time bootstrap is done.
+# ═══════════════════════════════════════════════════════════════════════════
+# Reason: AWS resources don't exist yet (chicken-and-egg):
+#   Terraform creates the GitHub OIDC role, but this workflow needs that role
+#   to run Terraform. First-time bootstrap must happen locally.
+#
+# Enable this workflow by uncommenting the triggers below AFTER:
+#   1. scripts/bootstrap-tfstate.ps1            — creates S3 state bucket + DynamoDB lock
+#   2. cd infra/terraform && terraform init ... — initializes backend
+#   3. terraform apply -var-file=envs/dev.tfvars — creates OIDC role + infra
+#   4. terraform output -raw github_oidc_role_arn → note the ARN
+#   5. GitHub Settings → Secrets and variables → Actions → add 4 secrets:
+#        AWS_ROLE_ARN          (from step 4)
+#        ECR_REGISTRY          (e.g. 034362055784.dkr.ecr.ap-northeast-2.amazonaws.com)
+#        TF_STATE_BUCKET       (e.g. makit-tfstate-034362055784)
+#        TF_STATE_LOCK_TABLE   (e.g. makit-tfstate-lock)
+#   6. GitHub Settings → Environments → create dev/staging/prod (+ reviewers)
+#
+# Then replace the two lines below with:
+#   on:
+#     push:
+#       branches: [main]
+#     workflow_dispatch:
+# ═══════════════════════════════════════════════════════════════════════════
+on:
+  # Push trigger stays OFF until bootstrap completes. Uncomment after setup.
+  # push:
+  #   branches: [main]
+  workflow_dispatch:   # Manual trigger only. bootstrap-check gate will skip
+                       # downstream jobs until AWS secrets are populated.
+
+# Cancel older runs on the same ref so stale workflow versions don't linger.
+concurrency:
+  group: docker-publish-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  TF_VERSION: "1.8.5"
+
+jobs:
+  # Gate: skip all deployment jobs until the operator has bootstrapped AWS
+  # (run `terraform apply -var-file=envs/dev.tfvars` locally once to create
+  # the GitHub OIDC provider + IAM role, then set AWS_ROLE_ARN and
+  # ECR_REGISTRY as GitHub Secrets).
+  bootstrap-check:
+    name: Check bootstrap readiness
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          HAS_ROLE: ${{ secrets.AWS_ROLE_ARN != '' }}
+          HAS_REGISTRY: ${{ secrets.ECR_REGISTRY != '' }}
+          HAS_STATE_BUCKET: ${{ secrets.TF_STATE_BUCKET != '' }}
+          HAS_STATE_LOCK: ${{ secrets.TF_STATE_LOCK_TABLE != '' }}
+        run: |
+          if [ "$HAS_ROLE" = "true" ] && [ "$HAS_REGISTRY" = "true" ] \
+             && [ "$HAS_STATE_BUCKET" = "true" ] && [ "$HAS_STATE_LOCK" = "true" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "All required secrets present — proceeding."
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "## ⚠️ Deployment skipped — bootstrap required";
+              echo "";
+              echo "One or more required GitHub Secrets are missing:";
+              echo "- AWS_ROLE_ARN: ${HAS_ROLE}";
+              echo "- ECR_REGISTRY: ${HAS_REGISTRY}";
+              echo "- TF_STATE_BUCKET: ${HAS_STATE_BUCKET}";
+              echo "- TF_STATE_LOCK_TABLE: ${HAS_STATE_LOCK}";
+              echo "";
+              echo "### Bootstrap steps (one-time, run on a machine with AWS CLI):";
+              echo "1. \`./scripts/bootstrap-tfstate.sh\` (or .ps1) — creates S3 state bucket + DynamoDB lock table";
+              echo "2. \`cd infra/terraform && terraform init -backend-config=... && terraform apply -var-file=envs/dev.tfvars\`";
+              echo "3. Grab \`github_oidc_role_arn\` from \`terraform output\`";
+              echo "4. Go to Settings → Secrets and variables → Actions and set:";
+              echo "   - AWS_ROLE_ARN (from step 3)";
+              echo "   - ECR_REGISTRY (e.g. 034362055784.dkr.ecr.ap-northeast-2.amazonaws.com)";
+              echo "   - TF_STATE_BUCKET (e.g. makit-tfstate-034362055784)";
+              echo "   - TF_STATE_LOCK_TABLE (e.g. makit-tfstate-lock)";
+              echo "5. Re-run this workflow (Actions tab → Run workflow).";
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::AWS deployment secrets not configured — jobs skipped. See job summary for bootstrap steps."
+          fi
+
+  build-and-push:
+    name: Build & push images to ECR
+    needs: bootstrap-check
+    if: needs.bootstrap-check.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      image_tag: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & push backend
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/makit-backend:${{ github.sha }} \
+            -t $ECR_REGISTRY/makit-backend:latest \
+            ./backend
+          docker push $ECR_REGISTRY/makit-backend:${{ github.sha }}
+          docker push $ECR_REGISTRY/makit-backend:latest
+
+      - name: Build & push frontend
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/makit-frontend:${{ github.sha }} \
+            -t $ECR_REGISTRY/makit-frontend:latest \
+            .
+          docker push $ECR_REGISTRY/makit-frontend:${{ github.sha }}
+          docker push $ECR_REGISTRY/makit-frontend:latest
+
+  deploy-dev:
+    name: Deploy to dev (Terraform)
+    needs: [bootstrap-check, build-and-push]
+    if: needs.bootstrap-check.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    environment: dev
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init (dev)
+        working-directory: infra/terraform
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+            -backend-config="key=makit/dev/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ secrets.TF_STATE_LOCK_TABLE }}" \
+            -backend-config="encrypt=true" \
+            -reconfigure
+
+      - name: Terraform Apply (dev)
+        working-directory: infra/terraform
+        run: |
+          terraform apply \
+            -var-file=envs/dev.tfvars \
+            -var="backend_image_tag=${{ needs.build-and-push.outputs.image_tag }}" \
+            -var="frontend_image_tag=${{ needs.build-and-push.outputs.image_tag }}" \
+            -auto-approve
+
+      - name: Smoke test (dev)
+        run: |
+          ALB=$(cd infra/terraform && terraform output -raw alb_dns_name)
+          echo "Probing http://$ALB"
+          for i in {1..30}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "http://$ALB/healthz" || true)
+            if [ "$code" = "200" ]; then echo "OK"; exit 0; fi
+            sleep 10
+          done
+          echo "Smoke test failed"; exit 1
+
+  deploy-staging:
+    name: Deploy to staging (manual approval)
+    needs: [bootstrap-check, deploy-dev]
+    if: needs.bootstrap-check.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    environment: staging   # GitHub Environment — configure required reviewers here
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init (staging)
+        working-directory: infra/terraform
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+            -backend-config="key=makit/staging/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ secrets.TF_STATE_LOCK_TABLE }}" \
+            -backend-config="encrypt=true" \
+            -reconfigure
+
+      - name: Terraform Apply (staging)
+        working-directory: infra/terraform
+        run: |
+          terraform apply \
+            -var-file=envs/staging.tfvars \
+            -var="backend_image_tag=${{ needs.build-and-push.outputs.image_tag }}" \
+            -var="frontend_image_tag=${{ needs.build-and-push.outputs.image_tag }}" \
+            -auto-approve
+
+  deploy-prod:
+    name: Deploy to prod (manual approval)
+    needs: [bootstrap-check, deploy-staging]
+    if: needs.bootstrap-check.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    environment: prod      # GitHub Environment — configure required reviewers here
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init (prod)
+        working-directory: infra/terraform
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+            -backend-config="key=makit/prod/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ secrets.TF_STATE_LOCK_TABLE }}" \
+            -backend-config="encrypt=true" \
+            -reconfigure
+
+      - name: Terraform Plan (prod)
+        working-directory: infra/terraform
+        run: |
+          terraform plan \
+            -var-file=envs/prod.tfvars \
+            -var="backend_image_tag=${{ needs.build-and-push.outputs.image_tag }}" \
+            -var="frontend_image_tag=${{ needs.build-and-push.outputs.image_tag }}" \
+            -out=prod.plan
+
+      - name: Terraform Apply (prod)
+        working-directory: infra/terraform
+        run: terraform apply prod.plan

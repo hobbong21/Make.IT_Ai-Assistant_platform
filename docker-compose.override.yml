@@ -1,0 +1,19 @@
+# Local development overrides. Automatically merged on `docker-compose up`.
+# Do NOT use this file in production.
+services:
+
+  database:
+    ports:
+      - "5432:5432"   # host access (DBeaver / psql)
+
+  redis:
+    ports:
+      - "6379:6379"   # host access (redis-cli)
+
+  backend:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker,dev
+      LOGGING_LEVEL_COM_HUMANAD_MAKIT: DEBUG
+    volumes:
+      - ./backend/src:/app/src:ro   # read-only source mount (future Spring DevTools hot reload)
+      - ./logs:/app/logs

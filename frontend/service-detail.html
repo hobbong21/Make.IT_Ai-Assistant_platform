@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaKIT - 자연어 분석 | Human.Ai.D</title>
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/service-detail-styles.css">
+</head>
+<body>
+    <noscript><div class="makit-noscript">이 페이지는 JavaScript가 필요합니다. 브라우저에서 JavaScript를 활성화해주세요.</div></noscript>
+    <div class="app-container">
+        <!-- 사이드바 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-text">MaKIT</div>
+                </div>
+                <button class="sidebar-toggle">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m6 9 6 6 6-6"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Home</div>
+                    <a href="index.html" class="nav-item">
+                        <span>Overview</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
+                            <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        </svg>
+                    </a>
+                    <a href="all-services.html" class="nav-item">
+                        <span>All Services</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Services by Category</div>
+                    
+                    <div class="nav-dropdown expanded">
+                        <div class="nav-dropdown-header">
+                            <span>AX Data Intelligence</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="expanded">
+                                <path d="m6 9 6 6 6-6"></path>
+                            </svg>
+                        </div>
+                        <div class="nav-dropdown-content">
+                            <a href="service-detail.html" class="nav-sub-item active">자연어 분석</a>
+                            <a href="#" class="nav-sub-item">유튜브 댓글 분석</a>
+                            <a href="#" class="nav-sub-item">유튜브 영향력 분석</a>
+                            <a href="#" class="nav-sub-item">웹사이트 URL 분석</a>
+                            <a href="#" class="nav-sub-item">유튜브 키워드 채널 검색</a>
+                        </div>
+                    </div>
+
+                    <div class="nav-dropdown">
+                        <div class="nav-dropdown-header">
+                            <span>AX Marketing Intelligence</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m9 18 6-6-6-6"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="nav-dropdown">
+                        <div class="nav-dropdown-header">
+                            <span>AX Commerce Brain</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m9 18 6-6-6-6"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="intro.html" class="nav-item go-to-web">
+                    <span>Go to Web</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14 21 3"></path>
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    </svg>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="main-content">
+            <div class="content-wrapper">
+                <!-- 브레드크럼 -->
+                <div class="breadcrumb">
+                    <a href="all-services.html" class="breadcrumb-back">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m12 19-7-7 7-7"></path>
+                            <path d="M19 12H5"></path>
+                        </svg>
+                        Back to All Services
+                    </a>
+                    <a href="all-services.html?category=data-intelligence" class="breadcrumb-category">AX Data Intelligence</a>
+                </div>
+
+                <!-- 서비스 헤더 -->
+                <div class="service-header">
+                    <h1 class="service-title">자연어 분석</h1>
+                    <h2 class="service-subtitle">비데이터 직군도 쉽게 분석하도록</h2>
+                    <p class="service-description">
+                        비정형 텍스트 데이터에서 의미있는 인사이트를 추출합니다.
+                        감정 분석, 주제 분류, 핵심 키워드 추출을 통해 고객의 진짜 목소리를 정확하게 이해할 수 있습니다.
+                    </p>
+                    <img src="img/illustrations/service-detail-hero.svg"
+                         alt="자연어 입력에서 감정·키워드 인사이트로 변환되는 흐름"
+                         class="service-hero-illustration"
+                         style="display:block;width:100%;max-width:760px;margin:24px auto 0;height:auto;"
+                         loading="lazy" decoding="async">
+                </div>
+
+                <!-- 데모 인터페이스 -->
+                <div class="demo-interface">
+                    <!-- 데모 헤더 -->
+                    <div class="demo-header">
+                        <div class="assistant-avatar">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 8V4H8"></path>
+                                <rect width="16" height="12" x="4" y="8" rx="2"></rect>
+                                <path d="M2 14h2"></path>
+                                <path d="M20 14h2"></path>
+                                <path d="M15 13v2"></path>
+                                <path d="M9 13v2"></path>
+                            </svg>
+                        </div>
+                        <div class="assistant-info">
+                            <h3>자연어 분석 어시스턴트</h3>
+                            <p>데이터를 자연어로 쉽게 분석하세요</p>
+                        </div>
+                    </div>
+
+                    <!-- 채팅 영역 -->
+                    <div class="chat-area">
+                        <div class="chat-welcome">
+                            <div class="welcome-icon">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 8V4H8"></path>
+                                    <rect width="16" height="12" x="4" y="8" rx="2"></rect>
+                                    <path d="M2 14h2"></path>
+                                    <path d="M20 14h2"></path>
+                                    <path d="M15 13v2"></path>
+                                    <path d="M9 13v2"></path>
+                                </svg>
+                            </div>
+                            <h3>자연어로 데이터를 분석해보세요</h3>
+                            <p>아래 예시 질문을 선택하여 데이터 인사이트를 확인할 수 있습니다. 복잡한 SQL 쿼리 없이도 자연어로 데이터를 분석해보세요.</p>
+                            <div class="demo-notice">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                데모에서는 샘플 질문만 선택할 수 있습니다
+                            </div>
+                        </div>
+
+                        <!-- 채팅 메시지 영역 (동적으로 추가될 예정) -->
+                        <div id="chat-messages" class="chat-messages"></div>
+                    </div>
+
+                    <!-- 예시 질문 섹션 -->
+                    <div class="example-questions">
+                        <div class="questions-header">
+                            <h4>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                예시 질문
+                            </h4>
+                        </div>
+                        
+                        <div class="questions-grid">
+                            <button class="question-btn" data-question="최근 1주일간 매출 추이를 알려줘">
+                                <span class="question-number">1</span>
+                                <span class="question-text">최근 1주일간 매출 추이를 알려줘</span>
+                            </button>
+                            
+                            <button class="question-btn" data-question="가장 많이 팔린 상품 카테고리 TOP 5는?">
+                                <span class="question-number">2</span>
+                                <span class="question-text">가장 많이 팔린 상품 카테고리 TOP 5는?</span>
+                            </button>
+                            
+                            <button class="question-btn" data-question="고객 연령대별 구매 패턴을 분석해줘">
+                                <span class="question-number">3</span>
+                                <span class="question-text">고객 연령대별 구매 패턴을 분석해줘</span>
+                            </button>
+                            
+                            <button class="question-btn" data-question="온라인과 오프라인 매장의 매출 비교">
+                                <span class="question-number">4</span>
+                                <span class="question-text">온라인과 오프라인 매장의 매출 비교</span>
+                            </button>
+                            
+                            <button class="question-btn" data-question="베스트셀러 제품의 월별 판매 추이는?">
+                                <span class="question-number">5</span>
+                                <span class="question-text">베스트셀러 제품의 월별 판매 추이는?</span>
+                            </button>
+                            
+                            <button class="question-btn" data-question="고객 만족도가 가장 높은 제품은?">
+                                <span class="question-number">6</span>
+                                <span class="question-text">고객 만족도가 가장 높은 제품은?</span>
+                            </button>
+                            
+                            <button class="question-btn" data-question="마케팅 채널별 ROI 분석해줘">
+                                <span class="question-number">7</span>
+                                <span class="question-text">마케팅 채널별 ROI 분석해줘</span>
+                            </button>
+                            
+                            <button class="question-btn" data-question="신규 고객과 재구매 고객의 구매 패턴 비교해줘">
+                                <span class="question-number">8</span>
+                                <span class="question-text">신규 고객과 재구매 고객의 구매 패턴 비교해줘</span>
+                            </button>
+                            
+                            <button class="question-btn" data-question="제품 카테고리별 계절성 트렌드 분석해줘">
+                                <span class="question-number">9</span>
+                                <span class="question-text">제품 카테고리별 계절성 트렌드 분석해줘</span>
+                            </button>
+                            
+                            <button class="question-btn" data-question="고객 이탈 원인과 방지 전략 제안해줘">
+                                <span class="question-number">10</span>
+                                <span class="question-text">고객 이탈 원인과 방지 전략 제안해줘</span>
+                            </button>
+                            
+                            <button class="question-btn" data-question="경쟁사 대비 우리 제품의 시장 포지셔닝 분석해줘">
+                                <span class="question-number">11</span>
+                                <span class="question-text">경쟁사 대비 우리 제품의 시장 포지셔닝 분석해줘</span>
+                            </button>
+                            
+                            <button class="question-btn" data-question="소셜 미디어 마케팅 성과 분석 및 개선점 제안해줘">
+                                <span class="question-number">12</span>
+                                <span class="question-text">소셜 미디어 마케팅 성과 분석 및 개선점 제안해줘</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/pages/chatbot.js"></script>
+    <script src="js/pages/service-detail.js"></script>
+</body>
+</html>
