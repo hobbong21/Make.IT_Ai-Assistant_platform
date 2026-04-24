@@ -1,62 +1,104 @@
-// Login page wiring — replaces the inline <script> previously in login.html.
+// Login / Register page wiring
 (function () {
   function qs(sel) { return document.querySelector(sel); }
 
-  function showMessage(html, type) {
-    var messageDiv = qs('#message');
-    if (!messageDiv) return;
-    var cls = type === 'success' ? 'success-message' : 'error-message';
-    messageDiv.innerHTML = '<div class="' + cls + '">' + html + '</div>';
+  function showMessage(id, html, type) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = html
+      ? '<span class="' + (type === 'success' ? 'msg-success' : 'msg-error') + '">' + html + '</span>'
+      : '';
   }
 
-  async function doLogin(email, password) {
-    var loginBtn = qs('#loginBtn');
-    var loading = qs('#loading');
-    if (loginBtn) loginBtn.disabled = true;
-    if (loading) loading.style.display = 'block';
-    showMessage('', 'info');
+  function setLoading(spinnerId, btnId, loading) {
+    var spinner = document.getElementById(spinnerId);
+    var btn = document.getElementById(btnId);
+    if (spinner) spinner.style.display = loading ? 'block' : 'none';
+    if (btn) btn.disabled = loading;
+  }
 
+  // ── Login ──────────────────────────────────────────────
+  async function doLogin(email, password) {
+    setLoading('loginSpinner', 'loginBtn', true);
+    showMessage('loginMessage', '', '');
     try {
       var data = await api.auth.login(email, password);
       if (!data || !data.token) {
-        showMessage('로그인에 실패했습니다.');
+        showMessage('loginMessage', '로그인에 실패했습니다.', 'error');
         return;
       }
       auth.saveSession(data);
-      showMessage('로그인 성공! 플랫폼으로 이동합니다...', 'success');
-      setTimeout(function () { location.href = 'index.html'; }, 1200);
+      showMessage('loginMessage', '로그인 성공! 플랫폼으로 이동합니다...', 'success');
+      setTimeout(function () { location.href = 'index.html'; }, 1000);
     } catch (err) {
       var msg = (err && err.message) || '로그인에 실패했습니다.';
       if (err && err.code === 'NETWORK_ERROR') {
-        msg = '서버 연결에 실패했습니다. 백엔드 서버가 실행 중인지 확인해주세요.';
+        msg = '서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.';
       }
-      showMessage(msg, 'error');
+      showMessage('loginMessage', msg, 'error');
       console.error('[login]', err);
     } finally {
-      if (loginBtn) loginBtn.disabled = false;
-      if (loading) loading.style.display = 'none';
+      setLoading('loginSpinner', 'loginBtn', false);
     }
   }
 
-  // Global helper used by demo-account buttons (onclick="fillDemoAccount(...)")
-  window.fillDemoAccount = function (email, password) {
-    var e = qs('#email'); var p = qs('#password');
-    if (e) e.value = email;
-    if (p) p.value = password;
-  };
+  // ── Register ───────────────────────────────────────────
+  async function doRegister(name, email, password, passwordConfirm) {
+    if (password !== passwordConfirm) {
+      showMessage('registerMessage', '비밀번호가 일치하지 않습니다.', 'error');
+      return;
+    }
+    if (password.length < 6) {
+      showMessage('registerMessage', '비밀번호는 6자 이상이어야 합니다.', 'error');
+      return;
+    }
+    setLoading('registerSpinner', 'registerBtn', true);
+    showMessage('registerMessage', '', '');
+    try {
+      var data = await api.auth.register({ name: name, email: email, password: password });
+      if (!data || !data.token) {
+        showMessage('registerMessage', '회원가입에 실패했습니다.', 'error');
+        return;
+      }
+      auth.saveSession(data);
+      showMessage('registerMessage', '가입 완료! 플랫폼으로 이동합니다...', 'success');
+      setTimeout(function () { location.href = 'index.html'; }, 1000);
+    } catch (err) {
+      var msg = (err && err.message) || '회원가입에 실패했습니다.';
+      if (err && err.code === 'NETWORK_ERROR') {
+        msg = '서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.';
+      }
+      showMessage('registerMessage', msg, 'error');
+      console.error('[register]', err);
+    } finally {
+      setLoading('registerSpinner', 'registerBtn', false);
+    }
+  }
 
   function init() {
-    var form = qs('#loginForm');
-    if (form) {
-      form.addEventListener('submit', function (e) {
+    var loginForm = qs('#loginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', function (e) {
         e.preventDefault();
-        var email = qs('#email') ? qs('#email').value : '';
+        var email = qs('#email') ? qs('#email').value.trim() : '';
         var password = qs('#password') ? qs('#password').value : '';
         doLogin(email, password);
       });
     }
 
-    // If already logged in, validate token and skip straight to index.
+    var registerForm = qs('#registerForm');
+    if (registerForm) {
+      registerForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var name = qs('#regName') ? qs('#regName').value.trim() : '';
+        var email = qs('#regEmail') ? qs('#regEmail').value.trim() : '';
+        var password = qs('#regPassword') ? qs('#regPassword').value : '';
+        var confirm = qs('#regPasswordConfirm') ? qs('#regPasswordConfirm').value : '';
+        doRegister(name, email, password, confirm);
+      });
+    }
+
+    // If already logged in, go straight to dashboard.
     if (auth.isLoggedIn()) {
       api.auth.me().then(function () {
         location.href = 'index.html';
