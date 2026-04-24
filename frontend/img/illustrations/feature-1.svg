@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" role="img" aria-labelledby="feat1Title feat1Desc">
+  <title id="feat1Title">AX Data Intelligence — 데이터 통합부터 예측 분석까지</title>
+  <desc id="feat1Desc">3개의 데이터 소스가 ML 파이프라인을 거쳐 예측 차트로 합쳐지는 모습</desc>
+  <defs>
+    <linearGradient id="f1Bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#eff6ff"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="f1Pipe" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#2563eb" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#2563eb" stop-opacity="0.6"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="320" rx="14" fill="url(#f1Bg)"/>
+
+  <!-- 좌측: 데이터 소스 3종 -->
+  <g transform="translate(36 60)">
+    <!-- DB cylinder 1 -->
+    <g>
+      <ellipse cx="40" cy="14" rx="32" ry="10" fill="#ffffff" stroke="#e6e6e6" stroke-width="1.5"/>
+      <path d="M8 14 L8 50 Q8 60 40 60 Q72 60 72 50 L72 14" fill="#ffffff" stroke="#e6e6e6" stroke-width="1.5"/>
+      <ellipse cx="40" cy="14" rx="32" ry="10" fill="none" stroke="#e6e6e6" stroke-width="1"/>
+      <text x="40" y="42" text-anchor="middle" fill="#737373" font-family="system-ui,-apple-system,sans-serif" font-size="10" font-weight="600">CRM</text>
+    </g>
+    <g transform="translate(0 80)">
+      <ellipse cx="40" cy="14" rx="32" ry="10" fill="#ffffff" stroke="#e6e6e6" stroke-width="1.5"/>
+      <path d="M8 14 L8 50 Q8 60 40 60 Q72 60 72 50 L72 14" fill="#ffffff" stroke="#e6e6e6" stroke-width="1.5"/>
+      <ellipse cx="40" cy="14" rx="32" ry="10" fill="none" stroke="#e6e6e6" stroke-width="1"/>
+      <text x="40" y="42" text-anchor="middle" fill="#737373" font-family="system-ui,-apple-system,sans-serif" font-size="10" font-weight="600">Logs</text>
+    </g>
+    <g transform="translate(0 160)">
+      <ellipse cx="40" cy="14" rx="32" ry="10" fill="#ffffff" stroke="#e6e6e6" stroke-width="1.5"/>
+      <path d="M8 14 L8 50 Q8 60 40 60 Q72 60 72 50 L72 14" fill="#ffffff" stroke="#e6e6e6" stroke-width="1.5"/>
+      <ellipse cx="40" cy="14" rx="32" ry="10" fill="none" stroke="#e6e6e6" stroke-width="1"/>
+      <text x="40" y="42" text-anchor="middle" fill="#737373" font-family="system-ui,-apple-system,sans-serif" font-size="10" font-weight="600">API</text>
+    </g>
+  </g>
+
+  <!-- pipeline lines (데이터 → ML) -->
+  <g stroke="url(#f1Pipe)" stroke-width="2.5" fill="none">
+    <path d="M120 100 Q170 100 200 160" stroke-linecap="round"/>
+    <path d="M120 180 L200 180" stroke-linecap="round"/>
+    <path d="M120 260 Q170 260 200 200" stroke-linecap="round"/>
+  </g>
+
+  <!-- 중앙: ML 노드 -->
+  <g transform="translate(200 130)">
+    <rect width="100" height="100" rx="14" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="50" y="32" text-anchor="middle" fill="#1a1a1a" font-family="system-ui,-apple-system,sans-serif" font-size="10" font-weight="700">ML Pipeline</text>
+    <!-- neural net -->
+    <g fill="#2563eb">
+      <circle cx="22" cy="58" r="4"/>
+      <circle cx="22" cy="78" r="4"/>
+      <circle cx="50" cy="48" r="4"/>
+      <circle cx="50" cy="68" r="4"/>
+      <circle cx="50" cy="88" r="4"/>
+      <circle cx="78" cy="58" r="4"/>
+      <circle cx="78" cy="78" r="4"/>
+    </g>
+    <g stroke="#2563eb" stroke-width="0.8" opacity="0.55" fill="none">
+      <line x1="22" y1="58" x2="50" y2="48"/>
+      <line x1="22" y1="58" x2="50" y2="68"/>
+      <line x1="22" y1="58" x2="50" y2="88"/>
+      <line x1="22" y1="78" x2="50" y2="48"/>
+      <line x1="22" y1="78" x2="50" y2="68"/>
+      <line x1="22" y1="78" x2="50" y2="88"/>
+      <line x1="50" y1="48" x2="78" y2="58"/>
+      <line x1="50" y1="48" x2="78" y2="78"/>
+      <line x1="50" y1="68" x2="78" y2="58"/>
+      <line x1="50" y1="68" x2="78" y2="78"/>
+      <line x1="50" y1="88" x2="78" y2="58"/>
+      <line x1="50" y1="88" x2="78" y2="78"/>
+    </g>
+  </g>
+
+  <!-- 우측: 예측 차트 -->
+  <g transform="translate(330 60)">
+    <rect width="120" height="200" rx="12" fill="#ffffff" stroke="#e6e6e6" stroke-width="1.5"/>
+    <rect x="14" y="14" width="58" height="6" rx="3" fill="#a3a3a3"/>
+    <text x="14" y="42" fill="#1a1a1a" font-family="system-ui,-apple-system,sans-serif" font-size="20" font-weight="700">+24.8%</text>
+    <text x="14" y="56" fill="#0f7134" font-family="system-ui,-apple-system,sans-serif" font-size="9" font-weight="600">▲ 예측 증가</text>
+
+    <g transform="translate(14 76)">
+      <line x1="0" y1="60" x2="92" y2="60" stroke="#e6e6e6"/>
+      <line x1="0" y1="40" x2="92" y2="40" stroke="#e6e6e6" stroke-dasharray="2 3"/>
+      <line x1="0" y1="20" x2="92" y2="20" stroke="#e6e6e6" stroke-dasharray="2 3"/>
+      <!-- actual -->
+      <path d="M0 56 L18 50 L36 44 L54 38" stroke="#2563eb" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- forecast -->
+      <path d="M54 38 L72 28 L90 16" stroke="#2563eb" stroke-width="2.4" stroke-dasharray="4 3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- confidence band -->
+      <path d="M54 38 L72 22 L90 8 L90 24 L72 34 L54 42 Z" fill="#2563eb" fill-opacity="0.1"/>
+      <circle cx="54" cy="38" r="3" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+      <circle cx="90" cy="16" r="3" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    </g>
+
+    <rect x="14" y="170" width="42" height="14" rx="7" fill="#dce1f9"/>
+    <text x="35" y="180" text-anchor="middle" fill="#334bfa" font-family="system-ui,-apple-system,sans-serif" font-size="8" font-weight="600">실측</text>
+    <rect x="60" y="170" width="46" height="14" rx="7" fill="#d7efdc"/>
+    <text x="83" y="180" text-anchor="middle" fill="#0f7134" font-family="system-ui,-apple-system,sans-serif" font-size="8" font-weight="600">예측</text>
+  </g>
+</svg>
