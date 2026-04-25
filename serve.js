@@ -327,7 +327,7 @@ async function handleApi(urlPath, req, res) {
     });
   }
 
-  if (urlPath === '/api/marketing/channel-performance' && method === 'GET') {
+  if ((urlPath === '/api/marketing/channel-performance' || urlPath === '/api/marketing/channels/performance') && method === 'GET') {
     const s = requireAuth(req, res); if (!s) return true;
     return jsonRes(res, 200, {
       channels: [
