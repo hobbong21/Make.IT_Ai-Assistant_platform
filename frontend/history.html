@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaKIT - 활동 이력 | Human.Ai.D</title>
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/app-shell.css">
+    <link rel="stylesheet" href="css/all-services-styles.css">
+    <style>
+        .history-wrapper {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: var(--mk-space-6, 24px);
+        }
+        .history-header {
+            margin-bottom: var(--mk-space-6, 24px);
+        }
+        .history-header h1 {
+            font-size: var(--mk-font-size-3xl);
+            font-weight: var(--mk-font-weight-bold);
+            color: var(--mk-color-text);
+            margin: 0 0 var(--mk-space-2);
+        }
+        .history-header p {
+            color: var(--mk-color-text-muted);
+            margin: 0;
+        }
+        .history-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--mk-space-2, 8px);
+            margin-bottom: var(--mk-space-4, 16px);
+        }
+        .filter-chip {
+            padding: 6px 14px;
+            background: var(--mk-color-bg);
+            color: var(--mk-color-text-muted);
+            border: 1px solid var(--mk-color-border);
+            border-radius: var(--mk-radius-pill);
+            font-family: inherit;
+            font-size: var(--mk-font-size-sm);
+            cursor: pointer;
+            transition: all var(--mk-duration-fast) ease;
+        }
+        .filter-chip:hover { background: var(--mk-color-bg-muted); }
+        .filter-chip.active {
+            background: var(--mk-color-brand-500);
+            color: var(--mk-color-text-on-brand);
+            border-color: var(--mk-color-brand-500);
+        }
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--mk-space-3, 12px);
+        }
+        .history-item {
+            display: grid;
+            grid-template-columns: 44px 1fr auto;
+            gap: var(--mk-space-3, 12px);
+            align-items: center;
+            padding: var(--mk-space-4, 16px);
+            background: var(--mk-color-bg);
+            border: 1px solid var(--mk-color-border);
+            border-radius: var(--mk-radius-lg, 14px);
+            transition: border-color var(--mk-duration-fast) ease, box-shadow var(--mk-duration-fast) ease;
+        }
+        .history-item:hover {
+            border-color: var(--mk-color-border-strong);
+            box-shadow: var(--mk-shadow-xs);
+        }
+        .hi-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--mk-color-brand-50, #eff6ff);
+            color: var(--mk-color-brand-500, #2563eb);
+            font-weight: var(--mk-font-weight-bold);
+            font-size: 14px;
+        }
+        .hi-icon-LOGIN  { background: var(--mk-color-success-bg); color: var(--mk-color-success-text); }
+        .hi-icon-LOGOUT { background: var(--mk-color-bg-muted); color: var(--mk-color-text-muted); }
+        .hi-icon-SERVICE_CALL,
+        .hi-icon-API_CALL { background: var(--mk-color-brand-50); color: var(--mk-color-brand-500); }
+        .hi-icon-ERROR  { background: var(--mk-color-error-bg); color: var(--mk-color-error-text); }
+        .hi-body { min-width: 0; }
+        .hi-action {
+            font-weight: var(--mk-font-weight-semibold);
+            color: var(--mk-color-text);
+            font-size: var(--mk-font-size-base);
+            margin: 0 0 4px;
+        }
+        .hi-resource {
+            font-size: var(--mk-font-size-sm);
+            color: var(--mk-color-text-muted);
+            font-family: var(--mk-font-mono);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .hi-time {
+            font-size: var(--mk-font-size-sm);
+            color: var(--mk-color-text-faint);
+            text-align: right;
+            white-space: nowrap;
+        }
+        .history-empty {
+            text-align: center;
+            padding: var(--mk-space-16, 64px) var(--mk-space-4);
+            color: var(--mk-color-text-muted);
+        }
+        .history-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--mk-space-3, 12px);
+            margin-top: var(--mk-space-6, 24px);
+        }
+        .pg-btn {
+            padding: 8px 14px;
+            background: var(--mk-color-bg);
+            color: var(--mk-color-text);
+            border: 1px solid var(--mk-color-border);
+            border-radius: var(--mk-radius-md);
+            font-family: inherit;
+            font-size: var(--mk-font-size-sm);
+            cursor: pointer;
+            transition: background var(--mk-duration-fast) ease;
+        }
+        .pg-btn:hover:not(:disabled) { background: var(--mk-color-bg-muted); }
+        .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .pg-info {
+            color: var(--mk-color-text-muted);
+            font-size: var(--mk-font-size-sm);
+        }
+        @media (max-width: 639px) {
+            .history-item { grid-template-columns: 36px 1fr; }
+            .hi-icon { width: 36px; height: 36px; font-size: 12px; }
+            .hi-time { grid-column: 2; text-align: left; margin-top: 4px; }
+        }
+    </style>
+</head>
+<body>
+    <noscript><div class="makit-noscript">이 페이지는 JavaScript가 필요합니다.</div></noscript>
+
+    <nav class="top-nav">
+        <div class="top-nav-container">
+            <a href="index.html" class="nav-back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path>
+                </svg>
+                대시보드
+            </a>
+        </div>
+    </nav>
+
+    <main class="history-wrapper">
+        <div class="history-header">
+            <h1>활동 이력</h1>
+            <p>최근 사용한 서비스와 시스템 활동을 확인할 수 있습니다.</p>
+        </div>
+
+        <div class="history-filters" id="historyFilters">
+            <button class="filter-chip active" data-filter="ALL">전체</button>
+            <button class="filter-chip" data-filter="LOGIN">로그인</button>
+            <button class="filter-chip" data-filter="SERVICE_CALL">서비스 호출</button>
+            <button class="filter-chip" data-filter="ERROR">오류</button>
+        </div>
+
+        <div class="history-list" id="historyList">
+            <div class="history-empty"><p>이력을 불러오는 중...</p></div>
+        </div>
+
+        <div class="history-pagination" id="historyPagination" hidden>
+            <button class="pg-btn" id="pgPrev">← 이전</button>
+            <span class="pg-info" id="pgInfo">1 / 1</span>
+            <button class="pg-btn" id="pgNext">다음 →</button>
+        </div>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/pages/chatbot.js"></script>
+    <script src="js/chatbot-widget.js"></script>
+    <script src="js/user-menu.js"></script>
+    <script src="js/app-shell-extras.js"></script>
+    <script src="js/pages/history.js"></script>
+</body>
+</html>

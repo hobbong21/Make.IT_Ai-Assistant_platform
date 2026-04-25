@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaKIT - 설정 | Human.Ai.D</title>
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/app-shell.css">
+    <style>
+        body { background: var(--mk-color-bg-subtle, #fafafa); min-height: 100vh; font-family: var(--mk-font-sans); }
+        .settings-wrap { max-width: 720px; margin: 0 auto; padding: var(--mk-space-8, 32px) var(--mk-space-6, 24px); }
+        .settings-wrap h1 { font-size: var(--mk-font-size-3xl); margin: 0 0 var(--mk-space-2); }
+        .settings-wrap > p { color: var(--mk-color-text-muted); margin: 0 0 var(--mk-space-6, 24px); }
+        .set-card {
+            background: var(--mk-color-bg);
+            border: 1px solid var(--mk-color-border);
+            border-radius: var(--mk-radius-lg);
+            padding: var(--mk-space-6, 24px);
+            margin-bottom: var(--mk-space-4, 16px);
+        }
+        .set-card h2 {
+            margin: 0 0 var(--mk-space-4, 16px);
+            font-size: var(--mk-font-size-lg);
+            font-weight: var(--mk-font-weight-semibold);
+            color: var(--mk-color-text);
+        }
+        .set-card label { display: block; margin-bottom: 4px; font-size: var(--mk-font-size-sm); font-weight: 500; color: var(--mk-color-text); }
+        .set-card input[type="text"], .set-card input[type="email"], .set-card input[type="password"] {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--mk-color-bg);
+            border: 1px solid var(--mk-color-border);
+            border-radius: var(--mk-radius-md);
+            font: inherit;
+            font-size: var(--mk-font-size-base);
+            margin-bottom: var(--mk-space-3, 12px);
+            color: var(--mk-color-text);
+        }
+        .set-card input:focus { outline: none; border-color: var(--mk-color-brand-500); box-shadow: 0 0 0 3px rgb(37 99 235 / 0.15); }
+        .set-actions { display: flex; gap: var(--mk-space-2); margin-top: var(--mk-space-3); }
+        .btn-primary { padding: 10px 18px; background: var(--mk-color-brand-500); color: var(--mk-color-text-on-brand); border: none; border-radius: var(--mk-radius-md); font-weight: 500; cursor: pointer; transition: background var(--mk-duration-fast) ease; }
+        .btn-primary:hover:not(:disabled) { background: var(--mk-color-brand-600); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        .msg-success { color: var(--mk-color-success-text); padding: 8px 12px; background: var(--mk-color-success-bg); border-radius: var(--mk-radius-sm); font-size: var(--mk-font-size-sm); }
+        .msg-error { color: var(--mk-color-error-text); padding: 8px 12px; background: var(--mk-color-error-bg); border-radius: var(--mk-radius-sm); font-size: var(--mk-font-size-sm); }
+        .theme-options { display: flex; gap: var(--mk-space-2); }
+        .theme-opt {
+            flex: 1;
+            padding: var(--mk-space-3) var(--mk-space-4);
+            background: var(--mk-color-bg);
+            border: 2px solid var(--mk-color-border);
+            border-radius: var(--mk-radius-md);
+            cursor: pointer;
+            text-align: center;
+            font: inherit;
+            font-size: var(--mk-font-size-sm);
+            color: var(--mk-color-text);
+            transition: all var(--mk-duration-fast) ease;
+        }
+        .theme-opt:hover { border-color: var(--mk-color-border-strong); }
+        .theme-opt.active { border-color: var(--mk-color-brand-500); background: var(--mk-color-brand-50); color: var(--mk-color-brand-500); font-weight: 500; }
+    </style>
+</head>
+<body>
+    <noscript><div class="makit-noscript">JavaScript가 필요합니다.</div></noscript>
+
+    <nav class="top-nav">
+        <div class="top-nav-container">
+            <a href="index.html" class="nav-back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
+                대시보드
+            </a>
+        </div>
+    </nav>
+
+    <main class="settings-wrap">
+        <h1>설정</h1>
+        <p>프로필 · 비밀번호 · 화면 테마를 관리할 수 있습니다.</p>
+
+        <section class="set-card">
+            <h2>프로필</h2>
+            <form id="profileForm" novalidate>
+                <label for="profName">이름</label>
+                <input type="text" id="profName" name="name" required>
+                <label for="profEmail">이메일</label>
+                <input type="email" id="profEmail" name="email" required>
+                <div class="set-actions">
+                    <button type="submit" class="btn-primary" id="profSaveBtn">저장</button>
+                </div>
+                <div id="profMessage" role="status" aria-live="polite" style="margin-top:12px;"></div>
+            </form>
+        </section>
+
+        <section class="set-card">
+            <h2>비밀번호 변경</h2>
+            <form id="pwForm" novalidate>
+                <label for="pwOld">현재 비밀번호</label>
+                <input type="password" id="pwOld" name="oldPassword" required minlength="6" autocomplete="current-password">
+                <label for="pwNew">새 비밀번호 (6자 이상)</label>
+                <input type="password" id="pwNew" name="newPassword" required minlength="6" autocomplete="new-password">
+                <label for="pwNewConfirm">새 비밀번호 확인</label>
+                <input type="password" id="pwNewConfirm" required minlength="6" autocomplete="new-password">
+                <div class="set-actions">
+                    <button type="submit" class="btn-primary" id="pwSaveBtn">비밀번호 변경</button>
+                </div>
+                <div id="pwMessage" role="status" aria-live="polite" style="margin-top:12px;"></div>
+            </form>
+        </section>
+
+        <section class="set-card">
+            <h2>화면 테마</h2>
+            <div class="theme-options" role="radiogroup" aria-label="테마 선택">
+                <button type="button" class="theme-opt" data-theme="auto" role="radio">시스템 자동</button>
+                <button type="button" class="theme-opt" data-theme="light" role="radio">라이트</button>
+                <button type="button" class="theme-opt" data-theme="dark" role="radio">다크</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/pages/chatbot.js"></script>
+    <script src="js/chatbot-widget.js"></script>
+    <script src="js/user-menu.js"></script>
+    <script src="js/app-shell-extras.js"></script>
+    <script src="js/pages/settings.js"></script>
+</body>
+</html>
