@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - 페이지를 찾을 수 없습니다 | MaKIT</title>
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/app-shell.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--mk-space-6, 24px);
+            background: linear-gradient(135deg, var(--mk-color-brand-50, #eff6ff) 0%, var(--mk-color-bg, #ffffff) 100%);
+        }
+        .err-card {
+            max-width: 560px;
+            width: 100%;
+            padding: var(--mk-space-12, 48px) var(--mk-space-8, 32px);
+            background: var(--mk-color-bg, #ffffff);
+            border: 1px solid var(--mk-color-border, #e6e6e6);
+            border-radius: var(--mk-radius-xl, 20px);
+            box-shadow: var(--mk-shadow-md, 0 10px 30px -8px rgb(0 0 0 / 0.15));
+            text-align: center;
+        }
+        .err-code {
+            font-size: clamp(4rem, 12vw, 7rem);
+            font-weight: var(--mk-font-weight-bold, 700);
+            line-height: 1;
+            color: var(--mk-color-brand-500, #2563eb);
+            letter-spacing: -0.04em;
+            margin: 0;
+        }
+        .err-title {
+            margin: var(--mk-space-3, 12px) 0 var(--mk-space-2, 8px);
+            font-size: var(--mk-font-size-2xl, 1.5rem);
+            font-weight: var(--mk-font-weight-semibold, 600);
+            color: var(--mk-color-text, #1a1a1a);
+        }
+        .err-desc {
+            color: var(--mk-color-text-muted, #737373);
+            font-size: var(--mk-font-size-base, 1rem);
+            margin-bottom: var(--mk-space-8, 32px);
+            line-height: var(--mk-line-height-normal, 1.6);
+        }
+        .err-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: var(--mk-space-3, 12px);
+        }
+        .err-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--mk-space-2, 8px);
+            padding: var(--mk-space-3, 12px) var(--mk-space-5, 20px);
+            font-family: var(--mk-font-sans, inherit);
+            font-size: var(--mk-font-size-sm, 0.875rem);
+            font-weight: var(--mk-font-weight-medium, 500);
+            border-radius: var(--mk-radius-md, 10px);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all var(--mk-duration-fast, 150ms) ease;
+        }
+        .err-btn-primary {
+            background: var(--mk-color-brand-500, #2563eb);
+            color: var(--mk-color-text-on-brand, #ffffff);
+            border: 1px solid transparent;
+        }
+        .err-btn-primary:hover {
+            background: var(--mk-color-brand-600, #1d4ed8);
+        }
+        .err-btn-secondary {
+            background: transparent;
+            color: var(--mk-color-text, #1a1a1a);
+            border: 1px solid var(--mk-color-border, #e6e6e6);
+        }
+        .err-btn-secondary:hover {
+            background: var(--mk-color-bg-muted, #f2f2f2);
+        }
+        .err-illustration {
+            display: block;
+            width: 200px;
+            height: auto;
+            margin: 0 auto var(--mk-space-6, 24px);
+        }
+    </style>
+</head>
+<body>
+    <main class="err-card" role="main">
+        <svg class="err-illustration" viewBox="0 0 200 120" role="img" aria-labelledby="errIllustTitle">
+            <title id="errIllustTitle">길 잃은 데이터 노드</title>
+            <defs>
+                <linearGradient id="grad404" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#eff6ff"/>
+                    <stop offset="100%" stop-color="#dbeafe"/>
+                </linearGradient>
+            </defs>
+            <rect width="200" height="120" rx="14" fill="url(#grad404)"/>
+            <g stroke="#2563eb" stroke-width="1.5" fill="none" stroke-dasharray="3 3">
+                <path d="M30 60 Q70 40 100 60 Q130 80 170 60"/>
+            </g>
+            <circle cx="30" cy="60" r="6" fill="#2563eb"/>
+            <circle cx="170" cy="60" r="6" fill="#2563eb"/>
+            <g transform="translate(100 60)">
+                <circle r="14" fill="#ffffff" stroke="#991b1b" stroke-width="2"/>
+                <path d="M-5 -5 L5 5 M5 -5 L-5 5" stroke="#991b1b" stroke-width="2" stroke-linecap="round"/>
+            </g>
+        </svg>
+
+        <h1 class="err-code">404</h1>
+        <h2 class="err-title">페이지를 찾을 수 없습니다</h2>
+        <p class="err-desc">
+            요청하신 주소가 변경되었거나 더 이상 사용되지 않을 수 있습니다.<br>
+            URL을 다시 확인해주시거나 아래 버튼으로 이동해주세요.
+        </p>
+        <div class="err-actions">
+            <a href="index.html" class="err-btn err-btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                대시보드로
+            </a>
+            <a href="all-services.html" class="err-btn err-btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                모든 서비스
+            </a>
+            <button type="button" class="err-btn err-btn-secondary" onclick="history.back()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M19 12H5"></path>
+                    <path d="M12 19l-7-7 7-7"></path>
+                </svg>
+                뒤로
+            </button>
+        </div>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/pages/chatbot.js"></script>
+    <script src="js/chatbot-widget.js"></script>
+    <script src="js/user-menu.js"></script>
+    <script src="js/app-shell-extras.js"></script>
+</body>
+</html>

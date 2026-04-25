@@ -1,6 +1,7 @@
 package com.humanad.makit.commerce.chatbot;
 
 import com.humanad.makit.ai.dto.ChatStreamChunk;
+import com.humanad.makit.audit.Auditable;
 import com.humanad.makit.commerce.chatbot.dto.ChatMessageRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -30,6 +31,7 @@ public class ChatbotStreamController {
     private final ChatbotService chatbotService;
 
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @Auditable(resource = "chatbot")
     public Flux<ServerSentEvent<String>> stream(@Valid @RequestBody ChatMessageRequest req) {
         UUID userId = currentUserId();
         // Resolve (or create) the contextId up front so we can include it in the `done`
@@ -37,8 +39,15 @@ public class ChatbotStreamController {
         String effectiveContextId = (req.contextId() == null || req.contextId().isBlank())
                 ? UUID.randomUUID().toString()
                 : req.contextId();
+
+        // Extract page context hint from message prefix if present.
+        // Format: "[페이지 컨텍스트: <hint>]\n<actual question>"
+        ContextExtractionResult extraction = extractContextHint(req.message());
+        String contextHint = extraction.contextHint();
+        String cleanMessage = extraction.cleanMessage();
+
         ChatMessageRequest effectiveReq = new ChatMessageRequest(
-                req.message(),
+                cleanMessage,
                 effectiveContextId,
                 req.useRag(),
                 req.temperature()
@@ -54,7 +63,7 @@ public class ChatbotStreamController {
         // the interval-driven heartbeat when the body terminates (complete or error), so we
         // never need a second subscription to observe that signal.
         AtomicBoolean completed = new AtomicBoolean(false);
-        Flux<ServerSentEvent<String>> events = chatbotService.chatStream(effectiveReq, userId, "web")
+        Flux<ServerSentEvent<String>> events = chatbotService.chatStream(effectiveReq, userId, "web", contextHint)
                 .map(chunk -> {
                     String data = chunk.data() == null ? "" : chunk.data();
                     // Inject contextId into the `done` event payload if not already present.
@@ -108,4 +117,37 @@ public class ChatbotStreamController {
             return UUID.randomUUID();
         }
     }
+
+    /**
+     * Extract page context hint from message prefix.
+     * Expected format: "[페이지 컨텍스트: <hint>]\n<actual message>"
+     *
+     * Returns a record with both the extracted context hint and the clean message.
+     * If no context hint is found, contextHint is null and cleanMessage is the original message.
+     */
+    private ContextExtractionResult extractContextHint(String message) {
+        if (message == null || message.isBlank()) {
+            return new ContextExtractionResult(null, message);
+        }
+
+        // Regex: ^\\[페이지 컨텍스트:\\s*([^\\]]+)\\]\\s*\\n?(.*)$
+        // Matches: [페이지 컨텍스트: <hint>]\n<rest>
+        String regex = "^\\[페이지 컨텍스트:\\s*([^\\]]+)\\]\\s*(?:\\n)?(.*)$";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex, java.util.regex.Pattern.DOTALL);
+        java.util.regex.Matcher matcher = pattern.matcher(message);
+
+        if (matcher.find()) {
+            String contextHint = matcher.group(1).trim();
+            String cleanMessage = matcher.group(2).trim();
+            log.debug("Extracted page context: '{}'", contextHint);
+            return new ContextExtractionResult(contextHint, cleanMessage);
+        }
+
+        return new ContextExtractionResult(null, message);
+    }
+
+    /**
+     * Result of context hint extraction.
+     */
+    private record ContextExtractionResult(String contextHint, String cleanMessage) {}
 }

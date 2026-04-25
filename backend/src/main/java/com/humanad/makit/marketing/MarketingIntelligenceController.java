@@ -1,5 +1,6 @@
 package com.humanad.makit.marketing;
 
+import com.humanad.makit.audit.Auditable;
 import com.humanad.makit.marketing.feed.FeedGenerationService;
 import com.humanad.makit.marketing.feed.dto.InstagramFeedRequest;
 import com.humanad.makit.marketing.image.BackgroundRemovalService;
@@ -26,6 +27,7 @@ public class MarketingIntelligenceController {
     private final BackgroundRemovalService backgroundRemovalService;
 
     @PostMapping("/feed/generate")
+    @Auditable(resource = "feed-generate")
     public ResponseEntity<?> generateFeed(@Valid @RequestBody InstagramFeedRequest req) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UUID userId = auth == null ? UUID.randomUUID() : UUID.fromString(auth.getName());
@@ -33,6 +35,7 @@ public class MarketingIntelligenceController {
     }
 
     @PostMapping(value = "/image/remove-bg", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Auditable(resource = "remove-bg")
     public ImageResultResponse removeBackground(
             @RequestPart("file") MultipartFile file,
             @RequestParam(value = "outputFormat", required = false, defaultValue = "png") String outputFormat

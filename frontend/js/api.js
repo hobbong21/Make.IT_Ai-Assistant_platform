@@ -105,7 +105,26 @@
       },
       refresh: function (refreshToken) {
         return request('/auth/refresh', { method: 'POST', body: { refreshToken: refreshToken } });
+      },
+      // PATCH /api/auth/me — name/email 갱신
+      updateProfile: function (payload) {
+        return request('/auth/me', { method: 'PATCH', body: payload });
+      },
+      // POST /api/auth/change-password — oldPassword/newPassword
+      changePassword: function (payload) {
+        return request('/auth/change-password', { method: 'POST', body: payload });
       }
+    },
+
+    notifications: {
+      // GET /api/notifications/me?page=&size=
+      list: function (opts) {
+        opts = opts || {};
+        return request('/notifications/me?page=' + (opts.page || 0) + '&size=' + (opts.size || 20));
+      },
+      unreadCount: function () { return request('/notifications/me/unread-count'); },
+      readAll: function () { return request('/notifications/me/read-all', { method: 'POST' }); },
+      read: function (id) { return request('/notifications/' + id + '/read', { method: 'POST' }); }
     },
 
     data: {
@@ -150,6 +169,47 @@
         fd.append('file', file);
         if (outputFormat) fd.append('outputFormat', outputFormat);
         return request('/marketing/image/remove-bg', { method: 'POST', body: fd, form: true });
+      },
+      // 마케팅 허브 API
+      hub: function () {
+        return request('/marketing/hub');
+      },
+      campaigns: function (status) {
+        var path = '/marketing/campaigns';
+        if (status) path += '?status=' + encodeURIComponent(status);
+        return request(path);
+      },
+      // 캠페인 CRUD (R7)
+      campaignGet: function (id) {
+        return request('/marketing/campaigns/' + encodeURIComponent(id));
+      },
+      campaignCreate: function (payload) {
+        return request('/marketing/campaigns', { method: 'POST', body: payload });
+      },
+      campaignUpdate: function (id, payload) {
+        return request('/marketing/campaigns/' + encodeURIComponent(id), { method: 'PATCH', body: payload });
+      },
+      campaignChangeStatus: function (id, status) {
+        return request('/marketing/campaigns/' + encodeURIComponent(id) + '/status', { method: 'POST', body: { status: status } });
+      },
+      campaignDelete: function (id) {
+        return request('/marketing/campaigns/' + encodeURIComponent(id), { method: 'DELETE' });
+      },
+      contents: function (limit) {
+        var path = '/marketing/contents';
+        if (limit) path += '?limit=' + limit;
+        return request(path);
+      },
+      calendar: function () {
+        return request('/marketing/calendar/week');
+      },
+      insightsWeekly: function () {
+        return request('/marketing/insights/weekly');
+      },
+      channelPerformance: function (days) {
+        var path = '/marketing/channels/performance';
+        if (days) path += '?days=' + days;
+        return request(path);
       }
     },
 
@@ -177,6 +237,30 @@
       },
       generateModelshot: function (payload) {
         return request('/commerce/modelshot/generate', { method: 'POST', body: payload });
+      },
+      // POST /api/commerce/chatbot/feedback {contextId, messageIdx, helpful, comment}
+      chatbotFeedback: function (payload) {
+        return request('/commerce/chatbot/feedback', { method: 'POST', body: payload });
+      }
+    },
+
+    dashboard: {
+      // GET /api/dashboard/stats — userCount, myRequestCount, myJobsInProgress, topServices[], lastLoginAt
+      stats: function () {
+        return request('/dashboard/stats');
+      },
+      // GET /api/dashboard/activity?days=N — List<ActivityBucket{date, count}>
+      activity: function (days) {
+        return request('/dashboard/activity?days=' + (days || 7));
+      }
+    },
+
+    audit: {
+      // GET /api/audit-logs/me?page=&size= — Page<AuditLogDto>
+      mine: function (opts) {
+        opts = opts || {};
+        var qs = '?page=' + (opts.page || 0) + '&size=' + (opts.size || 20);
+        return request('/audit-logs/me' + qs);
       }
     },
 

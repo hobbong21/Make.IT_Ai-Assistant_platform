@@ -55,6 +55,14 @@ public class ChatbotService {
     }
 
     public Flux<ChatStreamChunk> chatStream(ChatMessageRequest req, UUID userId, String sessionId) {
+        return chatStream(req, userId, sessionId, null);
+    }
+
+    /**
+     * Stream variant that accepts an optional page context hint.
+     * The hint is prepended to the system prompt to provide contextual awareness.
+     */
+    public Flux<ChatStreamChunk> chatStream(ChatMessageRequest req, UUID userId, String sessionId, String pageContextHint) {
         ConversationContext ctx = resolveContext(req.contextId(), userId, sessionId);
         persistMessage(ctx.getContextId(), ChatMessage.Role.USER, req.message(), null, null);
 
@@ -66,7 +74,7 @@ public class ChatbotService {
                 req.useRag() == null || req.useRag(),
                 req.temperature(), null
         );
-        return engine.chatStream(aiReq, aiCtx);
+        return engine.chatStream(aiReq, aiCtx, pageContextHint);
     }
 
     private ConversationContext resolveContext(String contextId, UUID userId, String sessionId) {

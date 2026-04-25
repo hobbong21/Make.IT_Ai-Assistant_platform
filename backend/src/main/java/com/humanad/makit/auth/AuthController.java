@@ -64,4 +64,23 @@ public class AuthController {
     public LoginResponse refresh(@Valid @RequestBody RefreshRequest req) {
         return authService.refresh(req);
     }
+
+    @PatchMapping("/me")
+    public UserDto updateProfile(@Valid @RequestBody UpdateProfileRequest req) {
+        return authService.updateProfile(extractUserId(), req);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest req) {
+        authService.changePassword(extractUserId(), req);
+        return ResponseEntity.noContent().build();
+    }
+
+    private UUID extractUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null) {
+            throw new AuthenticationException("Not authenticated");
+        }
+        return UUID.fromString(auth.getName());
+    }
 }

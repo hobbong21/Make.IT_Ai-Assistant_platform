@@ -576,3 +576,180 @@ body {
         height: 70vh;
     }
 }
+/* ============================================================
+   D1 추가 — 자유 입력 form (chat-input-form)
+   service-detail.js의 buildInputForm()이 .chat-area 하단에 동적 삽입
+   ============================================================ */
+.chat-input-form {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--mk-space-2, 8px);
+    padding: var(--mk-space-3, 12px);
+    margin-top: var(--mk-space-2, 8px);
+    background: var(--mk-color-bg, #ffffff);
+    border: 1px solid var(--mk-color-border, #e6e6e6);
+    border-radius: var(--mk-radius-lg, 14px);
+    box-shadow: var(--mk-shadow-xs, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+}
+
+.chat-input-form .chat-input {
+    flex: 1;
+    padding: var(--mk-space-3, 12px) var(--mk-space-4, 16px);
+    font-family: var(--mk-font-sans, inherit);
+    font-size: var(--mk-font-size-base, 1rem);
+    line-height: var(--mk-line-height-normal, 1.6);
+    color: var(--mk-color-text, #1a1a1a);
+    background: var(--mk-color-bg-muted, #f2f2f2);
+    border: 1px solid transparent;
+    border-radius: var(--mk-radius-md, 10px);
+    resize: vertical;
+    min-height: 44px;
+    transition: border-color var(--mk-duration-fast, 150ms) var(--mk-easing-standard, ease),
+                background var(--mk-duration-fast, 150ms) var(--mk-easing-standard, ease);
+}
+
+.chat-input-form .chat-input::placeholder {
+    color: var(--mk-color-text-faint, #a3a3a3);
+}
+
+.chat-input-form .chat-input:hover {
+    background: var(--mk-color-bg-subtle, #fafafa);
+}
+
+.chat-input-form .chat-input:focus {
+    outline: none;
+    background: var(--mk-color-bg, #ffffff);
+    border-color: var(--mk-color-brand-500, #2563eb);
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 0.15);
+}
+
+.chat-input-form textarea.chat-input {
+    max-height: 200px;
+}
+
+.chat-send-btn {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    color: var(--mk-color-text-on-brand, #ffffff);
+    background: var(--mk-color-brand-500, #2563eb);
+    border: none;
+    border-radius: var(--mk-radius-md, 10px);
+    cursor: pointer;
+    transition: background var(--mk-duration-fast, 150ms) var(--mk-easing-standard, ease),
+                transform var(--mk-duration-fast, 150ms) var(--mk-easing-standard, ease);
+}
+
+.chat-send-btn:hover {
+    background: var(--mk-color-brand-600, #1d4ed8);
+}
+
+.chat-send-btn:active {
+    transform: scale(0.96);
+}
+
+.chat-send-btn:focus-visible {
+    outline: 2px solid var(--mk-color-brand-500, #2563eb);
+    outline-offset: 2px;
+}
+
+.chat-send-btn svg {
+    display: block;
+}
+
+/* 모바일 대응 */
+@media (max-width: 639px) {
+    .chat-input-form {
+        padding: var(--mk-space-2, 8px);
+        border-radius: var(--mk-radius-md, 10px);
+    }
+    .chat-input-form .chat-input {
+        font-size: var(--mk-font-size-sm, 0.875rem);
+        padding: var(--mk-space-2, 8px) var(--mk-space-3, 12px);
+    }
+    .chat-send-btn {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* 파일 업로드 form (remove-bg) */
+.chat-input-form-file {
+    flex-wrap: wrap;
+    gap: var(--mk-space-3, 12px);
+}
+
+.chat-input-form-file .chat-file-input {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mk-space-3, 12px);
+    padding: var(--mk-space-3, 12px) var(--mk-space-4, 16px);
+    background: var(--mk-color-bg-muted, #f2f2f2);
+    border: 1px dashed var(--mk-color-border-strong, #d4d4d4);
+    border-radius: var(--mk-radius-md, 10px);
+    cursor: pointer;
+    transition: border-color var(--mk-duration-fast, 150ms) var(--mk-easing-standard, ease),
+                background var(--mk-duration-fast, 150ms) var(--mk-easing-standard, ease);
+}
+
+.chat-input-form-file .chat-file-input:hover {
+    border-color: var(--mk-color-brand-500, #2563eb);
+    background: var(--mk-color-bg-subtle, #fafafa);
+}
+
+.chat-input-form-file .chat-file-input input[type="file"] {
+    /* 파일 input은 visually-hidden 패턴 (label이 클릭 영역 제공) */
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+}
+
+.chat-input-form-file .chat-file-cta {
+    display: inline-block;
+    padding: var(--mk-space-1, 4px) var(--mk-space-3, 12px);
+    font-size: var(--mk-font-size-sm, 0.875rem);
+    font-weight: var(--mk-font-weight-medium, 500);
+    color: var(--mk-color-text-on-brand, #ffffff);
+    background: var(--mk-color-brand-500, #2563eb);
+    border-radius: var(--mk-radius-sm, 6px);
+}
+
+.chat-input-form-file .chat-file-name {
+    font-size: var(--mk-font-size-sm, 0.875rem);
+    color: var(--mk-color-text-muted, #737373);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 280px;
+}
+
+.chat-input-form-file .chat-extra-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mk-space-2, 8px);
+    font-size: var(--mk-font-size-sm, 0.875rem);
+    color: var(--mk-color-text-muted, #737373);
+}
+
+.chat-input-form-file .chat-extra-select {
+    padding: var(--mk-space-2, 8px) var(--mk-space-3, 12px);
+    font-family: var(--mk-font-sans, inherit);
+    font-size: var(--mk-font-size-sm, 0.875rem);
+    color: var(--mk-color-text, #1a1a1a);
+    background: var(--mk-color-bg, #ffffff);
+    border: 1px solid var(--mk-color-border, #e6e6e6);
+    border-radius: var(--mk-radius-sm, 6px);
+    cursor: pointer;
+}
+
+.chat-input-form-file .chat-extra-select:focus {
+    outline: none;
+    border-color: var(--mk-color-brand-500, #2563eb);
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 0.15);
+}

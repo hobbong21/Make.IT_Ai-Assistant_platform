@@ -18,7 +18,9 @@ import java.util.UUID;
 @Getter @Setter @NoArgsConstructor
 public class Campaign {
 
-    public enum Status { DRAFT, ACTIVE, PAUSED, ENDED }
+    public enum Status { DRAFT, SCHEDULED, ACTIVE, PAUSED, COMPLETED, ARCHIVED }
+
+    public enum Channel { INSTAGRAM, YOUTUBE, SEO, ADS, MULTI }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,11 +39,15 @@ public class Campaign {
     @Column(nullable = false, length = 16)
     private Status status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
+    private Channel channel;
+
     @Column(name = "start_date")
-    private LocalDate startDate;
+    private OffsetDateTime startDate;
 
     @Column(name = "end_date")
-    private LocalDate endDate;
+    private OffsetDateTime endDate;
 
     @Column(precision = 14, scale = 2)
     private BigDecimal budget;

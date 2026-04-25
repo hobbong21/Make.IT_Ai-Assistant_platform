@@ -19,6 +19,9 @@ public interface ChatbotEngine {
     /** SSE stream of token deltas, citations, final usage, and errors. */
     Flux<ChatStreamChunk> chatStream(ChatRequest req, ConversationContext ctx);
 
+    /** SSE stream variant that accepts an optional page context hint for awareness. */
+    Flux<ChatStreamChunk> chatStream(ChatRequest req, ConversationContext ctx, String pageContextHint);
+
     ConversationContext openContext(UUID userId, String sessionId);
 
     void closeContext(String contextId);

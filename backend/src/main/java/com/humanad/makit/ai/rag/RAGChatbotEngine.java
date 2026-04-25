@@ -124,6 +124,11 @@ public class RAGChatbotEngine implements ChatbotEngine {
 
     @Override
     public Flux<ChatStreamChunk> chatStream(ChatRequest req, ConversationContext ctx) {
+        return chatStream(req, ctx, null);
+    }
+
+    @Override
+    public Flux<ChatStreamChunk> chatStream(ChatRequest req, ConversationContext ctx, String pageContextHint) {
         return Flux.defer(() -> {
             ConversationContext useCtx = ctx != null ? ctx : resolveOrOpen(req.contextId(), null);
 
@@ -142,6 +147,13 @@ public class RAGChatbotEngine implements ChatbotEngine {
             PromptLoader.LoadedPrompt loaded = prompts.loadVersioned(PROMPT_KEY, vars);
             String systemPrompt = extractSystemBlock(loaded.text());
             String userPrompt = extractUserBlock(loaded.text());
+
+            // Prepend page context hint to system prompt if provided.
+            if (pageContextHint != null && !pageContextHint.isBlank()) {
+                String hint = "[페이지 컨텍스트] " + pageContextHint + "\n\n";
+                systemPrompt = systemPrompt == null ? hint : hint + systemPrompt;
+                log.debug("Injected page context hint into system prompt: {}", pageContextHint);
+            }
 
             // 1. Citations first (UI renders sources ahead of token stream).
             List<ChatStreamChunk> leading = new ArrayList<>(retrieved.size());

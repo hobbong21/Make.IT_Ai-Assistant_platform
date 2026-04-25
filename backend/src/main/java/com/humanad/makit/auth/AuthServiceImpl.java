@@ -94,6 +94,37 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    @Override
+    public UserDto updateProfile(UUID userId, UpdateProfileRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+
+        // Check if email is being changed and already exists
+        if (!user.getEmail().equalsIgnoreCase(request.email()) &&
+                userRepository.existsByEmailIgnoreCase(request.email())) {
+            throw new ConflictException("AUTH_EMAIL_EXISTS", "Email already registered");
+        }
+
+        user.setName(request.name());
+        user.setEmail(request.email().toLowerCase());
+        userRepository.save(user);
+        return toDto(user);
+    }
+
+    @Override
+    public void changePassword(UUID userId, ChangePasswordRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+
+        if (!encoder.matches(request.oldPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("CURRENT_PASSWORD_MISMATCH");
+        }
+
+        user.setPasswordHash(encoder.encode(request.newPassword()));
+        userRepository.save(user);
+        log.info("Password changed for user: {}", userId);
+    }
+
     private LoginResponse issueTokens(User user) {
         String access = tokenProvider.generateAccessToken(user.getId(), user.getEmail(), user.getRole(), user.getCompanyId());
         String refresh = tokenProvider.generateRefreshToken(user.getId());

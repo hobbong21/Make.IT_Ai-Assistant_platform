@@ -1,5 +1,6 @@
 package com.humanad.makit.commerce;
 
+import com.humanad.makit.audit.Auditable;
 import com.humanad.makit.commerce.chatbot.ChatbotService;
 import com.humanad.makit.commerce.chatbot.dto.ChatMessageRequest;
 import com.humanad.makit.commerce.chatbot.dto.ChatMessageResponse;
@@ -31,18 +32,21 @@ public class CommerceBrainController {
     private final ModelshotService modelshotService;
 
     @PostMapping("/chatbot/message")
+    @Auditable(resource = "chatbot")
     public ChatMessageResponse message(@Valid @RequestBody ChatMessageRequest req) {
         UUID userId = currentUserId();
         return chatbotService.chat(req, userId, "web");
     }
 
     @PostMapping("/reviews/{productId}/analyze")
+    @Auditable(resource = "review-analysis")
     public ReviewAnalysisResponse reviewAnalyze(@PathVariable String productId,
                                                 @RequestBody(required = false) ReviewAnalysisRequest req) {
         return reviewAnalysisService.analyze(productId, req);
     }
 
     @PostMapping("/modelshot/generate")
+    @Auditable(resource = "modelshot")
     public ResponseEntity<JobAcceptedResponse> modelshot(@Valid @RequestBody ModelshotRequest req) {
         UUID userId = currentUserId();
         JobAcceptedResponse accepted = modelshotService.generate(req, userId);

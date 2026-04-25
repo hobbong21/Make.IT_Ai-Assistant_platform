@@ -1,5 +1,6 @@
 package com.humanad.makit.data;
 
+import com.humanad.makit.audit.Auditable;
 import com.humanad.makit.data.nlp.NlpAnalysisService;
 import com.humanad.makit.data.nlp.dto.NlpAnalyzeRequest;
 import com.humanad.makit.data.nlp.dto.NlpAnalyzeResponse;
@@ -31,26 +32,31 @@ public class DataIntelligenceController {
     private final UrlAnalysisService urlAnalysisService;
 
     @PostMapping("/nlp/analyze")
+    @Auditable(resource = "nlp-analyze")
     public NlpAnalyzeResponse nlpAnalyze(@Valid @RequestBody NlpAnalyzeRequest req) {
         return nlpService.analyze(req);
     }
 
     @PostMapping("/youtube/comments")
+    @Auditable(resource = "youtube-comments")
     public YoutubeCommentsResponse youtubeComments(@Valid @RequestBody YoutubeCommentsRequest req) {
         return ytCommentsService.analyze(req);
     }
 
     @PostMapping("/youtube/influence")
+    @Auditable(resource = "youtube-influence")
     public YoutubeInfluenceResponse youtubeInfluence(@Valid @RequestBody YoutubeInfluenceRequest req) {
         return ytInfluenceService.analyze(req);
     }
 
     @PostMapping("/url/analyze")
+    @Auditable(resource = "url-analyze")
     public UrlAnalyzeResponse urlAnalyze(@Valid @RequestBody UrlAnalyzeRequest req) {
         return urlAnalysisService.analyze(req);
     }
 
     @PostMapping("/youtube/keyword-search")
+    @Auditable(resource = "youtube-keyword-search")
     public YoutubeKeywordSearchResponse youtubeKeywordSearch(@Valid @RequestBody YoutubeKeywordSearchRequest req) {
         return ytKeywordSearchService.search(req);
     }

@@ -10,4 +10,6 @@ public interface AuthService {
     UserDto me(UUID userId);
     LoginResponse refresh(RefreshRequest request);
     void logout(String accessJti, java.time.Duration remaining);
+    UserDto updateProfile(UUID userId, UpdateProfileRequest request);
+    void changePassword(UUID userId, ChangePasswordRequest request);
 }

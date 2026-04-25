@@ -41,6 +41,16 @@ public class GlobalExceptionHandler {
         return build(ex.getStatus(), ex.getErrorCode(), ex.getMessage(), null, Map.of());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), "Invalid request", null, Map.of());
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiErrorResponse> handleIllegalState(IllegalStateException ex) {
+        return build(HttpStatus.BAD_REQUEST, "INVALID_STATE", ex.getMessage(), null, Map.of());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleUnknown(Exception ex) {
         log.error("Unhandled exception", ex);
