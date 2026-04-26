@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>마케팅 허브 - MaKIT</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="/img/illustrations/login-mark.svg">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/app-shell.css">
@@ -609,15 +614,16 @@
 </head>
 
 <body>
+    <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
     <noscript>
         <div class="makit-noscript">이 페이지는 JavaScript가 필요합니다. 브라우저에서 JavaScript를 활성화해주세요.</div>
     </noscript>
 
     <!-- 상단 네비게이션 -->
-    <nav class="top-nav">
+    <nav class="top-nav" aria-label="페이지 네비게이션">
         <div class="top-nav-container">
             <a href="index.html" class="nav-back">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M19 12H5"></path>
                     <path d="M12 19l-7-7 7-7"></path>
                 </svg>
@@ -633,33 +639,33 @@
                 <div class="logo">
                     <div class="logo-text">MaKIT</div>
                 </div>
-                <button class="sidebar-toggle">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="sidebar-toggle" aria-label="사이드바 접기/펼치기" aria-expanded="true">
+                    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="m6 9 6 6 6-6"></path>
                     </svg>
                 </button>
             </div>
 
-            <nav class="sidebar-nav">
+            <nav class="sidebar-nav" aria-label="사이드바 메뉴">
                 <div class="nav-section">
                     <div class="nav-section-title">홈</div>
                     <a href="index.html" class="nav-item">
                         <span>개요</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
                             <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                         </svg>
                     </a>
                     <a href="marketing-hub.html" class="nav-item active">
                         <span>마케팅 허브</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
                             <polyline points="13 2 13 9 20 9"></polyline>
                         </svg>
                     </a>
                     <a href="all-services.html" class="nav-item">
                         <span>모든 서비스</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path>
                         </svg>
                     </a>
@@ -668,7 +674,7 @@
         </aside>
 
         <!-- 메인 콘텐츠 -->
-        <main class="main-content">
+        <main id="main-content" class="main-content">
             <div class="page-container">
                 <!-- 페이지 헤더 -->
                 <div class="page-header">
@@ -790,9 +796,16 @@
     <script src="js/chatbot-widget.js"></script>
     <script src="js/user-menu.js"></script>
     <script src="js/app-shell-extras.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <script src="js/ws-client.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js"></script>
     <script src="js/pages/marketing-hub.js"></script>
     <script src="js/pages/marketing-hub-campaign.js"></script>
+    <script src="js/pages/marketing-hub-content.js"></script>
+    <script src="js/push-subscribe.js"></script>
+    <script src="js/sw-register.js"></script>
+    <script src="js/skeleton.js"></script>
 </body>
 
-</html>
+</html></html>

@@ -7,7 +7,7 @@ Terraform `>=1.6`, AWS provider `>=5.50`.
 ## Layout
 
 ```
-infra/terraform/
+deploy/terraform/
   main.tf            # Module wiring
   variables.tf       # Root inputs
   outputs.tf         # Root outputs (ALB, endpoints, ARNs)
@@ -90,7 +90,7 @@ Then set `tfstate_bucket_name = "makit-tfstate-<ACCOUNT_ID>"` in each tfvars.
 Each environment has its own state file (key). Pass backend config at init.
 
 ```bash
-cd infra/terraform
+cd deploy/terraform
 
 terraform init \
   -backend-config="bucket=makit-tfstate-${ACCOUNT_ID}" \

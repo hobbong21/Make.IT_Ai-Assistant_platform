@@ -11,7 +11,7 @@
 #   bucket = makit-tfstate-${AWS_ACCOUNT_ID}-${REGION}   (auto-derived)
 #   table  = makit-tflock
 #
-# After success, outputs values to paste into infra/terraform/envs/*.tfvars.
+# After success, outputs values to paste into ../terraform/envs/*.tfvars.
 
 set -euo pipefail
 
@@ -159,7 +159,7 @@ echo ""
 echo "[✓] Bootstrap complete."
 echo ""
 echo "============================================================"
-echo "Paste the following into each infra/terraform/envs/*.tfvars"
+echo "Paste the following into each ../terraform/envs/*.tfvars"
 echo "(or into a *.tfbackend file if you use -backend-config):"
 echo ""
 echo "  tfstate_bucket_name = \"$BUCKET\""
@@ -167,7 +167,7 @@ echo "  tfstate_lock_table  = \"$TABLE\""
 echo "  aws_region          = \"$REGION\""
 echo ""
 echo "Then:"
-echo "  cd infra/terraform"
+echo "  cd ../terraform"
 echo "  terraform init \\"
 echo "    -backend-config=\"bucket=$BUCKET\" \\"
 echo "    -backend-config=\"dynamodb_table=$TABLE\" \\"

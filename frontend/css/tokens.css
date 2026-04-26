@@ -13,7 +13,19 @@
    ======================================================================== */
 
 /* ----- 폰트 로딩 (Pretendard Variable, CDN) ----- */
+/* Note: dynamic-subset CSS는 자체 @font-face에 font-display: swap 정의를 포함하지 않음.
+   FOIT(Flash of Invisible Text) 방지를 위해 @import 후 font-display 강제 override가 필요하지만,
+   subset 파일이 다수의 @font-face 블록을 포함하므로 글로벌 fallback으로 처리.
+   브라우저 기본 동작은 'block' (3초 invisible)이라, 시스템 fallback이 즉시 보이도록 ::root에서 명시 */
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+
+/* font-display swap: Pretendard 로딩 전에는 시스템 한글 폰트를 즉시 노출 */
+@font-face {
+  font-family: "PretendardFallback";
+  src: local("Apple SD Gothic Neo"), local("Malgun Gothic"), local("Noto Sans KR");
+  font-display: swap;
+  unicode-range: U+0020-007F, U+AC00-D7AF, U+1100-11FF, U+3130-318F;
+}
 
 /* =============================
    1. Light theme tokens (default)
@@ -63,7 +75,7 @@
   /* =============================
      2. Typography
      ============================= */
-  --mk-font-sans: "Pretendard Variable", Pretendard,
+  --mk-font-sans: "Pretendard Variable", Pretendard, "PretendardFallback",
                   -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
                   "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --mk-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas,
@@ -121,13 +133,26 @@
   --mk-radius-pill: 9999px; /* 뱃지, 태그 */
 
   /* =============================
-     5. Motion
+     5. Motion / Animation tokens
      ============================= */
-  --mk-duration-fast:  150ms;
-  --mk-duration-base:  250ms;
-  --mk-duration-slow:  400ms;
-  --mk-easing-standard:   cubic-bezier(0.4, 0, 0.2, 1);
-  --mk-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  /* Durations */
+  --mk-motion-duration-fast: 120ms;
+  --mk-motion-duration-base: 200ms;
+  --mk-motion-duration-slow: 320ms;
+  --mk-motion-duration-slower: 480ms;
+
+  /* Easing curves (Material Design 3 standard) */
+  --mk-motion-ease-standard:    cubic-bezier(0.4, 0, 0.2, 1);   /* default entrance/exit */
+  --mk-motion-ease-decelerate:  cubic-bezier(0, 0, 0.2, 1);     /* entrance (slow start) */
+  --mk-motion-ease-accelerate:  cubic-bezier(0.4, 0, 1, 1);     /* exit (slow end) */
+  --mk-motion-ease-emphasized:  cubic-bezier(0.2, 0, 0, 1);     /* attention (bounce) */
+
+  /* Legacy aliases for backward compatibility */
+  --mk-duration-fast:  var(--mk-motion-duration-fast);
+  --mk-duration-base:  var(--mk-motion-duration-base);
+  --mk-duration-slow:  var(--mk-motion-duration-slow);
+  --mk-easing-standard:   var(--mk-motion-ease-standard);
+  --mk-easing-emphasized: var(--mk-motion-ease-emphasized);
 
   /* =============================
      6. Z-index scale
@@ -233,6 +258,16 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* User-enabled reduce-motion preference (data-reduce-motion="true" on html) */
+html[data-reduce-motion="true"] *,
+html[data-reduce-motion="true"] *::before,
+html[data-reduce-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
 
 /* =============================

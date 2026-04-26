@@ -4,6 +4,7 @@ import com.humanad.makit.auth.dto.*;
 import com.humanad.makit.common.AuthenticationException;
 import com.humanad.makit.common.ConflictException;
 import com.humanad.makit.common.ResourceNotFoundException;
+import com.humanad.makit.notification.NotificationService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder encoder;
     private final JwtTokenProvider tokenProvider;
     private final RefreshTokenService refreshTokens;
+    private final NotificationService notificationService;
 
     @Override
     public LoginResponse login(LoginRequest request) {
@@ -123,6 +125,20 @@ public class AuthServiceImpl implements AuthService {
         user.setPasswordHash(encoder.encode(request.newPassword()));
         userRepository.save(user);
         log.info("Password changed for user: {}", userId);
+
+        // Send notification to user
+        try {
+            notificationService.create(
+                userId,
+                "SUCCESS",
+                "비밀번호 변경",
+                "비밀번호가 변경되었습니다",
+                null
+            );
+        } catch (Exception notifEx) {
+            log.warn("Failed to send notification for password change: {}", notifEx.getMessage());
+            // Continue anyway - password change must not be blocked by notification failure
+        }
     }
 
     private LoginResponse issueTokens(User user) {

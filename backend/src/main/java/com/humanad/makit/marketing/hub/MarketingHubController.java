@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -69,6 +70,46 @@ public class MarketingHubController {
         return ResponseEntity.ok(performance);
     }
 
+    // ============ Content CRUD =============
+
+    @PostMapping("/contents")
+    @Operation(summary = "Create a new content")
+    @Auditable(resource = "marketing-content", action = "CREATE")
+    public ResponseEntity<ContentDto> createContent(
+            @Valid @RequestBody ContentCreateRequest req) {
+        UUID userId = extractUserId();
+        ContentDto dto = hubService.createContent(userId, req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+    }
+
+    @GetMapping("/contents/{id}")
+    @Operation(summary = "Get a specific content by ID")
+    public ResponseEntity<ContentDto> getContent(@PathVariable Long id) {
+        UUID userId = extractUserId();
+        ContentDto dto = hubService.getContent(userId, id);
+        return ResponseEntity.ok(dto);
+    }
+
+    @PatchMapping("/contents/{id}")
+    @Operation(summary = "Update a content")
+    @Auditable(resource = "marketing-content", action = "UPDATE")
+    public ResponseEntity<ContentDto> updateContent(
+            @PathVariable Long id,
+            @Valid @RequestBody ContentUpdateRequest req) {
+        UUID userId = extractUserId();
+        ContentDto dto = hubService.updateContent(userId, id, req);
+        return ResponseEntity.ok(dto);
+    }
+
+    @DeleteMapping("/contents/{id}")
+    @Operation(summary = "Delete a content")
+    @Auditable(resource = "marketing-content", action = "DELETE")
+    public ResponseEntity<Void> deleteContent(@PathVariable Long id) {
+        UUID userId = extractUserId();
+        hubService.deleteContent(userId, id);
+        return ResponseEntity.noContent().build();
+    }
+
     // ============ Campaign CRUD =============
 
     @PostMapping("/campaigns")
@@ -78,11 +119,11 @@ public class MarketingHubController {
             @Valid @RequestBody CampaignCreateRequest req) {
         UUID userId = extractUserId();
         CampaignDto dto = hubService.createCampaign(userId, req);
-        return ResponseEntity.status(201).body(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     @GetMapping("/campaigns/{id}")
-    @Operation(summary = "Get a campaign by ID")
+    @Operation(summary = "Get a specific campaign by ID")
     public ResponseEntity<CampaignDto> getCampaign(@PathVariable Long id) {
         UUID userId = extractUserId();
         CampaignDto dto = hubService.getCampaign(userId, id);
@@ -90,7 +131,7 @@ public class MarketingHubController {
     }
 
     @PatchMapping("/campaigns/{id}")
-    @Operation(summary = "Update campaign fields (PATCH)")
+    @Operation(summary = "Update a campaign")
     @Auditable(resource = "marketing-campaign", action = "UPDATE")
     public ResponseEntity<CampaignDto> updateCampaign(
             @PathVariable Long id,
@@ -103,16 +144,16 @@ public class MarketingHubController {
     @PostMapping("/campaigns/{id}/status")
     @Operation(summary = "Change campaign status")
     @Auditable(resource = "marketing-campaign", action = "STATUS_CHANGE")
-    public ResponseEntity<CampaignDto> changeStatus(
+    public ResponseEntity<CampaignDto> changeCampaignStatus(
             @PathVariable Long id,
             @Valid @RequestBody CampaignStatusChangeRequest req) {
         UUID userId = extractUserId();
-        CampaignDto dto = hubService.changeCampaignStatus(userId, id, req.status());
+        CampaignDto dto = hubService.changeCampaignStatus(userId, id, req);
         return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/campaigns/{id}")
-    @Operation(summary = "Delete campaign")
+    @Operation(summary = "Delete a campaign")
     @Auditable(resource = "marketing-campaign", action = "DELETE")
     public ResponseEntity<Void> deleteCampaign(@PathVariable Long id) {
         UUID userId = extractUserId();
@@ -122,13 +163,12 @@ public class MarketingHubController {
 
     private UUID extractUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated()) {
-            try {
-                return UUID.fromString(auth.getName());
-            } catch (IllegalArgumentException e) {
-                log.warn("Failed to parse userId from authentication: {}", auth.getName());
-            }
+        String userId = auth.getName();
+        try {
+            return UUID.fromString(userId);
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid user ID in authentication: {}", userId);
+            throw new RuntimeException("Invalid user ID", e);
         }
-        return UUID.randomUUID();
     }
 }

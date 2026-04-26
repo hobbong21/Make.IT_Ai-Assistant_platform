@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MaKIT 로그인 | Human.Ai.D</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="/img/illustrations/login-mark.svg">
     <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/common.css">
     <style>
@@ -51,19 +55,20 @@
 </head>
 
 <body>
-    <div class="login-container">
+    <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
+    <main class="login-container" id="main-content" role="main">
         <div class="logo">
             <img src="img/illustrations/login-mark.svg" alt="MaKIT Logo">
             <h1>MaKIT</h1>
             <p>AI 마케팅 플랫폼</p>
         </div>
 
-        <div class="tab-selector">
-            <button class="active" onclick="switchTab('login')">로그인</button>
-            <button onclick="switchTab('register')">회원가입</button>
+        <div class="tab-selector" role="tablist" aria-label="인증 모드 선택">
+            <button class="active" role="tab" aria-selected="true" aria-controls="login-pane" id="tab-login" onclick="switchTab('login')">로그인</button>
+            <button role="tab" aria-selected="false" aria-controls="register-pane" id="tab-register" onclick="switchTab('register')">회원가입</button>
         </div>
 
-        <div id="login-pane" class="tab-pane active">
+        <div id="login-pane" class="tab-pane active" role="tabpanel" aria-labelledby="tab-login">
             <form id="loginForm" onsubmit="return false;">
                 <div class="form-group">
                     <label for="loginEmail">이메일</label>
@@ -74,8 +79,8 @@
                     <label for="loginPassword">비밀번호</label>
                     <div class="password-input-wrapper">
                         <input type="password" id="loginPassword" name="password" placeholder="6자 이상" required>
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('loginPassword')">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('loginPassword')" aria-label="비밀번호 표시/숨김" aria-pressed="false">
+                            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </button>
                     </div>
                 </div>
@@ -89,7 +94,7 @@
                     <a href="#">비밀번호 찾기</a>
                 </div>
 
-                <div class="message-area" id="loginMessage"></div>
+                <div class="message-area" id="loginMessage" role="status" aria-live="polite"></div>
 
                 <button type="button" class="submit-button" id="loginBtn" onclick="doLogin()">
                     로그인
@@ -98,7 +103,7 @@
             </form>
         </div>
 
-        <div id="register-pane" class="tab-pane">
+        <div id="register-pane" class="tab-pane" role="tabpanel" aria-labelledby="tab-register">
             <form id="registerForm" onsubmit="return false;">
                 <div class="form-group">
                     <label for="regName">이름</label>
@@ -114,8 +119,8 @@
                     <label for="regPassword">비밀번호</label>
                     <div class="password-input-wrapper">
                         <input type="password" id="regPassword" name="password" placeholder="6자 이상" required oninput="renderPasswordStrength()">
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('regPassword')">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('regPassword')" aria-label="비밀번호 표시/숨김" aria-pressed="false">
+                            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </button>
                     </div>
                     <div id="regPasswordStrength"></div>
@@ -125,8 +130,8 @@
                     <label for="regPasswordConfirm">비밀번호 확인</label>
                     <div class="password-input-wrapper">
                         <input type="password" id="regPasswordConfirm" name="passwordConfirm" placeholder="비밀번호 재입력" required>
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('regPasswordConfirm')">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('regPasswordConfirm')" aria-label="비밀번호 확인 표시/숨김" aria-pressed="false">
+                            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </button>
                     </div>
                 </div>
@@ -138,7 +143,7 @@
                     </label>
                 </div>
 
-                <div class="message-area" id="regMessage"></div>
+                <div class="message-area" id="regMessage" role="status" aria-live="polite"></div>
 
                 <button type="button" class="submit-button" id="regBtn" onclick="doRegister()">
                     회원가입
@@ -146,7 +151,7 @@
                 </button>
             </form>
         </div>
-    </div>
+    </main>
 
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
@@ -185,5 +190,8 @@
             box.innerHTML = '<div class="strength-bar strength-' + levels[score] + '"><span style="width:' + ((score / 4) * 100) + '%"></span></div><small class="strength-label">비밀번호 강도: <strong>' + labels[score] + '</strong></small>';
         }
     </script>
+    <script src="js/sw-register.js"></script>
+    <script src="js/skeleton.js"></script>
 </body>
 </html>
+ 

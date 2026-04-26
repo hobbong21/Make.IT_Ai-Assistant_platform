@@ -90,6 +90,228 @@
         });
       });
     });
+
+    // 애니메이션 줄이기 체크박스
+    var reduceMotionCheck = byId('reduceMotionCheck');
+    if (reduceMotionCheck) {
+      // 현재 저장된 값 로드
+      var savedReduceMotion = localStorage.getItem('makit_reduce_motion');
+      reduceMotionCheck.checked = savedReduceMotion === 'true';
+      // 초기화: 저장된 설정 또는 시스템 설정 확인
+      applyReduceMotion(reduceMotionCheck.checked);
+
+      // 체크박스 변경 이벤트
+      reduceMotionCheck.addEventListener('change', function () {
+        try {
+          localStorage.setItem('makit_reduce_motion', this.checked ? 'true' : 'false');
+        } catch (_) {}
+        applyReduceMotion(this.checked);
+      });
+    }
+
+    function applyReduceMotion(shouldReduce) {
+      var html = document.documentElement;
+      if (shouldReduce) {
+        html.setAttribute('data-reduce-motion', 'true');
+      } else {
+        html.removeAttribute('data-reduce-motion');
+      }
+    }
+
+    // Push Notification setup (R14c)
+    initPushNotifications();
+
+    // Load Push Analytics (R15a)
+    loadPushAnalytics();
+
+    async function initPushNotifications() {
+      if (!window.makitPush || !window.makitPush.isSupported) {
+        console.log('[Push] Web Push not supported; hiding UI');
+        return;
+      }
+
+      var card = byId('pushNotificationCard');
+      if (!card) return;
+      card.style.display = 'block';
+
+      var toggleBtn = byId('pushToggleBtn');
+      var testBtn = byId('pushTestBtn');
+      var statusEl = byId('pushStatus');
+
+      async function updateStatus() {
+        try {
+          var status = await window.makitPush.status();
+          var hasSubscription = status.hasSubscription;
+          var permission = status.permission;
+
+          if (permission === 'denied') {
+            statusEl.textContent = '권한이 거부되었습니다. 브라우저 설정에서 변경해주세요.';
+            statusEl.style.color = 'var(--mk-color-error-text)';
+            toggleBtn.textContent = '권한 요청';
+            toggleBtn.disabled = true;
+            testBtn.style.display = 'none';
+          } else if (hasSubscription) {
+            statusEl.textContent = '푸시 알림이 활성화되었습니다.';
+            statusEl.style.color = 'var(--mk-color-success-text)';
+            toggleBtn.textContent = '비활성화';
+            testBtn.style.display = 'inline-block';
+          } else {
+            statusEl.textContent = '푸시 알림이 비활성화되었습니다.';
+            statusEl.style.color = 'var(--mk-color-text-muted)';
+            toggleBtn.textContent = '활성화';
+            testBtn.style.display = 'none';
+          }
+        } catch (e) {
+          console.error('[Push] Error checking status:', e);
+          statusEl.textContent = '상태 확인 실패';
+        }
+      }
+
+      updateStatus();
+
+      toggleBtn.addEventListener('click', async function () {
+        toggleBtn.disabled = true;
+        var msgEl = byId('pushMessage');
+        msgEl.innerHTML = '';
+
+        try {
+          var status = await window.makitPush.status();
+          if (status.hasSubscription) {
+            var result = await window.makitPush.unsubscribe();
+            if (result.success) {
+              showMsg('pushMessage', result.message, true);
+            } else {
+              showMsg('pushMessage', result.message || '구독 해제에 실패했습니다', false);
+            }
+          } else {
+            var result = await window.makitPush.subscribe();
+            if (result.success) {
+              showMsg('pushMessage', result.message, true);
+            } else {
+              showMsg('pushMessage', result.message || '구독에 실패했습니다', false);
+            }
+          }
+          updateStatus();
+        } catch (e) {
+          console.error('[Push] Toggle error:', e);
+          showMsg('pushMessage', e.message || '오류가 발생했습니다', false);
+        } finally {
+          toggleBtn.disabled = false;
+        }
+      });
+
+      testBtn.addEventListener('click', async function () {
+        testBtn.disabled = true;
+        var msgEl = byId('pushMessage');
+        msgEl.innerHTML = '';
+
+        try {
+          await api.notifications.list({ size: 1 }); // dummy call to verify auth
+          // Trigger test via existing endpoint
+          await fetch('/api/notifications/me/test', { method: 'POST' });
+          showMsg('pushMessage', '테스트 알림이 전송되었습니다.', true);
+        } catch (e) {
+          console.error('[Push] Test error:', e);
+          showMsg('pushMessage', e.message || '테스트 전송 실패', false);
+        } finally {
+          testBtn.disabled = false;
+        }
+      });
+    }
+
+    async function loadPushAnalytics() {
+      var card = byId('pushAnalyticsCard');
+      if (!card) return;
+
+      try {
+        var analytics = await api.push.analytics(7);
+        if (!analytics) return;
+
+        // Show card if we have data
+        card.style.display = 'block';
+
+        // Update stat cards
+        byId('analyticsSent').textContent = analytics.sent.toString();
+        byId('analyticsClicked').textContent = analytics.clicked.toString();
+        byId('analyticsFailed').textContent = analytics.failed.toString();
+        byId('analyticsCtr').textContent = analytics.ctr.toFixed(1) + '%';
+
+        // Chart: daily breakdown
+        if (window.Chart && analytics.byDay && analytics.byDay.length > 0) {
+          var chartCanvas = byId('pushAnalyticsChart');
+          if (chartCanvas) {
+            // Reverse to show oldest first
+            var reversed = analytics.byDay.slice().reverse();
+            var labels = reversed.map(function (b) { return b.date.substring(5); });
+            var sentData = reversed.map(function (b) { return b.sent; });
+            var clickedData = reversed.map(function (b) { return b.clicked; });
+
+            new Chart(chartCanvas, {
+              type: 'line',
+              data: {
+                labels: labels,
+                datasets: [
+                  {
+                    label: '전송',
+                    data: sentData,
+                    borderColor: 'var(--mk-color-brand-500)',
+                    backgroundColor: 'rgb(37, 99, 235, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                  },
+                  {
+                    label: '클릭',
+                    data: clickedData,
+                    borderColor: 'var(--mk-color-success-500)',
+                    backgroundColor: 'rgb(34, 197, 94, 0.1)',
+                    tension: 0.3,
+                    fill: false
+                  }
+                ]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                  legend: {
+                    position: 'top',
+                    labels: {
+                      font: { size: 12 },
+                      color: 'var(--mk-color-text-muted)'
+                    }
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    ticks: {
+                      color: 'var(--mk-color-text-muted)',
+                      stepSize: 1
+                    },
+                    grid: {
+                      color: 'var(--mk-color-border)'
+                    }
+                  },
+                  x: {
+                    ticks: {
+                      color: 'var(--mk-color-text-muted)'
+                    },
+                    grid: {
+                      color: 'var(--mk-color-border)'
+                    }
+                  }
+                }
+              }
+            });
+          }
+        }
+
+      } catch (e) {
+        console.log('[Analytics] Not available or failed (non-fatal):', e);
+        // Hide card if not available
+        card.style.display = 'none';
+      }
+    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

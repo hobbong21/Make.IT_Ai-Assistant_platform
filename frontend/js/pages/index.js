@@ -24,17 +24,21 @@
       }
     });
 
-    // 대시보드 통계 동적 로드 (실패 시 hardcoded fallback 유지)
+    // 대시보드 통계 동적 로드 (skeleton 표시)
     if (api.dashboard && api.dashboard.stats) {
+      showStatsSkeleton();
       api.dashboard.stats().then(renderStats).catch(function (err) {
         console.warn('[index] /dashboard/stats failed (hardcoded fallback 유지)', err);
+        clearStatsSkeleton();
       });
     }
 
-    // 7일 활동 차트
+    // 7일 활동 차트 (skeleton 표시)
     if (api.dashboard && api.dashboard.activity) {
+      showActivitySkeleton();
       api.dashboard.activity(7).then(renderActivityChart).catch(function (err) {
         console.warn('[index] /dashboard/activity failed', err);
+        clearActivitySkeleton();
       });
     }
   }
@@ -140,6 +144,48 @@
 
     var emailSlot = document.querySelector('[data-user-email]');
     if (emailSlot) emailSlot.textContent = user.email || '';
+  }
+
+  // Skeleton loading for dashboard stats cards
+  function showStatsSkeleton() {
+    var cards = document.querySelectorAll('.stats-grid .stat-card');
+    cards.forEach(function (card) {
+      var numEl = card.querySelector('.stat-number');
+      var labelEl = card.querySelector('.stat-label');
+      if (numEl) {
+        numEl.innerHTML = '';
+        numEl.appendChild(window.makitSkeleton.row({heading: true, width: 50}));
+      }
+      if (labelEl) {
+        labelEl.innerHTML = '';
+        labelEl.appendChild(window.makitSkeleton.row({width: 60}));
+      }
+    });
+  }
+
+  function clearStatsSkeleton() {
+    // renderStats will replace skeleton when data arrives
+  }
+
+  // Skeleton loading for activity chart
+  function showActivitySkeleton() {
+    var chartWrap = document.getElementById('activityChart');
+    if (chartWrap) {
+      chartWrap.innerHTML = '';
+      var skeleton = document.createElement('div');
+      skeleton.className = 'mk-skeleton mk-skeleton--card';
+      skeleton.style.height = '250px';
+      skeleton.style.marginTop = 'var(--mk-space-3)';
+      chartWrap.parentNode.insertBefore(skeleton, chartWrap);
+      chartWrap.style.display = 'none';
+    }
+  }
+
+  function clearActivitySkeleton() {
+    var skeleton = document.querySelector('.mk-skeleton.mk-skeleton--card');
+    if (skeleton) skeleton.remove();
+    var chartWrap = document.getElementById('activityChart');
+    if (chartWrap) chartWrap.style.display = '';
   }
 
   if (document.readyState === 'loading') {

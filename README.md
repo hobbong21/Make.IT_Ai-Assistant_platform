@@ -2,6 +2,27 @@
 
 Human.Ai.D의 AI 기반 마케팅 자동화 플랫폼입니다. 콘텐츠 생성, 고객 참여, 캠페인 분석 등 핵심 마케팅 기능을 AI로 강화하여 제공합니다.
 
+## CI/CD 파이프라인
+
+MaKIT은 GitHub Actions를 통해 자동화된 CI/CD 파이프라인을 제공합니다.
+
+### 자동 실행 조건
+- **main/develop 브랜치 푸시**: 전체 파이프라인 실행 (backend-test → backend-build → e2e-test)
+- **Pull Request**: 백엔드 테스트 및 프론트엔드 검증만 실행 (시간 절약)
+- **수동 트리거**: GitHub Actions 탭에서 언제든지 실행 가능
+
+### 파이프라인 단계
+1. **Backend Tests** (15분): 단위/통합 테스트, JaCoCo 커버리지 생성
+2. **Backend Build** (15분): Maven을 통한 JAR 패키징
+3. **Frontend Validation** (10분): HTML/CSS 정적 검사 (선택적)
+4. **E2E Tests** (30분): Playwright 전체 시나리오 (main 브랜치만)
+
+### 커버리지 목표
+- **Line Coverage**: 70% 이상
+- **Branch Coverage**: 60% 이상
+
+상세한 설정은 [.github/CI.md](.github/CI.md)를 참조하세요.
+
 ## 🚀 빠른 시작
 
 ### 1. 환경 설정
@@ -11,7 +32,7 @@ git clone <repository-url>
 cd Make.IT_Ai-Assistant_platform
 
 # 설정 스크립트 실행
-./scripts/setup.sh
+./deploy/scripts/setup.sh
 ```
 
 ### 2. 애플리케이션 실행
@@ -35,7 +56,7 @@ Make.IT_Ai-Assistant_platform/
 ├── backend/                 # Spring Boot 백엔드
 ├── frontend/               # 웹 프론트엔드
 ├── docs/                   # 프로젝트 문서
-├── scripts/                # 배포 및 설정 스크립트
+├── deploy/scripts/                # 배포 및 설정 스크립트
 ├── docker-compose.yml      # Docker Compose 설정
 └── README.md              # 이 파일
 ```
@@ -102,7 +123,7 @@ AWS_SECRET_ACCESS_KEY=your_secret_key
 ### ECS 배포 (권장)
 ```bash
 # ECR 리포지토리 생성 후
-./scripts/deploy-aws.sh
+./deploy/scripts/deploy-aws.sh
 ```
 
 ### EC2 배포
@@ -536,23 +557,4 @@ public class AuthenticationException extends MarKITException {}
 - Memory usage and garbage collection analysis
 
 **Security Testing**:
-- Authentication and authorization testing
-- Input validation and sanitization testing
-- SQL injection and XSS prevention testing
-- AWS security configuration validation
-
-### Test Data Management
-
-**Test Data Strategy**:
-- Synthetic test data generation for various scenarios
-- Anonymized production data for realistic testing
-- AI-generated test content for content validation
-- Mock external service responses for isolated testing
-
-**Testing Infrastructure**:
-- Containerized test environments with Docker
-- CI/CD pipeline integration with automated testing
-- Test result reporting and coverage analysis
-- Performance regression detection
-
-This design provides a robust foundation for enhancing the MarKIT platform with advanced AI capabilities while maintaining security, scalability, and maintainability. The modular architecture allows for incremental development and easy integration of new features as requirements evolve.
+- Authentication and auth

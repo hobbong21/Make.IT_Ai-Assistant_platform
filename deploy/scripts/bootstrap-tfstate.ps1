@@ -5,7 +5,7 @@
 
 .DESCRIPTION
     One-time setup. Skips resources that already exist.
-    After success, outputs values to paste into infra/terraform/envs/*.tfvars.
+    After success, outputs values to paste into ../terraform/envs/*.tfvars.
 
 .PARAMETER Profile
     AWS CLI profile name (optional).
@@ -164,7 +164,7 @@ Write-Host ""
 Write-Host "[✓] Bootstrap complete."
 Write-Host ""
 Write-Host "============================================================"
-Write-Host "Paste the following into each infra/terraform/envs/*.tfvars"
+Write-Host "Paste the following into each ../terraform/envs/*.tfvars"
 Write-Host "(or into a *.tfbackend file if you use -backend-config):"
 Write-Host ""
 Write-Host "  tfstate_bucket_name = `"$Bucket`""
@@ -172,7 +172,7 @@ Write-Host "  tfstate_lock_table  = `"$Table`""
 Write-Host "  aws_region          = `"$Region`""
 Write-Host ""
 Write-Host "Then:"
-Write-Host "  cd infra/terraform"
+Write-Host "  cd ../terraform"
 Write-Host "  terraform init ``"
 Write-Host "    -backend-config=`"bucket=$Bucket`" ``"
 Write-Host "    -backend-config=`"dynamodb_table=$Table`" ``"

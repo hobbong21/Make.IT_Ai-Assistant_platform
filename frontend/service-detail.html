@@ -4,18 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MaKIT - 서비스 상세 | Human.Ai.D</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="/img/illustrations/login-mark.svg">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/app-shell.css">
     <link rel="stylesheet" href="css/service-detail-styles.css">
 </head>
 <body>
+    <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
     <noscript><div class="makit-noscript">이 페이지는 JavaScript가 필요합니다. 브라우저에서 JavaScript를 활성화해주세요.</div></noscript>
 
-    <nav class="top-nav">
+    <nav class="top-nav" aria-label="페이지 네비게이션">
         <div class="top-nav-container">
             <a href="all-services.html" class="nav-back">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M19 12H5"></path>
                     <path d="M12 19l-7-7 7-7"></path>
                 </svg>
@@ -28,26 +34,26 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo"><div class="logo-text">MaKIT</div></div>
-                <button class="sidebar-toggle">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="sidebar-toggle" aria-label="사이드바 접기/펼치기" aria-expanded="true">
+                    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="m6 9 6 6 6-6"></path>
                     </svg>
                 </button>
             </div>
 
-            <nav class="sidebar-nav">
+            <nav class="sidebar-nav" aria-label="사이드바 메뉴">
                 <div class="nav-section">
                     <div class="nav-section-title">홈</div>
                     <a href="index.html" class="nav-item">
                         <span>개요</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
                             <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                         </svg>
                     </a>
                     <a href="all-services.html" class="nav-item">
                         <span>모든 서비스</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path>
                         </svg>
                     </a>
@@ -56,7 +62,7 @@
                 <div class="nav-section">
                     <div class="nav-section-title">카테고리별 서비스</div>
                     <div class="nav-dropdown">
-                        <div class="nav-dropdown-header"><span>AX Data Intelligence</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></div>
+                        <div class="nav-dropdown-header"><span>AX Data Intelligence</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></div>
                         <div class="nav-dropdown-items">
                             <a href="service-detail.html?service=nlp-analyze" class="nav-dropdown-item">자연어 분석</a>
                             <a href="service-detail.html?service=youtube-comments" class="nav-dropdown-item">유튜브 댓글 분석</a>
@@ -67,7 +73,7 @@
                     </div>
 
                     <div class="nav-dropdown">
-                        <div class="nav-dropdown-header"><span>AX Marketing Intelligence</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></div>
+                        <div class="nav-dropdown-header"><span>AX Marketing Intelligence</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></div>
                         <div class="nav-dropdown-items">
                             <a href="service-detail.html?service=feed-generate" class="nav-dropdown-item">인스타그램 피드 생성</a>
                             <a href="service-detail.html?service=remove-bg" class="nav-dropdown-item">배경 제거</a>
@@ -76,7 +82,7 @@
                     </div>
 
                     <div class="nav-dropdown">
-                        <div class="nav-dropdown-header"><span>AX Commerce Brain</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></div>
+                        <div class="nav-dropdown-header"><span>AX Commerce Brain</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></div>
                         <div class="nav-dropdown-items">
                             <a href="service-detail.html?service=chatbot" class="nav-dropdown-item">고객 응대 AI 챗봇</a>
                             <a href="service-detail.html?service=review-analysis" class="nav-dropdown-item">상품 리뷰 분석</a>
@@ -86,7 +92,7 @@
 
                 <a href="intro.html" class="nav-item go-to-web">
                     <span>웹사이트</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M15 3h6v6"></path>
                         <path d="M10 14 21 3"></path>
                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -95,10 +101,10 @@
             </nav>
         </aside>
 
-        <main class="main-content">
+        <main id="main-content" class="main-content">
             <div class="content-wrapper">
                 <div class="service-header">
-                    <img src="img/illustrations/service-detail-hero.svg" alt="서비스 상세" class="service-header-image">
+                    <img loading="lazy" decoding="async" src="img/illustrations/service-detail-hero.svg" alt="서비스 상세" class="service-header-image">
                     <div class="service-header-content">
                         <h1 id="serviceTitle">자연어 분석</h1>
                         <p id="serviceSubtitle">텍스트 데이터를 분석하여 인사이트 추출</p>
@@ -144,6 +150,12 @@
     <script src="js/chatbot-widget.js"></script>
     <script src="js/user-menu.js"></script>
     <script src="js/app-shell-extras.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <script src="js/ws-client.js"></script>
     <script src="js/pages/service-detail.js"></script>
+    <script src="js/push-subscribe.js"></script>
+    <script src="js/sw-register.js"></script>
+    <script src="js/skeleton.js"></script>
 </body>
 </html>

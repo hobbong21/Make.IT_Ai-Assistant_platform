@@ -3,6 +3,7 @@ package com.humanad.makit.marketing.hub;
 import com.humanad.makit.ai.bedrock.BedrockClient;
 import com.humanad.makit.ai.bedrock.BedrockInvocation;
 import com.humanad.makit.audit.AuditLogRepository;
+import com.humanad.makit.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -24,6 +25,7 @@ public class WeeklyInsightServiceImpl implements WeeklyInsightService {
 
     private final AuditLogRepository auditLogRepository;
     private final BedrockClient bedrockClient;
+    private final NotificationService notificationService;
 
     private static final String BEDROCK_MODEL_ID = "anthropic.claude-3-5-haiku-20241022-v1:0";
     private static final int MAX_TOKENS = 1024;
@@ -45,16 +47,48 @@ public class WeeklyInsightServiceImpl implements WeeklyInsightService {
             // 3. Try Bedrock Claude invocation
             String markdown = invokeBedrockInsight(userId, activitySummary, weekStart, today);
 
-            return Map.of(
+            Map<String, Object> result = Map.of(
                     "weekStart", weekStart.toString(),
                     "weekEnd", today.toString(),
                     "markdown", markdown,
                     "generatedAt", java.time.Instant.now().toString(),
                     "source", "bedrock-claude"
             );
+
+            // Send success notification
+            try {
+                notificationService.create(
+                    userId,
+                    "SUCCESS",
+                    "주간 인사이트 리포트",
+                    "이번 주 인사이트 리포트가 준비되었습니다",
+                    null
+                );
+            } catch (Exception notifEx) {
+                log.warn("Failed to send notification for weekly insight: {}", notifEx.getMessage());
+                // Continue anyway - insight generation must not be blocked by notification failure
+            }
+
+            return result;
         } catch (Exception e) {
             log.warn("Bedrock insight generation failed for user {}, falling back to stub: {}", userId, e.getMessage());
-            return generateStubInsight(weekStart, today);
+            Map<String, Object> stubResult = generateStubInsight(weekStart, today);
+
+            // Send notification for stub insight
+            try {
+                notificationService.create(
+                    userId,
+                    "SUCCESS",
+                    "주간 인사이트 리포트",
+                    "이번 주 인사이트 리포트가 준비되었습니다",
+                    null
+                );
+            } catch (Exception notifEx) {
+                log.warn("Failed to send notification for weekly insight (stub): {}", notifEx.getMessage());
+                // Continue anyway - insight generation must not be blocked by notification failure
+            }
+
+            return stubResult;
         }
     }
 

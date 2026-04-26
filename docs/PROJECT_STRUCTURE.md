@@ -1,134 +1,144 @@
 # MaKIT 프로젝트 구조
 
-## 📁 디렉토리 구조
+> 2026-04-26 정리 — 어수선했던 `_workspace/`, `infra/`, `0. Design1_Mokup/`을 목적별 분류로 재구성.
+
+## 한 페이지 요약
 
 ```
-Make.IT_Ai-Assistant_platform/
-├── backend/                    # Spring Boot 백엔드 애플리케이션
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/Human/Ai/D/makit/
-│   │   │   │   ├── annotation/     # 커스텀 어노테이션
-│   │   │   │   ├── aspect/         # AOP 관련 클래스
-│   │   │   │   ├── config/         # 설정 클래스들
-│   │   │   │   ├── controller/     # REST 컨트롤러
-│   │   │   │   ├── domain/         # JPA 엔티티
-│   │   │   │   ├── dto/            # 데이터 전송 객체
-│   │   │   │   ├── model/          # 비즈니스 모델
-│   │   │   │   ├── repository/     # 데이터 접근 계층
-│   │   │   │   ├── service/        # 비즈니스 로직
-│   │   │   │   └── MakitApplication.java
-│   │   │   └── resources/
-│   │   │       ├── application.yml
-│   │   │       ├── application-docker.yml
-│   │   │       └── db/migration/   # 데이터베이스 마이그레이션
-│   │   └── test/                   # 테스트 코드 (57개 파일)
+MaKIT/
+├── README.md                  ← 사용자 빠른 시작
+├── CLAUDE.md                  ← 하네스 가이드 + 변경 이력
+├── package.json               ← E2E 테스트 의존성 (루트 Node 프로젝트)
+├── playwright.config.ts       ← Playwright 설정
+│
+├── Docker 자산 (루트 유지 — 표준 컨벤션)
 │   ├── Dockerfile
-│   └── pom.xml
-├── frontend/                   # 프론트엔드 웹 애플리케이션
-│   ├── css/                    # 스타일시트
-│   │   ├── styles.css
-│   │   ├── all-services-styles.css
-│   │   ├── service-detail-styles.css
-│   │   └── intro-styles.css
-│   ├── js/                     # JavaScript 파일
-│   ├── assets/                 # 이미지, 폰트 등 정적 자원
-│   ├── index.html              # 메인 대시보드
-│   ├── login.html              # 로그인 페이지
-│   ├── all-services.html       # 전체 서비스 목록
-│   ├── service-detail.html     # 서비스 상세 페이지
-│   └── intro.html              # 제품 소개 페이지
-├── docs/                       # 프로젝트 문서
-│   └── PROJECT_STRUCTURE.md
-├── docker-compose.yml          # Docker Compose 설정
-├── Dockerfile                  # 프론트엔드 Docker 설정
-├── .dockerignore
-├── .gitignore
-└── README.md                   # 프로젝트 개요 및 설계 문서
+│   ├── docker-compose.yml
+│   ├── docker-compose.override.yml
+│   ├── nginx.conf
+│   └── .dockerignore
+│
+├── backend/                   ← Spring Boot 3.2 + Java 21 (Maven)
+├── frontend/                  ← 정적 자산 (HTML/CSS/Vanilla JS)
+├── tests/                     ← Playwright E2E
+│
+├── deploy/                    ← 배포·인프라 통합 (NEW)
+│   ├── terraform/             ← AWS IaC (이전 infra/terraform)
+│   └── scripts/               ← 배포·운영 스크립트 (이전 scripts/)
+│
+├── docs/                      ← 모든 문서 통합 (이전 _workspace/)
+│   ├── PROJECT_STRUCTURE.md   ← 본 문서
+│   ├── architecture/          ← 시스템 설계·API 계약·데이터 모델
+│   ├── design/                ← UX 토큰·컴포넌트 가이드
+│   ├── rounds/                ← R 라운드 산출물 (R13~R16+)
+│   ├── runbooks/              ← 운영 가이드 (E2E·CI·deploy)
+│   └── agent-progress/        ← 옛 agent 진행 보고서 (이력 보존용)
+│
+├── _archive/                  ← 사용 안 하는 옛 자산 (NEW)
+│   └── design-mockup-v0/      ← 초기 mockup (이전 "0. Design1_Mokup/")
+│
+└── 숨김 파일들
+    ├── .git/
+    ├── .github/               ← GitHub Actions (CI/CD, R16c)
+    ├── .claude/               ← 하네스 정의 (agents/skills)
+    ├── .gitignore, .env.example, .replit
 ```
 
-## 🏗️ 아키텍처 개요
+## 디렉토리별 상세
 
-### 백엔드 (Spring Boot)
-- **Java 21** 기반
-- **Spring Boot 3.2.0** 프레임워크
-- **PostgreSQL** 데이터베이스 (개발시 H2)
-- **AWS SDK** 통합 (Bedrock, S3, Cognito)
-- **Redis** 캐싱
-- **JWT** 인증
+### `backend/` — Spring Boot
+- 표준 Maven 레이아웃 (`src/main/java/com/humanad/makit/...`)
+- 도메인별 패키지: auth/, dashboard/, marketing/, commerce/, ai/, notification/, audit/, admin/, job/
+- 60+ REST endpoints, 12+ Flyway migrations, JaCoCo coverage 활성화
+- 실행: `cd backend && ./mvnw spring-boot:run`
 
-### 프론트엔드 (Static Web)
-- **HTML5/CSS3/JavaScript**
-- **반응형 디자인**
-- **Nginx** 서버
+### `frontend/` — Vanilla JS PWA
+```
+frontend/
+├── *.html (10 페이지)         ← index/intro/login/all-services/service-detail/
+│                                marketing-hub/settings/history/admin/404
+├── css/                       ← D1 토큰 (tokens.css) + 페이지별 + app-shell
+├── js/
+│   ├── api.js, auth.js, ui.js, config.js
+│   ├── chatbot-widget.js, user-menu.js, modal.js
+│   ├── i18n.js, i18n-dict.js (R16a)
+│   ├── push-subscribe.js, sw-register.js (R13/R14c)
+│   ├── skeleton.js (R15c)
+│   ├── ws-client.js (R8 STOMP)
+│   └── pages/*.js (페이지별 컨트롤러)
+├── img/illustrations/         ← 10 SVG (D1 token 기반)
+├── manifest.webmanifest       ← PWA 매니페스트
+└── sw.js                      ← 서비스 워커 (offline + push)
+```
 
-### 인프라
-- **Docker & Docker Compose**
-- **AWS 클라우드 서비스**
-- **PostgreSQL 데이터베이스**
+### `tests/e2e/` — Playwright
+- `auth.spec.ts` (production-ready, 6 테스트)
+- `service.spec.ts`, `boundary.spec.ts` (skeleton)
+- `README.md`, `IMPLEMENTATION_GUIDE.md`
 
-## 📊 코드 통계
+### `deploy/` — 배포 자산 (통합)
+- `terraform/` — 9 모듈 (vpc/ecs/rds/...) + envs/{dev,prod}.tfvars
+- `scripts/` — bootstrap-tfstate, deploy-aws, push-to-github, setup (sh/ps1 페어)
 
-- **백엔드 Java 클래스**: 124개
-- **테스트 클래스**: 57개
-- **REST 컨트롤러**: 15개
-- **서비스 클래스**: 30개+
-- **JPA 엔티티**: 15개
-- **프론트엔드 페이지**: 5개
+### `docs/` — 문서 허브
 
-## 🚀 실행 방법
+| 폴더 | 용도 | 예시 |
+|------|------|------|
+| `architecture/` | 시스템 설계 | `01_architect_system_design.md`, `01_architect_api_contracts.md` |
+| `design/` | UX/디자인 시스템 | `D1_Design_Tokens_Proposal.md`, `D2_Page_CSS_Token_Migration_Proposal.md` |
+| `rounds/` | R 라운드 산출물 | `02_backend_R13_notification_triggers.md`, `04_frontend_R16a_i18n.md` |
+| `runbooks/` | 운영 가이드 | `05_devops_runbook.md`, `06_qa_R16d_e2e_runbook.md` |
+| `agent-progress/` | 옛 진행 보고서 | `02_backend_progress.md`, `06_qa_report_2026-04-20.md` |
 
-### Docker Compose 사용 (권장)
+### `_archive/` — 옛 자산 보존
+- 빌드/배포에서 제외되는 휴면 자산
+- 향후 참고용으로 보존 (삭제하지 않음)
+
+## 변경 매핑 (이전 → 신규)
+
+| 이전 위치 | 신규 위치 | 비고 |
+|----------|----------|------|
+| `0. Design1_Mokup/` | `_archive/design-mockup-v0/` | 폴더명 정상화 |
+| `infra/terraform/` | `deploy/terraform/` | 배포 자산 통합 |
+| `scripts/` | `deploy/scripts/` | 배포 자산 통합 |
+| `_workspace/01_architect_*` | `docs/architecture/` | 분류 |
+| `_workspace/design/*` | `docs/design/` | 분류 |
+| `_workspace/*R[0-9]*.md` | `docs/rounds/` | 분류 |
+| `_workspace/05_devops_runbook.md` | `docs/runbooks/` | 분류 |
+| `_workspace/06_qa_R16d_e2e_runbook.md` | `docs/runbooks/` | 분류 |
+| `_workspace/02-07_*progress*.md` 등 | `docs/agent-progress/` | 옛 보고서 |
+
+## 참조 경로 업데이트 완료
+
+- `.github/workflows/docker-publish.yml`: `infra/terraform` → `deploy/terraform`, `scripts/` → `deploy/scripts/`
+- `README.md`: 동일 매핑
+- `deploy/scripts/*.{sh,ps1}`: 자기 참조 정정
+- `deploy/terraform/README.md`: 경로 정정
+
+## 후속 정리 (사용자 머신에서 직접 실행)
+
+샌드박스 권한 제약으로 빈 폴더(`_workspace/`, `infra/`) 자체는 삭제 불가. 사용자가 다음 명령으로 마무리:
+
+```powershell
+# PowerShell
+cd "C:\I. Program\Workspace_\Make.IT_Ai-Assistant_platform-main\Make.IT_Ai-Assistant_platform-main"
+Remove-Item _workspace -Recurse -Force
+Remove-Item infra -Recurse -Force
+git add -A
+git commit -m "chore: 파일 구조 정리 - deploy/, docs/ 통합 + _archive/ 분리"
+```
+
+또는 bash:
 ```bash
-docker-compose up --build
+rm -rf _workspace infra
+git add -A
+git commit -m "chore: 파일 구조 정리"
 ```
 
-### 개별 실행
-```bash
-# 백엔드
-cd backend
-mvn spring-boot:run
+## 디자인 원칙
 
-# 프론트엔드 (별도 웹서버 필요)
-cd frontend
-python -m http.server 8000
-```
-
-## 📝 주요 기능
-
-### 1. AX Data Intelligence
-- 자연어 분석
-- 유튜브 댓글 분석
-- 웹사이트 URL 분석
-- 키워드 채널 검색
-
-### 2. AX Marketing Intelligence
-- 인스타그램 피드 생성
-- 배경 제거
-- 콘텐츠 최적화
-
-### 3. AX Commerce Brain
-- AI 챗봇
-- 상품 리뷰 분석
-- 이미지 + 모델컷 생성
-
-## 🔧 개발 환경 설정
-
-### 필수 요구사항
-- Java 21
-- Maven 3.6+
-- Docker & Docker Compose
-- PostgreSQL (프로덕션)
-
-### 환경 변수
-```bash
-# AWS 설정
-AWS_REGION=ap-northeast-2
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret_key
-
-# 데이터베이스 설정
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/makit
-SPRING_DATASOURCE_USERNAME=makit_user
-SPRING_DATASOURCE_PASSWORD=makit_password
-```
+1. **목적이 디렉토리 이름** — `deploy`는 배포, `docs`는 문서, `_archive`는 보존
+2. **숫자/특수문자 prefix 금지** — 알파벳 시작 (`0. Design1_Mokup` 같은 안티패턴 제거)
+3. **루트는 핵심만** — 빌드 진입점, README, 표준 docker 파일만 노출
+4. **휴면 자산은 underscore prefix** — `_archive/`로 시각적 구분
+5. **참조 경로 일관성** — CI/문서/스크립트 모두 같은 경로 사용

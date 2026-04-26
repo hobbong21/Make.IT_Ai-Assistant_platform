@@ -5,6 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MaKIT - AX 마케팅 플랫폼 소개 | Human.Ai.D</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="/img/illustrations/login-mark.svg">
+    <link rel="preconnect" href="https://upload.wikimedia.org" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preload" as="image" href="img/illustrations/intro-hero.svg">
     <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/app-shell.css">
@@ -12,8 +19,9 @@
 </head>
 
 <body>
+    <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
     <!-- 네비게이션 -->
-    <nav class="navbar">
+    <nav class="navbar" aria-label="메인 네비게이션">
         <div class="nav-container">
             <div class="nav-logo">
                 <div class="logo-text">MaKIT</div>
@@ -27,7 +35,7 @@
     </nav>
 
     <!-- 히어로 섹션 -->
-    <section class="hero">
+    <section class="hero" id="main-content" role="main">
         <div class="hero-container">
             <div class="hero-content">
                 <h1 class="hero-title">
@@ -44,7 +52,7 @@
                 </div>
             </div>
             <div class="hero-visual">
-                <img src="img/illustrations/intro-hero.svg" alt="MaKIT 플랫폼 히어로 일러스트" class="hero-illustration">
+                <img src="img/illustrations/intro-hero.svg" alt="MaKIT 플랫폼 히어로 일러스트" class="hero-illustration" fetchpriority="high" decoding="async">
             </div>
         </div>
     </section>
@@ -57,27 +65,27 @@
             </div>
             <div class="tech-stack-grid">
                 <div class="tech-item">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS" class="tech-logo">
+                    <img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS" class="tech-logo">
                     <span class="tech-name">AWS</span>
                 </div>
                 <div class="tech-item">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="Bedrock" class="tech-logo">
+                    <img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="Bedrock" class="tech-logo">
                     <span class="tech-name">Bedrock</span>
                 </div>
                 <div class="tech-item">
-                    <img src="https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg" alt="Java" class="tech-logo">
+                    <img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg" alt="Java" class="tech-logo">
                     <span class="tech-name">Java</span>
                 </div>
                 <div class="tech-item">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Spring_Framework_Logo_2018.svg" alt="Spring Boot" class="tech-logo">
+                    <img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/commons/4/44/Spring_Framework_Logo_2018.svg" alt="Spring Boot" class="tech-logo">
                     <span class="tech-name">Spring Boot</span>
                 </div>
                 <div class="tech-item">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Docker_%28container_engine%29_logo.svg" alt="Docker" class="tech-logo">
+                    <img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Docker_%28container_engine%29_logo.svg" alt="Docker" class="tech-logo">
                     <span class="tech-name">Docker</span>
                 </div>
                 <div class="tech-item">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Kubernetes_logo_without_workmark.svg" alt="Kubernetes" class="tech-logo">
+                    <img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/commons/3/39/Kubernetes_logo_without_workmark.svg" alt="Kubernetes" class="tech-logo">
                     <span class="tech-name">Kubernetes</span>
                 </div>
             </div>
@@ -139,7 +147,7 @@
                     </div>
                 </div>
                 <div class="solution-visual">
-                    <img src="img/illustrations/intro-hero.svg" alt="마케팅 인텔리전스" class="solution-illustration">
+                    <img loading="lazy" decoding="async" src="img/illustrations/intro-hero.svg" alt="마케팅 인텔리전스" class="solution-illustration">
                 </div>
             </div>
         </div>
@@ -154,10 +162,10 @@
                     <div class="service-content">
                         <h3>AX Data Intelligence</h3>
                         <p>데이터 통합, 파이프라인 설계, 시각화, 자연어 기반의 분석 및 인사이트 추출, ML 모델을 활용한 예측분석까지 데이터 분석을 위한 모든 솔루션</p>
-                        <a href="all-services.html" class="learn-more">Learn More<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"></path><path d="M17 7h-6v6"></path></svg></a>
+                        <a href="all-services.html" class="learn-more">Learn More<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"></path><path d="M17 7h-6v6"></path></svg></a>
                     </div>
                     <div class="service-visual">
-                        <img src="img/illustrations/ax-data.svg" alt="AX Data Intelligence" class="service-illustration">
+                        <img loading="lazy" decoding="async" src="img/illustrations/ax-data.svg" alt="AX Data Intelligence" class="service-illustration">
                     </div>
                 </div>
 
@@ -165,10 +173,10 @@
                     <div class="service-content">
                         <h3>AX Marketing Intelligence</h3>
                         <p>AI 기반의 창의적인 콘텐츠 생성, 이미지 처리 및 자동 편집, 캠페인 최적화 및 성과 분석, 마케팅의 모든 단계를 자동화</p>
-                        <a href="all-services.html" class="learn-more">Learn More<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"></path><path d="M17 7h-6v6"></path></svg></a>
+                        <a href="all-services.html" class="learn-more">Learn More<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"></path><path d="M17 7h-6v6"></path></svg></a>
                     </div>
                     <div class="service-visual">
-                        <img src="img/illustrations/ax-marketing.svg" alt="AX Marketing Intelligence" class="service-illustration">
+                        <img loading="lazy" decoding="async" src="img/illustrations/ax-marketing.svg" alt="AX Marketing Intelligence" class="service-illustration">
                     </div>
                 </div>
 
@@ -176,10 +184,10 @@
                     <div class="service-content">
                         <h3>AX Commerce Brain</h3>
                         <p>전자상거래 고객 응대 자동화, 제품 리뷰 및 피드백 분석, 개인화된 추천 및 타겟팅, 판매 극대화를 위한 AI 솔루션</p>
-                        <a href="all-services.html" class="learn-more">Learn More<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"></path><path d="M17 7h-6v6"></path></svg></a>
+                        <a href="all-services.html" class="learn-more">Learn More<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"></path><path d="M17 7h-6v6"></path></svg></a>
                     </div>
                     <div class="service-visual">
-                        <img src="img/illustrations/commerce-brain.svg" alt="AX Commerce Brain" class="service-illustration">
+                        <img loading="lazy" decoding="async" src="img/illustrations/commerce-brain.svg" alt="AX Commerce Brain" class="service-illustration">
                     </div>
                 </div>
             </div>
@@ -222,7 +230,12 @@
     <script src="js/chatbot-widget.js"></script>
     <script src="js/user-menu.js"></script>
     <script src="js/app-shell-extras.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <script src="js/ws-client.js"></script>
     <script src="js/pages/intro.js"></script>
+    <script src="js/sw-register.js"></script>
+    <script src="js/skeleton.js"></script>
 </body>
 
 </html>

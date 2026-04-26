@@ -8,8 +8,8 @@ name: Docker Build & Deploy
 #   to run Terraform. First-time bootstrap must happen locally.
 #
 # Enable this workflow by uncommenting the triggers below AFTER:
-#   1. scripts/bootstrap-tfstate.ps1            — creates S3 state bucket + DynamoDB lock
-#   2. cd infra/terraform && terraform init ... — initializes backend
+#   1. ./deploy/scripts/bootstrap-tfstate.ps1            — creates S3 state bucket + DynamoDB lock
+#   2. cd deploy/terraform && terraform init ... — initializes backend
 #   3. terraform apply -var-file=envs/dev.tfvars — creates OIDC role + infra
 #   4. terraform output -raw github_oidc_role_arn → note the ARN
 #   5. GitHub Settings → Secrets and variables → Actions → add 4 secrets:
@@ -76,8 +76,8 @@ jobs:
               echo "- TF_STATE_LOCK_TABLE: ${HAS_STATE_LOCK}";
               echo "";
               echo "### Bootstrap steps (one-time, run on a machine with AWS CLI):";
-              echo "1. \`./scripts/bootstrap-tfstate.sh\` (or .ps1) — creates S3 state bucket + DynamoDB lock table";
-              echo "2. \`cd infra/terraform && terraform init -backend-config=... && terraform apply -var-file=envs/dev.tfvars\`";
+              echo "1. \`./deploy/scripts/bootstrap-tfstate.sh\` (or .ps1) — creates S3 state bucket + DynamoDB lock table";
+              echo "2. \`cd deploy/terraform && terraform init -backend-config=... && terraform apply -var-file=envs/dev.tfvars\`";
               echo "3. Grab \`github_oidc_role_arn\` from \`terraform output\`";
               echo "4. Go to Settings → Secrets and variables → Actions and set:";
               echo "   - AWS_ROLE_ARN (from step 3)";
@@ -155,7 +155,7 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init (dev)
-        working-directory: infra/terraform
+        working-directory: deploy/terraform
         run: |
           terraform init \
             -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
@@ -166,7 +166,7 @@ jobs:
             -reconfigure
 
       - name: Terraform Apply (dev)
-        working-directory: infra/terraform
+        working-directory: deploy/terraform
         run: |
           terraform apply \
             -var-file=envs/dev.tfvars \
@@ -176,7 +176,7 @@ jobs:
 
       - name: Smoke test (dev)
         run: |
-          ALB=$(cd infra/terraform && terraform output -raw alb_dns_name)
+          ALB=$(cd deploy/terraform && terraform output -raw alb_dns_name)
           echo "Probing http://$ALB"
           for i in {1..30}; do
             code=$(curl -s -o /dev/null -w "%{http_code}" "http://$ALB/healthz" || true)
@@ -208,7 +208,7 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init (staging)
-        working-directory: infra/terraform
+        working-directory: deploy/terraform
         run: |
           terraform init \
             -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
@@ -219,7 +219,7 @@ jobs:
             -reconfigure
 
       - name: Terraform Apply (staging)
-        working-directory: infra/terraform
+        working-directory: deploy/terraform
         run: |
           terraform apply \
             -var-file=envs/staging.tfvars \
@@ -250,7 +250,7 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init (prod)
-        working-directory: infra/terraform
+        working-directory: deploy/terraform
         run: |
           terraform init \
             -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
@@ -261,7 +261,7 @@ jobs:
             -reconfigure
 
       - name: Terraform Plan (prod)
-        working-directory: infra/terraform
+        working-directory: deploy/terraform
         run: |
           terraform plan \
             -var-file=envs/prod.tfvars \
@@ -270,5 +270,5 @@ jobs:
             -out=prod.plan
 
       - name: Terraform Apply (prod)
-        working-directory: infra/terraform
+        working-directory: deploy/terraform
         run: terraform apply prod.plan

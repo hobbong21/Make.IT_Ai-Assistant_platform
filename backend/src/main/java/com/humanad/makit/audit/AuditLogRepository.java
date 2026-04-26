@@ -58,4 +58,65 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
         ORDER BY day ASC
         """, nativeQuery = true)
     List<Object[]> findActivityByDay(@Param("userId") UUID userId, @Param("days") int days);
+
+    /**
+     * Find channel metrics grouped by date and service key for a user.
+     * Maps service keys to channels:
+     *   - youtube-* → YOUTUBE
+     *   - feed-generate, remove-bg, modelshot → INSTAGRAM
+     *   - nlp-analyze, url-analyze → SEO
+     *   - chatbot, review-analysis → ADS
+     *
+     * Returns List<Object[]> where each element is [day, service_key, count].
+     */
+    @Query(value = """
+        SELECT to_char(created_at AT TIME ZONE 'Asia/Seoul', 'YYYY-MM-DD') AS day,
+               resource AS service_key,
+               COUNT(*) AS cnt
+        FROM audit_logs
+        WHERE user_id = :userId
+          AND resource IS NOT NULL
+          AND created_at >= now() - (:days || ' days')::interval
+        GROUP BY day, resource
+        ORDER BY day ASC
+        """, nativeQuery = true)
+    List<Object[]> findChannelMetricsByDay(@Param("userId") UUID userId, @Param("days") int days);
+
+    /**
+     * Count total requests (audit_logs rows) for a user in the last N days (admin dashboard).
+     */
+    @Query("""
+        SELECT COUNT(a) FROM AuditLog a
+        WHERE a.createdAt >= :since
+    """)
+    long countRequestsSince(@Param("since") java.time.OffsetDateTime since);
+
+    /**
+     * Count requests by action (LOGIN, SERVICE_CALL, ERROR) in the last N days.
+     * Returns List<Object[]> where each element is [action, count].
+     */
+    @Query(value = """
+        SELECT action, COUNT(*) AS cnt
+        FROM audit_logs
+        WHERE created_at >= now() - (:days || ' days')::interval
+        GROUP BY action
+        ORDER BY cnt DESC
+        """, nativeQuery = true)
+    List<Object[]> countByActionLastDays(@Param("days") int days);
+
+    /**
+     * Count usage metrics grouped by date for all users in the last N days.
+     * Returns List<Object[]> where each element is [date (YYYY-MM-DD), requests, jobs, errors].
+     */
+    @Query(value = """
+        SELECT to_char(created_at AT TIME ZONE 'Asia/Seoul', 'YYYY-MM-DD') AS day,
+               COUNT(*) AS requests,
+               SUM(CASE WHEN action LIKE '%ERROR%' THEN 1 ELSE 0 END) AS errors,
+               0 AS jobs
+        FROM audit_logs
+        WHERE created_at >= now() - (:days || ' days')::interval
+        GROUP BY day
+        ORDER BY day ASC
+        """, nativeQuery = true)
+    List<Object[]> findUsageByDay(@Param("days") int days);
 }

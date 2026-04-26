@@ -17,30 +17,25 @@ public interface MarketingHubService {
 
     List<ChannelPerformance> getChannelPerformance(UUID userId, int days);
 
-    // ============= Campaign CRUD =============
+    // ============ Content CRUD =============
 
-    /**
-     * Create a new campaign. Initializes status to DRAFT.
-     */
+    ContentDto createContent(UUID userId, ContentCreateRequest req);
+
+    ContentDto getContent(UUID userId, Long contentId);
+
+    ContentDto updateContent(UUID userId, Long contentId, ContentUpdateRequest req);
+
+    void deleteContent(UUID userId, Long contentId);
+
+    // ============ Campaign CRUD =============
+
     CampaignDto createCampaign(UUID userId, CampaignCreateRequest req);
 
-    /**
-     * Get a single campaign by ID (ownership verified).
-     */
     CampaignDto getCampaign(UUID userId, Long campaignId);
 
-    /**
-     * Update campaign fields. Only non-null fields are updated (PATCH semantics).
-     */
     CampaignDto updateCampaign(UUID userId, Long campaignId, CampaignUpdateRequest req);
 
-    /**
-     * Change campaign status. Validates state machine transitions.
-     */
-    CampaignDto changeCampaignStatus(UUID userId, Long campaignId, String newStatus);
+    CampaignDto changeCampaignStatus(UUID userId, Long campaignId, CampaignStatusChangeRequest req);
 
-    /**
-     * Delete campaign (ownership verified).
-     */
     void deleteCampaign(UUID userId, Long campaignId);
 }

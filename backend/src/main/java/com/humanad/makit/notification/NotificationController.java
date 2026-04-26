@@ -1,5 +1,6 @@
 package com.humanad.makit.notification;
 
+import com.humanad.makit.audit.Auditable;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +26,7 @@ import java.util.UUID;
 public class NotificationController {
 
     private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
 
     @GetMapping("/me")
     @Operation(summary = "Get paginated notifications for authenticated user")
@@ -70,6 +73,15 @@ public class NotificationController {
         notification.setReadAt(java.time.OffsetDateTime.now());
         notificationRepository.save(notification);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/me/test")
+    @Auditable(resource = "notification-test", action = "CREATE")
+    @Operation(summary = "Send a test WebSocket notification (for verification)")
+    public ResponseEntity<NotificationDto> sendTestNotification() {
+        UUID userId = currentUserId();
+        NotificationDto dto = notificationService.sendTestNotification(userId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     private UUID currentUserId() {

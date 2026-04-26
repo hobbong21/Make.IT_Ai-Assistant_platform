@@ -639,6 +639,16 @@
     var loadingNode = appendLoading();
     var contentShell = botMessageShell();
     if (!contentShell) return;
+    // 결과 영역에 skeleton 표시
+    if (window.makitSkeleton) {
+      contentShell.innerHTML = '';
+      var skeletonWrap = document.createElement('div');
+      skeletonWrap.className = 'mk-skeleton-stack';
+      for (var i = 0; i < 3; i++) {
+        skeletonWrap.appendChild(window.makitSkeleton.row({width: 100}));
+      }
+      contentShell.appendChild(skeletonWrap);
+    }
     runService(serviceKey, payload, contentShell, loadingNode);
   }
 

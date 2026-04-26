@@ -25,7 +25,8 @@
     color: var(--mk-color-text, #1a1a1a);
     font: inherit;
     font-size: var(--mk-font-size-sm, 0.875rem);
-    transition: background var(--mk-duration-fast, 150ms) ease, border-color var(--mk-duration-fast, 150ms) ease;
+    transition: background var(--mk-motion-duration-fast) var(--mk-motion-ease-standard),
+                border-color var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
 }
 .mk-user-trigger:hover {
     background: var(--mk-color-bg-subtle, #fafafa);
@@ -77,15 +78,16 @@
     opacity: 0;
     visibility: hidden;
     transform: translateY(-8px);
-    transition: opacity var(--mk-duration-base, 250ms) var(--mk-easing-emphasized, ease),
-                transform var(--mk-duration-base, 250ms) var(--mk-easing-emphasized, ease),
-                visibility 0s var(--mk-duration-base, 250ms);
+    transition: opacity var(--mk-motion-duration-base) var(--mk-motion-ease-emphasized),
+                transform var(--mk-motion-duration-base) var(--mk-motion-ease-emphasized),
+                visibility 0s var(--mk-motion-duration-base);
 }
 .mk-user-dropdown--open {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
     transition-delay: 0s;
+    animation: mk-slideUp var(--mk-motion-duration-base) var(--mk-motion-ease-decelerate);
 }
 
 .mk-user-info {
@@ -146,7 +148,7 @@
     text-align: left;
     text-decoration: none;
     cursor: pointer;
-    transition: background var(--mk-duration-fast, 150ms) ease;
+    transition: background var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
 }
 .mk-user-item:hover {
     background: var(--mk-color-bg-muted, #f2f2f2);
@@ -195,8 +197,8 @@
     border-radius: 50%;
     cursor: pointer;
     box-shadow: var(--mk-shadow-md, 0 10px 30px -8px rgb(0 0 0 / 0.15));
-    transition: background var(--mk-duration-fast, 150ms) ease,
-                transform var(--mk-duration-fast, 150ms) ease;
+    transition: background var(--mk-motion-duration-fast) var(--mk-motion-ease-standard),
+                transform var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
 }
 .mk-chat-fab:hover {
     background: var(--mk-color-brand-600, #1d4ed8);
@@ -249,15 +251,16 @@
     opacity: 0;
     visibility: hidden;
     transform: translateY(8px);
-    transition: opacity var(--mk-duration-base, 250ms) var(--mk-easing-emphasized, ease),
-                transform var(--mk-duration-base, 250ms) var(--mk-easing-emphasized, ease),
-                visibility 0s var(--mk-duration-base, 250ms);
+    transition: opacity var(--mk-motion-duration-base) var(--mk-motion-ease-emphasized),
+                transform var(--mk-motion-duration-base) var(--mk-motion-ease-emphasized),
+                visibility 0s var(--mk-motion-duration-base);
 }
 .mk-chat-panel--open {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
     transition-delay: 0s;
+    animation: mk-slideUp var(--mk-motion-duration-base) var(--mk-motion-ease-decelerate);
 }
 
 .mk-chat-panel-header {
@@ -316,7 +319,7 @@
     border: none;
     border-radius: var(--mk-radius-sm, 6px);
     cursor: pointer;
-    transition: background var(--mk-duration-fast, 150ms) ease;
+    transition: background var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
 }
 .mk-chat-icon-btn:hover {
     background: rgba(255, 255, 255, 0.18);
@@ -364,7 +367,7 @@
     font: inherit;
     font-size: var(--mk-font-size-xs, 0.75rem);
     cursor: pointer;
-    transition: all var(--mk-duration-fast, 150ms) ease;
+    transition: all var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
 }
 .mk-chat-suggestion:hover {
     background: var(--mk-color-brand-50, #eff6ff);
@@ -435,7 +438,8 @@
     font: inherit;
     font-size: var(--mk-font-size-sm, 0.875rem);
     color: var(--mk-color-text, #1a1a1a);
-    transition: background var(--mk-duration-fast, 150ms) ease, border-color var(--mk-duration-fast, 150ms) ease;
+    transition: background var(--mk-motion-duration-fast) var(--mk-motion-ease-standard),
+                border-color var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
 }
 .mk-chat-input::placeholder {
     color: var(--mk-color-text-faint, #a3a3a3);
@@ -465,7 +469,8 @@
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    transition: background var(--mk-duration-fast, 150ms) ease, transform var(--mk-duration-fast, 150ms) ease;
+    transition: background var(--mk-motion-duration-fast) var(--mk-motion-ease-standard),
+                transform var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
 }
 .mk-chat-send:hover {
     background: var(--mk-color-brand-600, #1d4ed8);
@@ -561,7 +566,7 @@
     border: 1px solid var(--mk-color-border, #e6e6e6);
     border-radius: var(--mk-radius-sm, 6px);
     cursor: pointer;
-    transition: all var(--mk-duration-fast, 150ms) ease;
+    transition: all var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
 }
 .mk-chat-fb-btn:hover:not(:disabled) {
     color: var(--mk-color-brand-500, #2563eb);
@@ -642,7 +647,7 @@
     border-radius: 50%;
     cursor: pointer;
     box-shadow: var(--mk-shadow-xs);
-    transition: background var(--mk-duration-fast) ease;
+    transition: background var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
 }
 .mk-notif-trigger:hover { background: var(--mk-color-bg-subtle); }
 .mk-notif-trigger:focus-visible { outline: 2px solid var(--mk-color-brand-500); outline-offset: 2px; }
@@ -654,6 +659,7 @@
     border-radius: 9px; border: 2px solid var(--mk-color-bg);
     font-size: 10px; font-weight: 700;
     display: inline-flex; align-items: center; justify-content: center;
+    animation: mk-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 .mk-notif-panel {
     position: absolute;
@@ -665,10 +671,18 @@
     border-radius: var(--mk-radius-lg);
     box-shadow: var(--mk-shadow-md);
     opacity: 0; visibility: hidden; transform: translateY(-8px);
-    transition: opacity var(--mk-duration-base) ease, transform var(--mk-duration-base) ease, visibility 0s var(--mk-duration-base);
+    transition: opacity var(--mk-motion-duration-base) var(--mk-motion-ease-standard),
+                transform var(--mk-motion-duration-base) var(--mk-motion-ease-standard),
+                visibility 0s var(--mk-motion-duration-base);
     display: flex; flex-direction: column;
 }
-.mk-notif-panel--open { opacity: 1; visibility: visible; transform: translateY(0); transition-delay: 0s; }
+.mk-notif-panel--open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition-delay: 0s;
+    animation: mk-slideUp var(--mk-motion-duration-base) var(--mk-motion-ease-decelerate);
+}
 .mk-notif-header {
     display: flex; align-items: center; justify-content: space-between;
     padding: var(--mk-space-3) var(--mk-space-4);
@@ -679,6 +693,7 @@
     background: none; border: none; color: var(--mk-color-brand-500);
     font: inherit; font-size: var(--mk-font-size-sm);
     cursor: pointer; padding: 4px 8px; border-radius: var(--mk-radius-sm);
+    transition: background var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
 }
 .mk-link-btn:hover { background: var(--mk-color-brand-50); }
 .mk-notif-list { flex: 1; overflow-y: auto; padding: var(--mk-space-2); }
@@ -687,7 +702,7 @@
     display: flex; gap: var(--mk-space-3); padding: var(--mk-space-3); margin-bottom: 4px;
     border-radius: var(--mk-radius-md);
     text-decoration: none; color: inherit;
-    transition: background var(--mk-duration-fast) ease;
+    transition: background var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
 }
 .mk-notif-item:hover { background: var(--mk-color-bg-muted); }
 .mk-notif-item--unread { background: var(--mk-color-brand-50); }
@@ -708,7 +723,7 @@
 /* =============================================================
    7. Command Palette (Cmd+K / Ctrl+K / "/")
    ============================================================= */
-.mk-cmdk { position: fixed; inset: 0; z-index: var(--mk-z-modal); pointer-events: none; opacity: 0; transition: opacity var(--mk-duration-base) ease; }
+.mk-cmdk { position: fixed; inset: 0; z-index: var(--mk-z-modal); pointer-events: none; opacity: 0; transition: opacity var(--mk-motion-duration-base) var(--mk-motion-ease-standard); }
 .mk-cmdk--open { opacity: 1; pointer-events: auto; }
 .mk-cmdk-backdrop { position: absolute; inset: 0; background: rgba(15, 15, 15, 0.45); }
 .mk-cmdk-modal {
@@ -720,9 +735,12 @@
     box-shadow: var(--mk-shadow-lg);
     overflow: hidden;
     transform: translateY(-8px);
-    transition: transform var(--mk-duration-base) var(--mk-easing-emphasized);
+    transition: transform var(--mk-motion-duration-base) var(--mk-motion-ease-emphasized);
 }
-.mk-cmdk--open .mk-cmdk-modal { transform: translateY(0); }
+.mk-cmdk--open .mk-cmdk-modal {
+    transform: translateY(0);
+    animation: mk-slideUp var(--mk-motion-duration-base) var(--mk-motion-ease-decelerate);
+}
 .mk-cmdk-input {
     width: 100%; padding: 14px 18px;
     background: transparent;
@@ -736,7 +754,7 @@
 .mk-cmdk-item {
     display: flex; align-items: center; justify-content: space-between;
     padding: 8px 12px; border-radius: var(--mk-radius-md);
-    cursor: pointer; transition: background var(--mk-duration-fast) ease;
+    cursor: pointer; transition: background var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
 }
 .mk-cmdk-item--active, .mk-cmdk-item:hover { background: var(--mk-color-bg-muted); }
 .mk-cmdk-label { font-size: var(--mk-font-size-sm); color: var(--mk-color-text); }
@@ -763,7 +781,7 @@
 .mk-modal-root {
     position: fixed; inset: 0; z-index: var(--mk-z-modal, 1300);
     pointer-events: none; opacity: 0;
-    transition: opacity var(--mk-duration-base, 250ms) ease;
+    transition: opacity var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 .mk-modal-root--open { opacity: 1; pointer-events: auto; }
 .mk-modal-backdrop { position: absolute; inset: 0; background: rgba(15,15,15,0.45); }
@@ -777,9 +795,12 @@
     box-shadow: var(--mk-shadow-lg, 0 25px 50px -12px rgb(0 0 0 / 0.25));
     overflow: hidden;
     transform: translateY(-12px);
-    transition: transform var(--mk-duration-base, 250ms) var(--mk-easing-emphasized, ease);
+    transition: transform var(--mk-motion-duration-base) var(--mk-motion-ease-emphasized);
 }
-.mk-modal-root--open .mk-modal-dialog { transform: translateY(0); }
+.mk-modal-root--open .mk-modal-dialog {
+    transform: translateY(0);
+    animation: mk-fadeIn var(--mk-motion-duration-base) var(--mk-motion-ease-decelerate);
+}
 .mk-modal-head {
     display: flex; align-items: center; justify-content: space-between;
     padding: var(--mk-space-4, 16px) var(--mk-space-5, 20px);
@@ -842,7 +863,7 @@
     border-radius: var(--mk-radius-md, 10px);
     font: inherit; font-size: var(--mk-font-size-sm);
     cursor: pointer; font-weight: 500;
-    transition: background var(--mk-duration-fast, 150ms) ease;
+    transition: background var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
 }
 .mk-modal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .mk-modal-btn--secondary { background: var(--mk-color-bg, #fff); color: var(--mk-color-text); }
@@ -857,3 +878,309 @@
     border-color: var(--mk-color-error-text);
 }
 .mk-modal-btn--danger:hover:not(:disabled) { background: #7f1d1d; }
+
+/* ============================
+   Skeleton loading screens (D7)
+   ============================ */
+.mk-skeleton {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    var(--mk-color-bg-muted) 0%,
+    var(--mk-color-bg-subtle) 50%,
+    var(--mk-color-bg-muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: mk-skeletonShimmer 1.4s var(--mk-motion-ease-standard) infinite;
+  border-radius: var(--mk-radius-sm);
+  min-height: 1em;
+}
+
+@keyframes mk-skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Variants */
+.mk-skeleton--text { height: 1em; }
+.mk-skeleton--text.mk-skeleton--heading { height: 1.5em; }
+.mk-skeleton--avatar { width: 40px; height: 40px; border-radius: 50%; }
+.mk-skeleton--avatar-sm { width: 28px; height: 28px; border-radius: 50%; }
+.mk-skeleton--button { height: 40px; width: 100px; border-radius: var(--mk-radius-md); }
+.mk-skeleton--card { width: 100%; height: 120px; border-radius: var(--mk-radius-lg); }
+.mk-skeleton--image { width: 100%; aspect-ratio: 16/9; border-radius: var(--mk-radius-md); }
+.mk-skeleton--rounded { border-radius: var(--mk-radius-pill); }
+
+/* Width helpers */
+.mk-skeleton--w-25 { width: 25%; }
+.mk-skeleton--w-50 { width: 50%; }
+.mk-skeleton--w-75 { width: 75%; }
+.mk-skeleton--w-100 { width: 100%; }
+
+/* Container utilities */
+.mk-skeleton-stack > * + * { margin-top: var(--mk-space-2); }
+
+/* Respect prefers-reduced-motion (global override in tokens.css will suppress animation) */
+@media (prefers-reduced-motion: reduce) {
+  .mk-skeleton {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+/* ========================================================================
+   PWA Install Button (D5)
+   ======================================================================== */
+.mk-pwa-install {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--mk-color-brand-500, #2563eb);
+    color: var(--mk-color-text-on-brand, #ffffff);
+    border: 1px solid var(--mk-color-brand-500);
+    border-radius: var(--mk-radius-md, 10px);
+    font: inherit;
+    font-size: var(--mk-font-size-sm, 0.875rem);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
+}
+
+.mk-pwa-install:hover:not(:disabled) {
+    background: var(--mk-color-brand-600, #1d4ed8);
+    border-color: var(--mk-color-brand-600);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.mk-pwa-install:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+}
+
+.mk-pwa-install:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .mk-pwa-install {
+        background: var(--mk-color-brand-500, #2563eb);
+        color: #ffffff;
+    }
+
+    .mk-pwa-install:hover:not(:disabled) {
+        background: var(--mk-color-brand-600, #1d4ed8);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+}
+
+/* Responsive: hide on very small screens */
+@media (max-width: 480px) {
+    .mk-pwa-install {
+        padding: 6px 12px;
+        font-size: var(--mk-font-size-xs, 0.75rem);
+    }
+}
+
+/* ========================================================================
+   D6 Motion & Animation System (R14b)
+   ======================================================================== */
+
+/* Keyframe animations with mk- prefix */
+@keyframes mk-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes mk-slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mk-slideDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes mk-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+/* Animation utility classes */
+.mk-anim-fade-in {
+  animation: mk-fadeIn var(--mk-motion-duration-base) var(--mk-motion-ease-decelerate) forwards;
+}
+
+.mk-anim-slide-up {
+  animation: mk-slideUp var(--mk-motion-duration-base) var(--mk-motion-ease-decelerate) forwards;
+}
+
+.mk-anim-slide-down {
+  animation: mk-slideDown var(--mk-motion-duration-base) var(--mk-motion-ease-accelerate) forwards;
+}
+
+.mk-anim-pulse {
+  animation: mk-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Transition utility classes */
+.mk-transition-smooth {
+  transition: all var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
+}
+
+.mk-transition-fast {
+  transition: all var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
+}
+
+/* ========================================================================
+   Language Picker (i18n, R16a)
+   ======================================================================== */
+.mk-lang-picker {
+  position: fixed;
+  top: var(--mk-space-4, 16px);
+  right: calc(var(--mk-space-4, 16px) + 60px);
+  z-index: var(--mk-z-sticky, 1100);
+}
+
+.mk-lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--mk-color-bg, #ffffff);
+  color: var(--mk-color-text, #1a1a1a);
+  border: 1px solid var(--mk-color-border, #e6e6e6);
+  border-radius: var(--mk-radius-md, 10px);
+  font-size: var(--mk-font-size-sm, 0.875rem);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
+}
+
+.mk-lang-toggle:hover {
+  background: var(--mk-color-bg-muted, #f2f2f2);
+  border-color: var(--mk-color-text-muted, #737373);
+}
+
+.mk-lang-toggle:focus-visible {
+  outline: 2px solid var(--mk-color-brand-500, #2563eb);
+  outline-offset: 2px;
+}
+
+.mk-lang-label {
+  min-width: 70px;
+  text-align: center;
+}
+
+.mk-lang-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  min-width: 140px;
+  background: var(--mk-color-bg, #ffffff);
+  border: 1px solid var(--mk-color-border, #e6e6e6);
+  border-radius: var(--mk-radius-md, 10px);
+  box-shadow: var(--mk-shadow-md, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: all var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
+  pointer-events: none;
+}
+
+.mk-lang-dropdown--open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.mk-lang-option {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  text-align: left;
+  background: transparent;
+  color: var(--mk-color-text, #1a1a1a);
+  border: none;
+  cursor: pointer;
+  font-size: var(--mk-font-size-sm, 0.875rem);
+  transition: background var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
+}
+
+.mk-lang-option:hover {
+  background: var(--mk-color-bg-muted, #f2f2f2);
+}
+
+.mk-lang-option[data-active] {
+  background: var(--mk-color-brand-50, #eff6ff);
+  color: var(--mk-color-brand-500, #2563eb);
+  font-weight: 600;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .mk-lang-toggle {
+    background: var(--mk-color-bg, #1a1a1a);
+    color: var(--mk-color-text, #ffffff);
+    border-color: var(--mk-color-border, #333333);
+  }
+
+  .mk-lang-toggle:hover {
+    background: var(--mk-color-bg-muted, #2a2a2a);
+    border-color: var(--mk-color-text-muted, #999999);
+  }
+
+  .mk-lang-dropdown {
+    background: var(--mk-color-bg, #1a1a1a);
+    border-color: var(--mk-color-border, #333333);
+  }
+
+  .mk-lang-option {
+    color: var(--mk-color-text, #ffffff);
+  }
+
+  .mk-lang-option:hover {
+    background: var(--mk-color-bg-muted, #2a2a2a);
+  }
+
+  .mk-lang-option[data-active] {
+    background: var(--mk-color-brand-900, #1e3a8a);
+    color: var(--mk-color-brand-300, #93c5fd);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .mk-lang-picker {
+    top: var(--mk-space-2, 8px);
+    right: var(--mk-space-2, 8px);
+  }
+
+  .mk-lang-toggle {
+    padding: 6px 10px;
+    font-size: var(--mk-font-size-xs, 0.75rem);
+  }
+
+  .mk-lang-label {
+    display: none;
+  }
+}

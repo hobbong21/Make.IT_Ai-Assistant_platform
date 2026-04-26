@@ -1,0 +1,243 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+jobs:
+  backend-test:
+    name: Backend Unit & Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: makit_user
+          POSTGRES_PASSWORD: makit_password
+          POSTGRES_DB: makit_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run backend tests
+        working-directory: ./backend
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/makit_test
+          SPRING_DATASOURCE_USERNAME: makit_user
+          SPRING_DATASOURCE_PASSWORD: makit_password
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+          AWS_REGION: ap-northeast-2
+          AWS_ACCESS_KEY_ID: test-key
+          AWS_SECRET_ACCESS_KEY: test-secret
+        run: |
+          ./mvnw clean test -V
+
+      - name: Generate JaCoCo coverage report
+        working-directory: ./backend
+        run: |
+          ./mvnw jacoco:report
+
+      - name: Upload JaCoCo coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./backend/target/site/jacoco/jacoco.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: |
+            backend/target/surefire-reports/
+            backend/target/site/jacoco/
+
+  backend-build:
+    name: Build Backend JAR
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: backend-test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build JAR package
+        working-directory: ./backend
+        env:
+          AWS_REGION: ap-northeast-2
+          AWS_ACCESS_KEY_ID: test-key
+          AWS_SECRET_ACCESS_KEY: test-secret
+        run: |
+          ./mvnw clean package -DskipTests -V
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: backend/target/makit.jar
+          retention-days: 5
+
+  frontend-validate:
+    name: Frontend Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install frontend dependencies
+        run: |
+          npm install --prefix frontend 2>/dev/null || true
+
+      - name: Run HTML validation
+        run: |
+          npm install -g html-validate 2>/dev/null || true
+          html-validate frontend/**/*.html || echo "HTML validation completed with warnings"
+        continue-on-error: true
+
+      - name: Run CSS validation
+        run: |
+          npm install -g stylelint stylelint-config-standard 2>/dev/null || true
+          stylelint "frontend/css/**/*.css" || echo "CSS validation completed with warnings"
+        continue-on-error: true
+
+  e2e-test:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: backend-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: makit_user
+          POSTGRES_PASSWORD: makit_password
+          POSTGRES_DB: makit
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jar
+          path: backend/target/
+
+      - name: Start backend server
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/makit
+          SPRING_DATASOURCE_USERNAME: makit_user
+          SPRING_DATASOURCE_PASSWORD: makit_password
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+          AWS_REGION: ap-northeast-2
+          AWS_ACCESS_KEY_ID: test-key
+          AWS_SECRET_ACCESS_KEY: test-secret
+          BEDROCK_MODEL_ID: anthropic.claude-3-5-haiku-20241022-v1:0
+        run: |
+          java -jar backend/target/makit.jar \
+            --spring.profiles.active=test \
+            --server.port=8080 &
+          sleep 10
+
+      - name: Wait for backend health check
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:8080/actuator/health; then
+              echo "Backend is healthy"
+              exit 0
+            fi
+            echo "Attempt $i: Backend not ready yet..."
+            sleep 2
+          done
+          echo "Backend failed to start"
+          exit 1
+
+      - name: Install Playwright browsers
+        run: |
+          npx playwright install --with-deps chromium firefox webkit
+
+      - name: Run E2E tests
+        env:
+          MAKIT_BASE_URL: http://localhost:8080
+        run: |
+          npx playwright test
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Publish test results to GitHub
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: |
+            test-results/**/*.xml
+          check_name: E2E Test Results

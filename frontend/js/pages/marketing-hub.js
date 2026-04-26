@@ -392,6 +392,9 @@
       return;
     }
 
+    // 모든 섹션에 skeleton 표시
+    showAllSkeletons();
+
     try {
       // 요약 카드
       var hubData = await api.marketing.hub();
@@ -455,6 +458,55 @@
     } catch (e) {
       console.warn('Channel performance fetch failed:', e);
       renderChannelPerformance({});
+    }
+  }
+
+  // Skeleton loading for marketing hub sections
+  function showAllSkeletons() {
+    // Campaign board: 5 skeleton cards
+    var board = document.getElementById('campaignBoard');
+    if (board) {
+      board.innerHTML = '';
+      for (var i = 0; i < 5; i++) {
+        board.appendChild(window.makitSkeleton.card());
+      }
+    }
+
+    // Content library: 6 skeleton cards
+    var contentLib = document.getElementById('contentLibrary');
+    if (contentLib) {
+      contentLib.innerHTML = '';
+      for (var i = 0; i < 6; i++) {
+        contentLib.appendChild(window.makitSkeleton.card());
+      }
+    }
+
+    // Calendar: 7 skeleton rows (simplified)
+    var calendar = document.getElementById('calendarWeek');
+    if (calendar) {
+      calendar.innerHTML = '';
+      var wrap = document.createElement('div');
+      wrap.className = 'mk-skeleton-stack';
+      for (var i = 0; i < 7; i++) {
+        wrap.appendChild(window.makitSkeleton.row({width: 100}));
+      }
+      calendar.appendChild(wrap);
+    }
+
+    // Insights: stack of text rows
+    var insights = document.getElementById('insightContent');
+    if (insights) {
+      insights.innerHTML = '';
+      var stack = document.createElement('div');
+      stack.className = 'mk-skeleton-stack';
+      for (var i = 0; i < 5; i++) {
+        if (i % 3 === 0) {
+          stack.appendChild(window.makitSkeleton.row({heading: true, width: 50}));
+        } else {
+          stack.appendChild(window.makitSkeleton.row({width: 75}));
+        }
+      }
+      insights.appendChild(stack);
     }
   }
 
