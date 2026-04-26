@@ -1,5 +1,13 @@
 # NLP 자연어 분석
 
+> **상태**: stable | **카테고리**: ax-data | **소유자**: @hobbong21
+
+- **엔드포인트**: 1개
+- **파일**: backend 5 / frontend 3 / tests 1 / docs 1
+- **마지막 변경**: R1
+<!-- AUTO-GENERATED ABOVE | MANUAL BELOW -->
+# NLP 자연어 분석
+
 > 한 줄 설명: 사용자 텍스트를 AWS Bedrock Claude AI로 분석하여 감정, 키워드, 의도 등을 추출
 
 ## 목적

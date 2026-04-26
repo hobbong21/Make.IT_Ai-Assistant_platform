@@ -83,6 +83,71 @@ window.makitI18nDict = {
     'notif.severity-warn': '경고',
     'notif.severity-error': '오류',
 
+    // Intro
+    'intro.hero-title': '완벽한 마케팅 지원 플랫폼',
+    'intro.hero-subtitle': 'AI를 활용한 마케팅 자동화와 분석으로 비즈니스를 가속화하세요',
+    'intro.cta': '시작하기',
+    'intro.partners': '신뢰받는 파트너들',
+    'intro.features': '주요 기능',
+    'intro.solution': '완벽한 솔루션',
+
+    // Services
+    'services.list-page-title': '모든 서비스 검색',
+    'services.filter-all': '전체',
+    'services.filter-data': 'AX Data Intelligence',
+    'services.filter-marketing': 'AX Marketing Intelligence',
+    'services.filter-commerce': 'AX Commerce Brain',
+
+    // Service Detail
+    'serviceDetail.input-placeholder': '입력하세요',
+    'serviceDetail.send': '전송',
+    'serviceDetail.send-file': '파일 전송',
+
+    // Marketing Hub
+    'marketingHub.summary': '요약',
+    'marketingHub.stat-campaigns': '캠페인',
+    'marketingHub.stat-contents': '콘텐츠',
+    'marketingHub.stat-insights': '인사이트',
+    'marketingHub.stat-channels': '채널',
+    'marketingHub.draft': '초안',
+    'marketingHub.scheduled': '예약됨',
+    'marketingHub.active': '진행 중',
+    'marketingHub.paused': '일시정지',
+    'marketingHub.completed': '완료',
+    'marketingHub.week': '이번주',
+    'marketingHub.data': '데이터',
+
+    // Settings
+    'settings.profile-info': '프로필 정보',
+    'settings.email': '이메일',
+    'settings.current-password': '현재 비밀번호',
+    'settings.new-password': '새 비밀번호',
+    'settings.confirm-password': '비밀번호 확인',
+
+    // History
+    'history.title': '활동 이력',
+    'history.all': '전체',
+    'history.login': '로그인',
+    'history.service': '서비스 호출',
+    'history.error': '오류',
+    'history.pagination': '페이지',
+
+    // Admin
+    'admin.title': '관리자 대시보드',
+    'admin.overview': '개요',
+    'admin.users': '사용자',
+    'admin.features': '기능',
+    'admin.status': '상태',
+    'admin.experimental': '실험',
+    'admin.beta': 'BETA',
+    'admin.stable': '안정',
+    'admin.deprecated': '폐기',
+    'admin.name': '이름',
+    'admin.category': '카테고리',
+    'admin.endpoints': '엔드포인트',
+    'admin.files': '파일',
+    'admin.lastupdate': '마지막 업데이트',
+
     // 공통
     'common.loading': '불러오는 중...',
     'common.error': '오류가 발생했습니다',
@@ -177,6 +242,71 @@ window.makitI18nDict = {
     'notif.severity-warn': 'Warning',
     'notif.severity-error': 'Error',
 
+    // Intro
+    'intro.hero-title': 'The Perfect Marketing Support Platform',
+    'intro.hero-subtitle': 'Accelerate your business with AI-powered marketing automation and analytics',
+    'intro.cta': 'Get Started',
+    'intro.partners': 'Trusted Partners',
+    'intro.features': 'Key Features',
+    'intro.solution': 'Complete Solution',
+
+    // Services
+    'services.list-page-title': 'Explore All Services',
+    'services.filter-all': 'All',
+    'services.filter-data': 'AX Data Intelligence',
+    'services.filter-marketing': 'AX Marketing Intelligence',
+    'services.filter-commerce': 'AX Commerce Brain',
+
+    // Service Detail
+    'serviceDetail.input-placeholder': 'Enter your text',
+    'serviceDetail.send': 'Send',
+    'serviceDetail.send-file': 'Upload File',
+
+    // Marketing Hub
+    'marketingHub.summary': 'Summary',
+    'marketingHub.stat-campaigns': 'Campaigns',
+    'marketingHub.stat-contents': 'Content',
+    'marketingHub.stat-insights': 'Insights',
+    'marketingHub.stat-channels': 'Channels',
+    'marketingHub.draft': 'Draft',
+    'marketingHub.scheduled': 'Scheduled',
+    'marketingHub.active': 'Active',
+    'marketingHub.paused': 'Paused',
+    'marketingHub.completed': 'Completed',
+    'marketingHub.week': 'This Week',
+    'marketingHub.data': 'Data',
+
+    // Settings
+    'settings.profile-info': 'Profile Information',
+    'settings.email': 'Email',
+    'settings.current-password': 'Current Password',
+    'settings.new-password': 'New Password',
+    'settings.confirm-password': 'Confirm Password',
+
+    // History
+    'history.title': 'Activity History',
+    'history.all': 'All',
+    'history.login': 'Login',
+    'history.service': 'Service Call',
+    'history.error': 'Error',
+    'history.pagination': 'Page',
+
+    // Admin
+    'admin.title': 'Admin Dashboard',
+    'admin.overview': 'Overview',
+    'admin.users': 'Users',
+    'admin.features': 'Features',
+    'admin.status': 'Status',
+    'admin.experimental': 'Experimental',
+    'admin.beta': 'Beta',
+    'admin.stable': 'Stable',
+    'admin.deprecated': 'Deprecated',
+    'admin.name': 'Name',
+    'admin.category': 'Category',
+    'admin.endpoints': 'Endpoints',
+    'admin.files': 'Files',
+    'admin.lastupdate': 'Last Update',
+
     // Common
     'common.loading': 'Loading...',
     'common.error': 'An error occurred',
@@ -270,6 +400,71 @@ window.makitI18nDict = {
     'notif.severity-success': '成功',
     'notif.severity-warn': '警告',
     'notif.severity-error': 'エラー',
+
+    // イントロ
+    'intro.hero-title': '完璧なマーケティング支援プラットフォーム',
+    'intro.hero-subtitle': 'AI搭載マーケティング自動化と分析でビジネスを加速させます',
+    'intro.cta': '開始する',
+    'intro.partners': '信頼されるパートナー',
+    'intro.features': '主要機能',
+    'intro.solution': '完全なソリューション',
+
+    // サービス
+    'services.list-page-title': 'すべてのサービスを検索',
+    'services.filter-all': 'すべて',
+    'services.filter-data': 'AXデータインテリジェンス',
+    'services.filter-marketing': 'AXマーケティングインテリジェンス',
+    'services.filter-commerce': 'AXコマースブレイン',
+
+    // サービス詳細
+    'serviceDetail.input-placeholder': 'テキストを入力',
+    'serviceDetail.send': '送信',
+    'serviceDetail.send-file': 'ファイルをアップロード',
+
+    // マーケティングハブ
+    'marketingHub.summary': 'サマリー',
+    'marketingHub.stat-campaigns': 'キャンペーン',
+    'marketingHub.stat-contents': 'コンテンツ',
+    'marketingHub.stat-insights': 'インサイト',
+    'marketingHub.stat-channels': 'チャネル',
+    'marketingHub.draft': '下書き',
+    'marketingHub.scheduled': '予定済み',
+    'marketingHub.active': '実行中',
+    'marketingHub.paused': '一時停止',
+    'marketingHub.completed': '完了',
+    'marketingHub.week': '今週',
+    'marketingHub.data': 'データ',
+
+    // 設定
+    'settings.profile-info': 'プロフィール情報',
+    'settings.email': 'メール',
+    'settings.current-password': '現在のパスワード',
+    'settings.new-password': '新しいパスワード',
+    'settings.confirm-password': 'パスワード確認',
+
+    // 履歴
+    'history.title': 'アクティビティ履歴',
+    'history.all': 'すべて',
+    'history.login': 'ログイン',
+    'history.service': 'サービス呼び出し',
+    'history.error': 'エラー',
+    'history.pagination': 'ページ',
+
+    // 管理者
+    'admin.title': '管理者ダッシュボード',
+    'admin.overview': '概要',
+    'admin.users': 'ユーザー',
+    'admin.features': '機能',
+    'admin.status': 'ステータス',
+    'admin.experimental': '実験的',
+    'admin.beta': 'ベータ',
+    'admin.stable': '安定版',
+    'admin.deprecated': '廃止予定',
+    'admin.name': '名前',
+    'admin.category': 'カテゴリ',
+    'admin.endpoints': 'エンドポイント',
+    'admin.files': 'ファイル',
+    'admin.lastupdate': '最終更新',
 
     // 共通
     'common.loading': '読み込み中...',

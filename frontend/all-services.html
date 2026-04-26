@@ -105,13 +105,13 @@
             <div class="content-wrapper">
                 <div class="page-header">
                     <img loading="lazy" decoding="async" src="img/illustrations/all-services-hero.svg" alt="모든 서비스" class="page-header-image">
-                    <h1>모든 서비스</h1>
+                    <h1 data-i18n="services.list-page-title">모든 서비스</h1>
                     <p>MaKIT의 모든 AI 서비스를 확인하고 즉시 사용해보세요</p>
                 </div>
 
                 <div class="search-filter">
-                    <label for="serviceSearch" class="mk-sr-only">서비스 검색</label>
-                    <input type="search" class="search-box" placeholder="서비스 검색..." id="serviceSearch" aria-label="서비스 검색">
+                    <label for="serviceSearch" class="mk-sr-only" data-i18n="common.search">서비스 검색</label>
+                    <input type="search" class="search-box" data-i18n-attr="placeholder:services.search" placeholder="서비스 검색..." id="serviceSearch" aria-label="서비스 검색">
                 </div>
 
                 <div class="category-section">
@@ -294,6 +294,8 @@
     <script src="js/pages/chatbot.js"></script>
     <script src="js/chatbot-widget.js"></script>
     <script src="js/user-menu.js"></script>
+    <script src="js/i18n-dict.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/app-shell-extras.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>

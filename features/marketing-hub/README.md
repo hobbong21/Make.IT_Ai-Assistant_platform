@@ -1,5 +1,13 @@
 # 마케팅 허브
 
+> **상태**: stable | **카테고리**: platform | **소유자**: @hobbong21
+
+- **엔드포인트**: 13개
+- **파일**: backend 8 / frontend 6 / tests 1 / docs 1
+- **마지막 변경**: R14a
+<!-- AUTO-GENERATED ABOVE | MANUAL BELOW -->
+# 마케팅 허브
+
 > 한 줄 설명: 캠페인/콘텐츠/일정/AI인사이트/채널성과를 단일 대시보드에서 통합 관리
 
 ## 목적

@@ -1,6 +1,7 @@
 # 변경 이력 — NLP 자연어 분석
 
 ## R17 (2026-04-26) — 기능 카탈로그 도입
+| 2026-04-26 | R20a | manifest 파일경로 정정 | manifest.json |
 
 기능별 모듈화 문서화 시작. manifest.json, api.md, changelog.md 신설.
 

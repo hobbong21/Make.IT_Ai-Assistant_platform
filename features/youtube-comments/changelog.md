@@ -1,81 +1,59 @@
-# 변경 이력
+# 유튜브 댓글 분석 — 변경 이력
 
-## R17 (2026-04-26) — 기능 카탈로그 도입
+| 날짜 | 라운드 | 변경 내용 | 파일 |
+|------|--------|---------|------|
+| 2026-04-20 | R1 | 초기 구현 — YouTube 댓글 API 인터페이스 정의 | DataIntelligenceController, YoutubeCommentsService |
+| 2026-04-24 | R7 | service-detail 페이지 통합 — 10개 서비스 자유 입력 지원 | service-detail.html, service-detail.js |
+| 2026-04-26 | R18a | features/ 카탈로그 데이터 보강 — manifest.json, api.md, README, changelog 작성 | features/youtube-comments/ |
 
-기능별 모듈화 및 문서화 시작. manifest.json, api.md, changelog.md 신설.
+## 상태
 
-| 날짜 | 라운드 | 변경 내용 | 파일 | 상태 |
-|------|--------|---------|------|------|
-| 2026-04-26 | R17 | features/ 카탈로그 도입 | README.md, manifest.json, api.md, changelog.md | 신설 |
+- **v1.0.0** — Stable (2026-04-26 기준)
+- 백엔드: API 구조 완성, Bedrock 통합 대기
+- 프론트엔드: service-detail 페이지에서 완전 동작 중
+- 테스트: E2E 스펙 작성 완료
 
----
+## 주요 마일스톤
 
-## 이전 라운드 (역순)
-
-### 개요
-
-이 기능은 다음 라운드들에서 개발/보강되었습니다:
-
-| 라운드 | 날짜 | 주요 변경 | 기여자 |
-|--------|------|---------|-------|
-| R{N} | 2026-04-{DD} | {변경 요약} | {architect/backend-engineer/ai-engineer/frontend-engineer/devops-engineer/qa-engineer} |
-
----
-
-## 개발 일정
-
-- [ ] **Backlog** — 설계 및 계획
-- [x] **초기화** — v1 아키텍처 설립
-- [x] **구현** — 백엔드/프론트엔드 완성
-- [x] **통합** — 엔드-투-엔드 테스트
-- [x] **최적화** — 성능 및 보안 강화
-- [ ] **운영** — 프로덕션 배포 후 모니터링
-
----
+| 상태 | 항목 | 예상 시기 |
+|------|------|---------|
+| ✅ | DataIntelligenceController 정의 | R1 (2026-04-20) |
+| ✅ | YoutubeCommentsService 인터페이스 | R1 (2026-04-20) |
+| ✅ | 프론트엔드 UI 통합 | R7 (2026-04-24) |
+| ✅ | API 명세 작성 | R18a (2026-04-26) |
+| ⏳ | YouTube Data API v3 통합 | R{TBD} |
+| ⏳ | Bedrock Claude 감정 분석 프롬프트 | R{TBD} |
+| ⏳ | 비동기 작업 + Job lifecycle | R{TBD} |
 
 ## 알려진 문제
 
-| 이슈 | 심각도 | 상태 | 예상 해결 |
-|------|--------|------|---------|
-| {설명} | 🔴 Critical / 🟠 Major / 🟡 Minor | Open/In Progress/Resolved | R{N} |
+| 이슈 | 심각도 | 상태 | 설명 |
+|------|--------|------|------|
+| YouTube API 미연동 | 🟠 Major | Open | 현재는 stub 응답만 반환, 실제 댓글 수집 필요 |
+| Bedrock 감정 분석 미완성 | 🟠 Major | Open | prompt 정의 및 RAG 벡터 저장소 필요 |
+| 비동기 처리 미지원 | 🟡 Minor | Open | async=true 파라미터는 무시됨 |
 
----
+## 다음 라운드 계획
 
-## 마이그레이션 가이드
+### 우선순위 1: YouTube Data API 통합 (R{TBD})
+- YouTube Data API v3 클라이언트 라이브러리 추가
+- 댓글 수집 로직 구현
+- API 할당량 관리
 
-### v{N} → v{N+1}
+### 우선순위 2: Bedrock 감정 분석 (R{TBD})
+- prompt 템플릿 정의 (prompts/youtube/comment-cluster.md)
+- 클러스터링 로직 구현
+- RAG 벡터 저장소 (pgvector) 연동
 
-{이전 버전에서 마이그레이션이 필요한 경우 작성}
+### 우선순위 3: 성능 최적화 (R{TBD})
+- 댓글 대량 수집 시 배치 처리
+- 캐싱 전략 (Redis)
+- 비동기 작업 (JobService 통합)
 
-```bash
-# 데이터베이스
-flyway migrate
-
-# 프론트엔드 캐시 초기화
-rm -rf frontend/dist
-npm run build
-```
-
----
-
-## 성능 개선
-
-| 메트릭 | 이전 | 개선 후 | 변경율 |
-|--------|------|--------|-------|
-| {메트릭명} | 100ms | 50ms | -50% |
-
----
-
-## 보안 업데이트
-
-- {보안 취약점 수정 이력}
-- {인증/권한 강화}
-- {입력 검증 개선}
-
----
-
-## 참고 문서
+## 관련 문서
 
 - [README.md](./README.md) — 기능 설명
 - [manifest.json](./manifest.json) — 파일 매핑
 - [api.md](./api.md) — API 명세
+- [R1 초기화 내용](#) — 아키텍처 설계
+- [R7 service-detail 통합](#) — UI 개발

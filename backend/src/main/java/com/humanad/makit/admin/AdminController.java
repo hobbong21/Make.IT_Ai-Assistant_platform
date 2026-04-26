@@ -54,4 +54,29 @@ public class AdminController {
         if (days < 1 || days > 365) days = 7;
         return adminService.getNotificationBreakdown(days);
     }
+
+    @GetMapping("/features")
+    @Auditable(resource = "admin-features", action = "VIEW")
+    public List<?> listFeatures() {
+        return adminService.listFeatures();
+    }
+
+    @GetMapping("/features/{name}")
+    @Auditable(resource = "admin-features", action = "VIEW")
+    public ResponseEntity<?> getFeatureDetail(@PathVariable String name) {
+        return ResponseEntity.ok(adminService.getFeatureDetail(name));
+    }
+
+    @PatchMapping("/features/{name}/status")
+    @Auditable(resource = "feature-lifecycle", action = "STATUS_CHANGE")
+    public ResponseEntity<?> updateFeatureStatus(
+            @PathVariable String name,
+            @RequestBody java.util.Map<String, String> body) {
+        String newStatus = body.get("status");
+        if (newStatus == null || !java.util.Set.of("experimental", "beta", "stable", "deprecated").contains(newStatus)) {
+            throw new IllegalArgumentException("INVALID_STATUS: " + newStatus);
+        }
+        adminService.updateFeatureStatus(name, newStatus);
+        return ResponseEntity.ok(java.util.Map.of("name", name, "status", newStatus));
+    }
 }

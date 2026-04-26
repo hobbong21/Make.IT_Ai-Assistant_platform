@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Feature Manifest",
+  "type": "object",
+  "required": ["name", "displayName", "category", "owners", "status", "files"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Machine-readable feature name (kebab-case)"
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable feature name (Korean recommended)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic versioning"
+    },
+    "category": {
+      "enum": ["ax-data", "ax-marketing", "ax-commerce", "platform"],
+      "description": "Feature category grouping"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief feature description"
+    },
+    "status": {
+      "enum": ["experimental", "beta", "stable", "deprecated"],
+      "description": "Feature lifecycle status"
+    },
+    "owners": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^@[a-zA-Z0-9_-]+$"
+      },
+      "minItems": 1,
+      "description": "GitHub usernames responsible for this feature"
+    },
+    "files": {
+      "type": "object",
+      "description": "File locations across layers",
+      "properties": {
+        "backend": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Java source files (Controller, Service, Entity, Repository, DTO)"
+        },
+        "frontend": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "HTML, JavaScript, CSS files"
+        },
+        "tests": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "E2E and unit test files"
+        },
+        "docs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Architecture, design, round notes"
+        },
+        "migrations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Flyway SQL migration files"
+        }
+      },
+      "required": ["backend", "frontend", "tests", "docs", "migrations"]
+    },
+    "endpoints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(GET|POST|PUT|DELETE|PATCH|OPTIONS) /"
+      },
+      "description": "REST API endpoints provided by this feature"
+    },
+    "roundHistory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "round": { "type": "string", "pattern": "^R\\d+" },
+          "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+          "changes": { "type": "string" }
+        },
+        "required": ["round", "date"],
+        "additionalProperties": false
+      },
+      "description": "Changelog per development round"
+    },
+    "dependencies": {
+      "type": "object",
+      "properties": {
+        "internal": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Depends on other features"
+        },
+        "external": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "External libraries/services (AWS, PostgreSQL, etc.)"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Internal and external dependencies"
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Environment variables required by this feature"
+    },
+    "lastTouchedRound": {
+      "type": "string",
+      "pattern": "^R\\d+",
+      "description": "Last round when this feature was modified"
+    }
+  }
+}

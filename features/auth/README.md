@@ -1,5 +1,13 @@
 # 사용자 인증 & 관리
 
+> **상태**: stable | **카테고리**: platform | **소유자**: @hobbong21
+
+- **엔드포인트**: 7개
+- **파일**: backend 11 / frontend 4 / tests 1 / docs 1
+- **마지막 변경**: R16b
+<!-- AUTO-GENERATED ABOVE | MANUAL BELOW -->
+# 사용자 인증 & 관리
+
 > 한 줄 설명: JWT 기반 인증 + RefreshToken + RateLimit + DemoUserSeeder로 완벽한 인증 시스템 구현
 
 ## 목적

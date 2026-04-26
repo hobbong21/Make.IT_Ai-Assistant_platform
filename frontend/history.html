@@ -166,15 +166,15 @@
 
     <main id="main-content" class="history-wrapper">
         <div class="history-header">
-            <h1>활동 이력</h1>
+            <h1 data-i18n="history.title">활동 이력</h1>
             <p>최근 사용한 서비스와 시스템 활동을 확인할 수 있습니다.</p>
         </div>
 
         <div class="history-filters" id="historyFilters">
-            <button class="filter-chip active" data-filter="ALL">전체</button>
-            <button class="filter-chip" data-filter="LOGIN">로그인</button>
-            <button class="filter-chip" data-filter="SERVICE_CALL">서비스 호출</button>
-            <button class="filter-chip" data-filter="ERROR">오류</button>
+            <button class="filter-chip active" data-filter="ALL" data-i18n="history.all">전체</button>
+            <button class="filter-chip" data-filter="LOGIN" data-i18n="history.login">로그인</button>
+            <button class="filter-chip" data-filter="SERVICE_CALL" data-i18n="history.service">서비스 호출</button>
+            <button class="filter-chip" data-filter="ERROR" data-i18n="history.error">오류</button>
         </div>
 
         <div class="history-list" id="historyList">
@@ -195,6 +195,8 @@
     <script src="js/pages/chatbot.js"></script>
     <script src="js/chatbot-widget.js"></script>
     <script src="js/user-menu.js"></script>
+    <script src="js/i18n-dict.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/app-shell-extras.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>

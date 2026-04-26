@@ -4,15 +4,17 @@
   "version": "1.0.0",
   "category": "ax-data",
   "status": "stable",
-  "owners": ["@hobbong21"],
+  "owners": [
+    "@hobbong21"
+  ],
   "description": "AWS Bedrock Claude를 사용한 자연어 감정/의도 분석",
   "files": {
     "backend": [
-      "backend/src/main/java/com/humanad/makit/data/nlp/DataIntelligenceController.java",
-      "backend/src/main/java/com/humanad/makit/data/nlp/NlpService.java",
-      "backend/src/main/java/com/humanad/makit/data/nlp/dto/NlpAnalysisRequest.java",
-      "backend/src/main/java/com/humanad/makit/data/nlp/dto/NlpAnalysisResponse.java",
-      "backend/src/main/resources/prompts/nlp-analyze-prompt.txt"
+      "backend/src/main/java/com/humanad/makit/data/DataIntelligenceController.java",
+      "backend/src/main/java/com/humanad/makit/data/nlp/NlpAnalysisService.java",
+      "backend/src/main/java/com/humanad/makit/data/nlp/dto/NlpAnalyzeRequest.java",
+      "backend/src/main/java/com/humanad/makit/data/nlp/dto/NlpAnalyzeResponse.java",
+      "backend/src/main/resources/prompts/data/nlp/sentiment.md"
     ],
     "frontend": [
       "frontend/service-detail.html",
@@ -24,7 +26,8 @@
     ],
     "docs": [
       "docs/architecture/01_architect_system_design.md"
-    ]
+    ],
+    "migrations": []
   },
   "endpoints": [
     "POST /api/data/nlp-analyze"
@@ -37,8 +40,14 @@
     }
   ],
   "dependencies": {
-    "internal": ["auth", "audit"],
-    "external": ["aws-bedrock", "postgresql"]
+    "internal": [
+      "auth",
+      "audit"
+    ],
+    "external": [
+      "aws-bedrock",
+      "postgresql"
+    ]
   },
   "environment": {
     "AWS_BEDROCK_REGION": "us-east-1",

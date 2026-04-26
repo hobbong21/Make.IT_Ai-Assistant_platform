@@ -1,0 +1,358 @@
+{
+  "features": {
+    "admin-dashboard": {
+      "displayName": "관리자 대시보드",
+      "category": "platform",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "postgresql"
+      ],
+      "dependedBy": []
+    },
+    "auth": {
+      "displayName": "사용자 인증 & 관리",
+      "category": "platform",
+      "deps_internal": [
+        "audit",
+        "dashboard"
+      ],
+      "deps_external": [
+        "spring-security",
+        "io.jsonwebtoken",
+        "postgresql",
+        "bcrypt"
+      ],
+      "dependedBy": [
+        "admin-dashboard",
+        "chatbot",
+        "feed-generate",
+        "i18n",
+        "marketing-hub",
+        "modelshot",
+        "nlp-analyze",
+        "notifications",
+        "push-notifications",
+        "pwa",
+        "remove-bg",
+        "review-analysis",
+        "url-analyze",
+        "youtube-comments",
+        "youtube-influence",
+        "youtube-keyword-search",
+        "jobs"
+      ]
+    },
+    "chatbot": {
+      "displayName": "AI 챗봇",
+      "category": "ax-commerce",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "aws-bedrock",
+        "postgresql"
+      ],
+      "dependedBy": []
+    },
+    "feed-generate": {
+      "displayName": "피드 콘텐츠 생성",
+      "category": "ax-marketing",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "aws-bedrock",
+        "postgresql"
+      ],
+      "dependedBy": []
+    },
+    "i18n": {
+      "displayName": "다국어 지원",
+      "category": "platform",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "postgresql"
+      ],
+      "dependedBy": []
+    },
+    "marketing-hub": {
+      "displayName": "마케팅 허브",
+      "category": "platform",
+      "deps_internal": [
+        "auth",
+        "audit",
+        "ai",
+        "notifications"
+      ],
+      "deps_external": [
+        "aws-bedrock",
+        "postgresql",
+        "redis",
+        "chart.js"
+      ],
+      "dependedBy": []
+    },
+    "modelshot": {
+      "displayName": "모델컷 생성",
+      "category": "ax-marketing",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "aws-bedrock",
+        "postgresql"
+      ],
+      "dependedBy": []
+    },
+    "nlp-analyze": {
+      "displayName": "NLP 자연어 분석",
+      "category": "ax-data",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "aws-bedrock",
+        "postgresql"
+      ],
+      "dependedBy": []
+    },
+    "notifications": {
+      "displayName": "알림 시스템",
+      "category": "platform",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "aws-bedrock",
+        "postgresql"
+      ],
+      "dependedBy": [
+        "marketing-hub"
+      ]
+    },
+    "push-notifications": {
+      "displayName": "푸시 알림",
+      "category": "platform",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "postgresql"
+      ],
+      "dependedBy": []
+    },
+    "pwa": {
+      "displayName": "PWA (Progressive Web App)",
+      "category": "platform",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "postgresql"
+      ],
+      "dependedBy": []
+    },
+    "remove-bg": {
+      "displayName": "배경 제거",
+      "category": "ax-marketing",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "aws-bedrock",
+        "postgresql"
+      ],
+      "dependedBy": []
+    },
+    "review-analysis": {
+      "displayName": "리뷰 분석",
+      "category": "ax-commerce",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "aws-bedrock",
+        "postgresql"
+      ],
+      "dependedBy": []
+    },
+    "url-analyze": {
+      "displayName": "URL 콘텐츠 분석",
+      "category": "ax-data",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "aws-bedrock",
+        "postgresql"
+      ],
+      "dependedBy": []
+    },
+    "youtube-comments": {
+      "displayName": "유튜브 댓글 분석",
+      "category": "ax-data",
+      "deps_internal": [
+        "auth",
+        "audit",
+        "jobs"
+      ],
+      "deps_external": [
+        "aws-bedrock",
+        "postgresql"
+      ],
+      "dependedBy": []
+    },
+    "youtube-influence": {
+      "displayName": "유튜브 영향력 분석",
+      "category": "ax-data",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "aws-bedrock",
+        "postgresql"
+      ],
+      "dependedBy": []
+    },
+    "youtube-keyword-search": {
+      "displayName": "유튜브 키워드 검색",
+      "category": "ax-data",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "aws-bedrock",
+        "postgresql"
+      ],
+      "dependedBy": []
+    },
+    "audit": {
+      "displayName": "감사 로그",
+      "category": "platform",
+      "deps_internal": [],
+      "deps_external": [
+        "postgresql"
+      ],
+      "dependedBy": [
+        "admin-dashboard",
+        "auth",
+        "chatbot",
+        "feed-generate",
+        "i18n",
+        "marketing-hub",
+        "modelshot",
+        "nlp-analyze",
+        "notifications",
+        "push-notifications",
+        "pwa",
+        "remove-bg",
+        "review-analysis",
+        "url-analyze",
+        "youtube-comments",
+        "youtube-influence",
+        "youtube-keyword-search",
+        "dashboard",
+        "ai",
+        "jobs"
+      ]
+    },
+    "dashboard": {
+      "displayName": "대시보드",
+      "category": "platform",
+      "deps_internal": [
+        "audit"
+      ],
+      "deps_external": [
+        "postgresql"
+      ],
+      "dependedBy": [
+        "auth"
+      ]
+    },
+    "ai": {
+      "displayName": "AI 인사이트",
+      "category": "platform",
+      "deps_internal": [
+        "audit"
+      ],
+      "deps_external": [
+        "aws-bedrock",
+        "postgresql"
+      ],
+      "dependedBy": [
+        "marketing-hub"
+      ]
+    },
+    "jobs": {
+      "displayName": "작업 관리",
+      "category": "platform",
+      "deps_internal": [
+        "auth",
+        "audit"
+      ],
+      "deps_external": [
+        "postgresql"
+      ],
+      "dependedBy": [
+        "youtube-comments"
+      ]
+    }
+  },
+  "stats": {
+    "generated": "2026-04-26T01:51:27.109027",
+    "totalFeatures": 21,
+    "platformLayer": 11,
+    "axDataLayer": 5,
+    "axMarketingLayer": 3,
+    "axCommerceLayer": 2,
+    "topDependedOn": [
+      "audit",
+      "auth",
+      "notifications",
+      "dashboard",
+      "ai"
+    ],
+    "isolatedFeatures": []
+  },
+  "allFeatures": [
+    "admin-dashboard",
+    "ai",
+    "audit",
+    "auth",
+    "chatbot",
+    "dashboard",
+    "feed-generate",
+    "i18n",
+    "jobs",
+    "marketing-hub",
+    "modelshot",
+    "nlp-analyze",
+    "notifications",
+    "push-notifications",
+    "pwa",
+    "remove-bg",
+    "review-analysis",
+    "url-analyze",
+    "youtube-comments",
+    "youtube-influence",
+    "youtube-keyword-search"
+  ]
+}

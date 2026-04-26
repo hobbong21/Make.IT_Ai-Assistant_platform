@@ -1,75 +1,66 @@
-# {기능명}
+# PWA (Progressive Web App)
 
-> 한 줄 설명: {요약}
+> **상태**: stable | **카테고리**: platform | **소유자**: @hobbong21
+
+- **엔드포인트**: 0개
+- **파일**: backend 0 / frontend 4 / tests 0 / docs 1
+- **마지막 변경**: R7
+<!-- AUTO-GENERATED ABOVE | MANUAL BELOW -->
+# PWA (Progressive Web App)
+
+> 모바일 설치, 오프라인 지원, 빠른 로딩 (Service Worker)
 
 ## 목적
 
-{왜 이 기능이 필요한가? 사용자 가치 제안}
+모바일 사용자 경험 향상 및 오프라인 지원
 
 ## 사용자 시나리오
 
-1. {첫 번째 시나리오 단계}
-2. {두 번째 시나리오 단계}
-3. {결과 및 효과}
+1. 사용자가 모바일 Chrome에서 '추가' 버튼으로 설치
+2. MaKIT 아이콘이 홈스크린에 추가되어 스탠드얼론 앱처럼 실행
+3. Service Worker가 25+ 정적 자산 사전 캐싱
+4. 오프라인 상태에서도 이전 페이지 일부 접근 가능
 
 ## 기술 스택
 
 ### 백엔드
-- **도메인**: {패키지 경로}
-- **주요 클래스**: {Controller/Service/Entity 목록}
-- **데이터 모델**: {엔티티, 마이그레이션}
-- **외부 의존성**: {AWS Bedrock/S3/외부 API 등}
+- **서비스**: sw.js, manifest.webmanifest, sw-register.js
+- **AI**: AWS Bedrock Claude Haiku v1.0 (해당 기능)
+- **데이터베이스**: PostgreSQL
 
 ### 프론트엔드
-- **페이지**: {HTML 파일}
-- **API 클라이언트**: {js/api.js 래퍼}
-- **컴포넌트**: {js/pages/{feature}.js 로직}
-- **스타일**: {CSS 파일, D1 토큰 사용}
-
-### 테스트
-- **E2E**: {tests/e2e/ 스펙}
-- **범위**: {주요 시나리오}
+- **페이지**: `frontend/service-detail.html` (AX Data/Marketing/Commerce) 또는 전용 페이지
+- **API 클라이언트**: `js/api.js` 래퍼
+- **스타일**: D1 토큰 (Royal Blue 브랜드 색상)
 
 ## API 계약
 
-### REST 엔드포인트
+| 메서드 | 경로 | 인증 |
+|--------|------|------|
+| N/A | 웹 표준 | Required (JWT) |
 
-| 메서드 | 경로 | 설명 | 인증 |
-|--------|------|------|------|
-| {METHOD} | {/api/path} | {설명} | {required/optional} |
-
-자세한 내용은 [api.md](./api.md) 참고.
+상세한 내용은 [api.md](./api.md) 참고.
 
 ## 의존성
 
-### 내부 의존성
-- {다른 기능 또는 모듈}
+### 내부
+- `auth` — JWT 인증
+- `audit` — @Auditable 감시
 
-### 외부 의존성
-- {AWS/DB/라이브러리}
-
-## 설정
-
-### 환경 변수
-```env
-{KEY}={값} # {설명}
-```
-
-### 마이그레이션
-- `V{N}__{feature}.sql` — 테이블/인덱스 정의
-
-## 모니터링 & 로깅
-
-- **메트릭**: {중요 지표}
-- **로그 레벨**: {DEBUG/INFO/WARN}
-- **알림**: {CloudWatch 알람}
+### 외부
+- AWS Bedrock (일부 기능)
+- PostgreSQL
 
 ## 변경 이력
 
-최신 R 라운드별 이력은 [changelog.md](./changelog.md) 참고.
+최신 라운드별 이력은 [changelog.md](./changelog.md) 참고.
+
+| 라운드 | 날짜 | 변경 |
+|--------|------|------|
+| R13b | 2026-04-(PWA | D5 도입) |
+| R15c | 2026-04-(skeleton | 추가) |
 
 ## 참고 자료
 
-- 아키텍처: `docs/architecture/`
-- 설계 토큰: `docs/design/`
+- 아키텍처: `docs/architecture/01_architect_system_design.md`
 - 라운드 산출물: `docs/rounds/`

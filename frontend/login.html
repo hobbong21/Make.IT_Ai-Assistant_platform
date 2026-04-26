@@ -64,19 +64,19 @@
         </div>
 
         <div class="tab-selector" role="tablist" aria-label="인증 모드 선택">
-            <button class="active" role="tab" aria-selected="true" aria-controls="login-pane" id="tab-login" onclick="switchTab('login')">로그인</button>
-            <button role="tab" aria-selected="false" aria-controls="register-pane" id="tab-register" onclick="switchTab('register')">회원가입</button>
+            <button class="active" role="tab" aria-selected="true" aria-controls="login-pane" id="tab-login" onclick="switchTab('login')" data-i18n="auth.login">로그인</button>
+            <button role="tab" aria-selected="false" aria-controls="register-pane" id="tab-register" onclick="switchTab('register')" data-i18n="auth.register">회원가입</button>
         </div>
 
         <div id="login-pane" class="tab-pane active" role="tabpanel" aria-labelledby="tab-login">
             <form id="loginForm" onsubmit="return false;">
                 <div class="form-group">
-                    <label for="loginEmail">이메일</label>
-                    <input type="email" id="loginEmail" name="email" placeholder="your@email.com" required>
+                    <label for="loginEmail" data-i18n="auth.email">이메일</label>
+                    <input type="email" id="loginEmail" name="email" data-i18n-attr="placeholder:auth.email" placeholder="your@email.com" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="loginPassword">비밀번호</label>
+                    <label for="loginPassword" data-i18n="auth.password">비밀번호</label>
                     <div class="password-input-wrapper">
                         <input type="password" id="loginPassword" name="password" placeholder="6자 이상" required>
                         <button type="button" class="password-toggle" onclick="togglePasswordVisibility('loginPassword')" aria-label="비밀번호 표시/숨김" aria-pressed="false">
@@ -87,16 +87,16 @@
 
                 <div class="checkbox-group">
                     <input type="checkbox" id="rememberMe" checked>
-                    <label for="rememberMe">로그인 상태 유지</label>
+                    <label for="rememberMe" data-i18n="auth.remember">로그인 상태 유지</label>
                 </div>
 
                 <div class="link-secondary">
-                    <a href="#">비밀번호 찾기</a>
+                    <a href="#" data-i18n="auth.forgot">비밀번호 찾기</a>
                 </div>
 
                 <div class="message-area" id="loginMessage" role="status" aria-live="polite"></div>
 
-                <button type="button" class="submit-button" id="loginBtn" onclick="doLogin()">
+                <button type="button" class="submit-button" id="loginBtn" onclick="doLogin()" data-i18n="auth.submit-login">
                     로그인
                     <div class="spinner" id="loginSpinner"></div>
                 </button>
@@ -106,17 +106,17 @@
         <div id="register-pane" class="tab-pane" role="tabpanel" aria-labelledby="tab-register">
             <form id="registerForm" onsubmit="return false;">
                 <div class="form-group">
-                    <label for="regName">이름</label>
-                    <input type="text" id="regName" name="name" placeholder="홍길동" required>
+                    <label for="regName" data-i18n="auth.name">이름</label>
+                    <input type="text" id="regName" name="name" data-i18n-attr="placeholder:auth.name" placeholder="홍길동" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="regEmail">이메일</label>
-                    <input type="email" id="regEmail" name="email" placeholder="your@email.com" required>
+                    <label for="regEmail" data-i18n="auth.email">이메일</label>
+                    <input type="email" id="regEmail" name="email" data-i18n-attr="placeholder:auth.email" placeholder="your@email.com" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="regPassword">비밀번호</label>
+                    <label for="regPassword" data-i18n="auth.password">비밀번호</label>
                     <div class="password-input-wrapper">
                         <input type="password" id="regPassword" name="password" placeholder="6자 이상" required oninput="renderPasswordStrength()">
                         <button type="button" class="password-toggle" onclick="togglePasswordVisibility('regPassword')" aria-label="비밀번호 표시/숨김" aria-pressed="false">
@@ -127,9 +127,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="regPasswordConfirm">비밀번호 확인</label>
+                    <label for="regPasswordConfirm" data-i18n="auth.password-confirm">비밀번호 확인</label>
                     <div class="password-input-wrapper">
-                        <input type="password" id="regPasswordConfirm" name="passwordConfirm" placeholder="비밀번호 재입력" required>
+                        <input type="password" id="regPasswordConfirm" name="passwordConfirm" data-i18n-attr="placeholder:auth.password-confirm" placeholder="비밀번호 재입력" required>
                         <button type="button" class="password-toggle" onclick="togglePasswordVisibility('regPasswordConfirm')" aria-label="비밀번호 확인 표시/숨김" aria-pressed="false">
                             <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </button>
@@ -138,14 +138,14 @@
 
                 <div class="checkbox-group">
                     <input type="checkbox" id="agreeTerms" required>
-                    <label for="agreeTerms" class="terms-label">
+                    <label for="agreeTerms" class="terms-label" data-i18n="auth.terms">
                         <a href="#">이용약관</a> 및 <a href="#">개인정보 처리방침</a>에 동의합니다
                     </label>
                 </div>
 
                 <div class="message-area" id="regMessage" role="status" aria-live="polite"></div>
 
-                <button type="button" class="submit-button" id="regBtn" onclick="doRegister()">
+                <button type="button" class="submit-button" id="regBtn" onclick="doRegister()" data-i18n="auth.submit-register">
                     회원가입
                     <div class="spinner" id="regSpinner"></div>
                 </button>
@@ -157,6 +157,8 @@
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/ui.js"></script>
+    <script src="js/i18n-dict.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/pages/login.js"></script>
 
     <script>

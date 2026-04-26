@@ -343,6 +343,21 @@
       // GET /api/admin/notifications/breakdown?days=7 — NotificationBreakdownDto
       notifBreakdown: function (days) {
         return request('/admin/notifications/breakdown?days=' + (days || 7));
+      },
+      // GET /api/admin/features — List<FeatureManifestDto>
+      features: function () {
+        return request('/admin/features');
+      },
+      // GET /api/admin/features/{name} — Map with manifest, readme, changelog, api
+      featureDetail: function (name) {
+        return request('/admin/features/' + encodeURIComponent(name));
+      },
+      // PATCH /api/admin/features/{name}/status {status} — Update feature lifecycle status
+      updateFeatureStatus: function (name, status) {
+        return request('/admin/features/' + encodeURIComponent(name) + '/status', {
+          method: 'PATCH',
+          body: { status: status }
+        });
       }
     }
   };

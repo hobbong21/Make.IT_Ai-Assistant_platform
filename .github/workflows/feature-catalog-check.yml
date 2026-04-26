@@ -1,0 +1,137 @@
+name: Feature Catalog Check
+
+on:
+  pull_request:
+    paths:
+      - 'features/**'
+      - 'backend/src/main/java/**'
+      - 'frontend/**'
+      - 'deploy/scripts/validate-features.sh'
+  push:
+    branches:
+      - main
+    paths:
+      - 'features/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-manifests:
+    name: Validate Manifest Files
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: pip install jsonschema
+
+      - name: Validate feature manifests
+        run: bash deploy/scripts/validate-features.sh
+
+  readme-sync-check:
+    name: Check README Sync with Manifest
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run README sync validation (DRY mode)
+        run: |
+          bash deploy/scripts/sync-feature-readmes.sh --dry-run
+        continue-on-error: true
+
+      - name: Verify no README drift
+        run: |
+          git diff --exit-code features/*/README.md || {
+            echo "ERROR: README files are out of sync with manifest."
+            echo "Run 'bash deploy/scripts/sync-feature-readmes.sh' locally and commit changes."
+            echo ""
+            echo "Differences:"
+            git diff features/*/README.md
+            exit 1
+          }
+
+  feature-files-exist:
+    name: Verify File References
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate all referenced files exist
+        run: |
+          python3 << 'PYTHON'
+          import json
+          import os
+          import sys
+          
+          fail_count = 0
+          for manifest_path in sorted(os.listdir("features")):
+            manifest_file = os.path.join("features", manifest_path, "manifest.json")
+            if not os.path.isfile(manifest_file):
+              continue
+            
+            if manifest_path == "_TEMPLATE":
+              continue
+            
+            with open(manifest_file) as f:
+              manifest = json.load(f)
+            
+            files_config = manifest.get("files", {})
+            for layer in ["backend", "frontend", "tests", "docs", "migrations"]:
+              for file_path in files_config.get(layer, []):
+                # Skip template placeholders
+                if "{" in file_path or "}" in file_path:
+                  continue
+                
+                if not os.path.exists(file_path):
+                  print(f"MISSING: {manifest_path} → {file_path}")
+                  fail_count += 1
+          
+          if fail_count > 0:
+            print(f"\n{fail_count} file reference(s) not found")
+            sys.exit(1)
+          
+          print("All referenced files exist ✓")
+          sys.exit(0)
+          PYTHON
+
+  summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs: [validate-manifests, readme-sync-check, feature-files-exist]
+    if: always()
+    steps:
+      - name: Check job statuses
+        run: |
+          echo "Validation Results:"
+          echo "  Manifests: ${{ needs.validate-manifests.result }}"
+          echo "  README Sync: ${{ needs.readme-sync-check.result }}"
+          echo "  File References: ${{ needs.feature-files-exist.result }}"
+          
+          if [ "${{ needs.validate-manifests.result }}" = "failure" ] || \
+             [ "${{ needs.readme-sync-check.result }}" = "failure" ] || \
+             [ "${{ needs.feature-files-exist.result }}" = "failure" ]; then
+            exit 1
+          fi
+
+      - name: Report success
+        if: success()
+        run: echo "All feature catalog checks passed ✓"

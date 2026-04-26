@@ -75,7 +75,7 @@
                 <!-- 페이지 헤더 -->
                 <div class="page-header">
                     <div>
-                        <h1>관리자 대시보드</h1>
+                        <h1 data-i18n="admin.title">관리자 대시보드</h1>
                         <p class="text-muted">시스템 통계 및 사용자 관리</p>
                     </div>
                 </div>
@@ -177,6 +177,51 @@
                         <button id="next-page" class="btn btn-secondary">다음</button>
                     </div>
                 </section>
+
+                <!-- 기능 라이프사이클 -->
+                <section class="admin-section" id="features-lifecycle" aria-label="기능 라이프사이클">
+                    <h2 class="section-title">기능 라이프사이클</h2>
+                    <p class="section-desc">17개 핵심 기능의 status 트래킹 (experimental → beta → stable)</p>
+
+                    <div class="features-status-grid">
+                        <div class="feature-status-card">
+                            <div class="status-count" id="status-experimental">0</div>
+                            <div class="status-label">실험 단계</div>
+                        </div>
+                        <div class="feature-status-card">
+                            <div class="status-count" id="status-beta">0</div>
+                            <div class="status-label">베타</div>
+                        </div>
+                        <div class="feature-status-card">
+                            <div class="status-count" id="status-stable">0</div>
+                            <div class="status-label">안정화</div>
+                        </div>
+                        <div class="feature-status-card">
+                            <div class="status-count" id="status-deprecated">0</div>
+                            <div class="status-label">중단됨</div>
+                        </div>
+                    </div>
+
+                    <div class="features-table-wrap">
+                        <table class="features-table" role="grid" aria-label="기능 라이프사이클 테이블">
+                            <thead>
+                                <tr>
+                                    <th scope="col">기능</th>
+                                    <th scope="col">카테고리</th>
+                                    <th scope="col">상태</th>
+                                    <th scope="col">엔드포인트</th>
+                                    <th scope="col">파일</th>
+                                    <th scope="col">최근 라운드</th>
+                                </tr>
+                            </thead>
+                            <tbody id="featuresTableBody">
+                                <tr class="skeleton-row">
+                                    <td colspan="6" style="text-align:center; padding: 20px;">로딩 중...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
         </main>
     </div>
@@ -187,6 +232,8 @@
     <script src="js/api.js"></script>
     <script src="js/chatbot-widget.js"></script>
     <script src="js/user-menu.js"></script>
+    <script src="js/i18n-dict.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/app-shell-extras.js"></script>
     <script src="js/skeleton.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>

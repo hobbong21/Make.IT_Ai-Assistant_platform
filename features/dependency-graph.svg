@@ -1,0 +1,224 @@
+<svg viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .platform { fill: #dce1f9; stroke: #334bfa; stroke-width: 2; }
+      .axdata { fill: #d7efdc; stroke: #0f7134; stroke-width: 2; }
+      .axmkt { fill: #fef3c7; stroke: #92400e; stroke-width: 2; }
+      .axcom { fill: #fee2e2; stroke: #991b1b; stroke-width: 2; }
+      .hub { fill: #e8d5f2; stroke: #7c3aed; stroke-width: 2; }
+      .text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; font-size: 12px; fill: #1a1a1a; }
+      .title { font-size: 14px; font-weight: bold; }
+      .arrow { stroke: #666; stroke-width: 1.5; fill: none; marker-end: url(#arrowhead); }
+      .faint-arrow { stroke: #ccc; stroke-width: 1; fill: none; stroke-dasharray: 3,3; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#666" />
+    </marker>
+  </defs>
+  
+  <rect width="1400" height="900" fill="white"/>
+  
+  <!-- Title -->
+  <text x="700" y="30" class="text title" text-anchor="middle">MaKIT Feature Dependency Graph</text>
+  
+  <!-- Platform Foundation Layer -->
+  <g>
+    <text x="50" y="70" class="text title">Platform Foundation (4)</text>
+    
+    <!-- audit -->
+    <rect x="50" y="90" width="100" height="50" class="platform" rx="4"/>
+    <text x="100" y="115" class="text" text-anchor="middle">감사 로그</text>
+    <text x="100" y="130" class="text" text-anchor="middle" style="font-size: 10px;">(audit)</text>
+    
+    <!-- auth -->
+    <rect x="160" y="90" width="100" height="50" class="platform" rx="4"/>
+    <text x="210" y="115" class="text" text-anchor="middle">인증 & 관리</text>
+    <text x="210" y="130" class="text" text-anchor="middle" style="font-size: 10px;">(auth)</text>
+    
+    <!-- dashboard -->
+    <rect x="270" y="90" width="100" height="50" class="platform" rx="4"/>
+    <text x="320" y="115" class="text" text-anchor="middle">대시보드</text>
+    <text x="320" y="130" class="text" text-anchor="middle" style="font-size: 10px;">(dashboard)</text>
+    
+    <!-- ai -->
+    <rect x="380" y="90" width="100" height="50" class="platform" rx="4"/>
+    <text x="430" y="115" class="text" text-anchor="middle">AI 인사이트</text>
+    <text x="430" y="130" class="text" text-anchor="middle" style="font-size: 10px;">(ai)</text>
+    
+    <!-- arrows from audit -->
+    <path d="M 150 115 L 160 115" class="arrow"/>
+    <path d="M 150 115 L 270 115" class="faint-arrow"/>
+  </g>
+  
+  <!-- Platform Services Layer -->
+  <g>
+    <text x="50" y="200" class="text title">Platform Services (6)</text>
+    
+    <!-- notifications -->
+    <rect x="50" y="220" width="100" height="50" class="platform" rx="4"/>
+    <text x="100" y="245" class="text" text-anchor="middle">알림 시스템</text>
+    <text x="100" y="260" class="text" text-anchor="middle" style="font-size: 10px;">(notif)</text>
+    
+    <!-- push-notifications -->
+    <rect x="160" y="220" width="100" height="50" class="platform" rx="4"/>
+    <text x="210" y="245" class="text" text-anchor="middle">푸시 알림</text>
+    <text x="210" y="260" class="text" text-anchor="middle" style="font-size: 10px;">(push)</text>
+    
+    <!-- pwa -->
+    <rect x="270" y="220" width="100" height="50" class="platform" rx="4"/>
+    <text x="320" y="245" class="text" text-anchor="middle">PWA</text>
+    <text x="320" y="260" class="text" text-anchor="middle" style="font-size: 10px;">(pwa)</text>
+    
+    <!-- i18n -->
+    <rect x="380" y="220" width="100" height="50" class="platform" rx="4"/>
+    <text x="430" y="245" class="text" text-anchor="middle">다국어</text>
+    <text x="430" y="260" class="text" text-anchor="middle" style="font-size: 10px;">(i18n)</text>
+    
+    <!-- admin -->
+    <rect x="50" y="290" width="100" height="50" class="platform" rx="4"/>
+    <text x="100" y="315" class="text" text-anchor="middle">관리자</text>
+    <text x="100" y="330" class="text" text-anchor="middle" style="font-size: 10px;">(admin)</text>
+    
+    <!-- jobs -->
+    <rect x="160" y="290" width="100" height="50" class="platform" rx="4"/>
+    <text x="210" y="315" class="text" text-anchor="middle">작업 관리</text>
+    <text x="210" y="330" class="text" text-anchor="middle" style="font-size: 10px;">(jobs)</text>
+  </g>
+  
+  <!-- AX Data Intelligence Layer -->
+  <g>
+    <text x="500" y="70" class="text title">AX Data Intelligence (5)</text>
+    
+    <rect x="500" y="90" width="95" height="50" class="axdata" rx="4"/>
+    <text x="547" y="115" class="text" text-anchor="middle">NLP</text>
+    <text x="547" y="130" class="text" text-anchor="middle" style="font-size: 10px;">분석</text>
+    
+    <rect x="605" y="90" width="95" height="50" class="axdata" rx="4"/>
+    <text x="652" y="115" class="text" text-anchor="middle">URL</text>
+    <text x="652" y="130" class="text" text-anchor="middle" style="font-size: 10px;">분석</text>
+    
+    <rect x="710" y="90" width="95" height="50" class="axdata" rx="4"/>
+    <text x="757" y="115" class="text" text-anchor="middle">YT</text>
+    <text x="757" y="130" class="text" text-anchor="middle" style="font-size: 10px;">댓글</text>
+    
+    <rect x="815" y="90" width="95" height="50" class="axdata" rx="4"/>
+    <text x="862" y="115" class="text" text-anchor="middle">YT</text>
+    <text x="862" y="130" class="text" text-anchor="middle" style="font-size: 10px;">영향력</text>
+    
+    <rect x="920" y="90" width="95" height="50" class="axdata" rx="4"/>
+    <text x="967" y="115" class="text" text-anchor="middle">YT</text>
+    <text x="967" y="130" class="text" text-anchor="middle" style="font-size: 10px;">키워드</text>
+  </g>
+  
+  <!-- AX Marketing Intelligence Layer -->
+  <g>
+    <text x="500" y="200" class="text title">AX Marketing Intelligence (3)</text>
+    
+    <rect x="500" y="220" width="95" height="50" class="axmkt" rx="4"/>
+    <text x="547" y="245" class="text" text-anchor="middle">피드</text>
+    <text x="547" y="260" class="text" text-anchor="middle" style="font-size: 10px;">생성</text>
+    
+    <rect x="605" y="220" width="95" height="50" class="axmkt" rx="4"/>
+    <text x="652" y="245" class="text" text-anchor="middle">배경</text>
+    <text x="652" y="260" class="text" text-anchor="middle" style="font-size: 10px;">제거</text>
+    
+    <rect x="710" y="220" width="95" height="50" class="axmkt" rx="4"/>
+    <text x="757" y="245" class="text" text-anchor="middle">모델컷</text>
+    <text x="757" y="260" class="text" text-anchor="middle" style="font-size: 10px;">생성</text>
+  </g>
+  
+  <!-- AX Commerce Brain Layer -->
+  <g>
+    <text x="820" y="200" class="text title">AX Commerce Brain (2)</text>
+    
+    <rect x="820" y="220" width="95" height="50" class="axcom" rx="4"/>
+    <text x="867" y="245" class="text" text-anchor="middle">챗봇</text>
+    <text x="867" y="260" class="text" text-anchor="middle" style="font-size: 10px;">(chatbot)</text>
+    
+    <rect x="925" y="220" width="95" height="50" class="axcom" rx="4"/>
+    <text x="972" y="245" class="text" text-anchor="middle">리뷰</text>
+    <text x="972" y="260" class="text" text-anchor="middle" style="font-size: 10px;">분석</text>
+  </g>
+  
+  <!-- Marketing Hub (Composite) -->
+  <g>
+    <text x="1050" y="200" class="text title">Composite Hub (1)</text>
+    
+    <rect x="1050" y="220" width="120" height="50" class="hub" rx="4"/>
+    <text x="1110" y="245" class="text" text-anchor="middle">마케팅 허브</text>
+    <text x="1110" y="260" class="text" text-anchor="middle" style="font-size: 10px;">(marketing-hub)</text>
+  </g>
+  
+  <!-- Dependency Arrows -->
+  <g>
+    <!-- All services depend on auth and audit -->
+    <path d="M 210 140 Q 300 180 100 220" class="faint-arrow"/>
+    <path d="M 210 140 Q 300 180 210 220" class="faint-arrow"/>
+    <path d="M 210 140 Q 300 180 320 220" class="faint-arrow"/>
+    <path d="M 210 140 Q 300 180 430 220" class="faint-arrow"/>
+    <path d="M 210 140 Q 300 180 100 290" class="faint-arrow"/>
+    <path d="M 210 140 Q 300 180 210 290" class="faint-arrow"/>
+    
+    <!-- AX Services depend on auth/audit -->
+    <path d="M 210 140 Q 400 180 547 90" class="faint-arrow"/>
+    <path d="M 210 140 Q 400 180 652 90" class="faint-arrow"/>
+    <path d="M 210 140 Q 400 180 757 90" class="faint-arrow"/>
+    
+    <!-- YT Comments depends on jobs -->
+    <path d="M 210 315 L 757 140" class="arrow"/>
+    
+    <!-- Notifications → Hub -->
+    <path d="M 150 245 L 1050 245" class="arrow"/>
+    
+    <!-- AI → Hub -->
+    <path d="M 430 140 L 1110 220" class="arrow"/>
+  </g>
+  
+  <!-- Legend -->
+  <g>
+    <text x="50" y="400" class="text title">범례 (Legend)</text>
+    
+    <rect x="50" y="420" width="20" height="20" class="platform" rx="2"/>
+    <text x="80" y="435" class="text">Platform (기초 시설)</text>
+    
+    <rect x="50" y="450" width="20" height="20" class="axdata" rx="2"/>
+    <text x="80" y="465" class="text">AX Data (데이터 분석)</text>
+    
+    <rect x="50" y="480" width="20" height="20" class="axmkt" rx="2"/>
+    <text x="80" y="495" class="text">AX Marketing (마케팅)</text>
+    
+    <rect x="50" y="510" width="20" height="20" class="axcom" rx="2"/>
+    <text x="80" y="525" class="text">AX Commerce (상거래)</text>
+    
+    <rect x="50" y="540" width="20" height="20" class="hub" rx="2"/>
+    <text x="80" y="555" class="text">Composite Hub (통합)</text>
+  </g>
+  
+  <!-- Statistics -->
+  <g>
+    <text x="500" y="400" class="text title">통계 (Statistics)</text>
+    
+    <text x="500" y="430" class="text">총 기능: 21개</text>
+    <text x="500" y="450" class="text">Platform: 11개 | AX Data: 5개 | AX Marketing: 3개 | AX Commerce: 2개</text>
+    
+    <text x="500" y="480" class="text" style="font-weight: bold;">가장 의존도가 높은 기능:</text>
+    <text x="500" y="500" class="text">1. audit (20개 의존)</text>
+    <text x="500" y="520" class="text">2. auth (17개 의존)</text>
+    <text x="500" y="540" class="text">3. notifications (1개 의존: marketing-hub)</text>
+    
+    <text x="500" y="570" class="text" style="font-weight: bold;">DAG 검증: ✓ 순환 의존 없음</text>
+  </g>
+  
+  <!-- Key Insights -->
+  <g>
+    <text x="900" y="400" class="text title">주요 통찰 (Key Insights)</text>
+    
+    <text x="900" y="430" class="text">audit: Foundation (모든 기능)</text>
+    <text x="900" y="450" class="text">auth: Critical infrastructure (17개)</text>
+    <text x="900" y="470" class="text">marketing-hub: 최상위 소비자 (4개 의존)</text>
+    
+    <text x="900" y="500" class="text" style="font-weight: bold;">병렬 개발 가능:</text>
+    <text x="900" y="520" class="text">Product layer 10개 기능</text>
+    <text x="900" y="540" class="text">(각각 auth+audit만 의존)</text>
+  </g>
+</svg>
