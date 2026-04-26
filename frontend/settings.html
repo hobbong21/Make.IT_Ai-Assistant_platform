@@ -4,6 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MaKIT - 설정 | Human.Ai.D</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="/img/illustrations/login-mark.svg">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="MaKIT 설정. 프로필 정보, 비밀번호, 알림 등을 관리하세요.">
+    <meta name="keywords" content="MaKIT, 설정, 프로필, 계정">
+    <meta name="author" content="Human.Ai.D">
+    <link rel="canonical" href="https://makit.example.com/settings.html">
+    <!-- Open Graph Meta -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:locale:alternate" content="ja_JP">
+    <meta property="og:title" content="MaKIT - 설정">
+    <meta property="og:description" content="계정 설정 및 프로필 관리">
+    <meta property="og:url" content="https://makit.example.com/settings.html">
+    <meta property="og:image" content="https://makit.example.com/img/illustrations/intro-hero.svg">
+    <meta property="og:site_name" content="MaKIT">
+    <!-- Twitter Card Meta -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MaKIT - 설정">
+    <meta name="twitter:description" content="계정 설정 및 프로필 관리">
+    <meta name="twitter:image" content="https://makit.example.com/img/illustrations/intro-hero.svg">
+    <!-- hreflang Links -->
+    <link rel="alternate" hreflang="ko" href="https://makit.example.com/settings.html">
+    <link rel="alternate" hreflang="en" href="https://makit.example.com/settings.html?lang=en">
+    <link rel="alternate" hreflang="ja" href="https://makit.example.com/settings.html?lang=ja">
+    <link rel="alternate" hreflang="x-default" href="https://makit.example.com/settings.html">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/app-shell.css">
@@ -60,72 +90,61 @@
         }
         .theme-opt:hover { border-color: var(--mk-color-border-strong); }
         .theme-opt.active { border-color: var(--mk-color-brand-500); background: var(--mk-color-brand-50); color: var(--mk-color-brand-500); font-weight: 500; }
+        .motion-setting { margin-top: var(--mk-space-4, 16px); padding-top: var(--mk-space-4, 16px); border-top: 1px solid var(--mk-color-border); }
+        .motion-setting label { display: flex; align-items: center; gap: var(--mk-space-2, 8px); cursor: pointer; font-weight: 500; }
+        .motion-setting input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        .motion-setting small { display: block; margin-top: 8px; font-size: var(--mk-font-size-xs); color: var(--mk-color-text-muted); }
     </style>
 </head>
 <body>
+    <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
     <noscript><div class="makit-noscript">JavaScript가 필요합니다.</div></noscript>
 
-    <nav class="top-nav">
+    <nav class="top-nav" aria-label="페이지 네비게이션">
         <div class="top-nav-container">
             <a href="index.html" class="nav-back">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
                 대시보드
             </a>
         </div>
     </nav>
 
-    <main class="settings-wrap">
+    <main id="main-content" class="settings-wrap">
         <h1>설정</h1>
         <p>프로필 · 비밀번호 · 화면 테마를 관리할 수 있습니다.</p>
 
         <section class="set-card">
-            <h2>프로필</h2>
+            <h2 data-i18n="settings.profile">프로필</h2>
             <form id="profileForm" novalidate>
-                <label for="profName">이름</label>
+                <label for="profName" data-i18n="auth.name">이름</label>
                 <input type="text" id="profName" name="name" required>
-                <label for="profEmail">이메일</label>
+                <label for="profEmail" data-i18n="auth.email">이메일</label>
                 <input type="email" id="profEmail" name="email" required>
                 <div class="set-actions">
-                    <button type="submit" class="btn-primary" id="profSaveBtn">저장</button>
+                    <button type="submit" class="btn-primary" id="profSaveBtn" data-i18n="common.save">저장</button>
                 </div>
-                <div id="profMessage" role="status" aria-live="polite" style="margin-top:12px;"></div>
+                <div id="profMessage" role="status" aria-live="polite" style="margin-top: var(--mk-space-3);"></div>
             </form>
         </section>
 
         <section class="set-card">
-            <h2>비밀번호 변경</h2>
+            <h2 data-i18n="settings.password">비밀번호 변경</h2>
             <form id="pwForm" novalidate>
-                <label for="pwOld">현재 비밀번호</label>
+                <label for="pwOld" data-i18n="settings.current-password">현재 비밀번호</label>
                 <input type="password" id="pwOld" name="oldPassword" required minlength="6" autocomplete="current-password">
-                <label for="pwNew">새 비밀번호 (6자 이상)</label>
+                <label for="pwNew" data-i18n="settings.new-password">새 비밀번호 (6자 이상)</label>
                 <input type="password" id="pwNew" name="newPassword" required minlength="6" autocomplete="new-password">
-                <label for="pwNewConfirm">새 비밀번호 확인</label>
+                <label for="pwNewConfirm" data-i18n="settings.confirm-password">새 비밀번호 확인</label>
                 <input type="password" id="pwNewConfirm" required minlength="6" autocomplete="new-password">
                 <div class="set-actions">
-                    <button type="submit" class="btn-primary" id="pwSaveBtn">비밀번호 변경</button>
+                    <button type="submit" class="btn-primary" id="pwSaveBtn" data-i18n="settings.password">비밀번호 변경</button>
                 </div>
-                <div id="pwMessage" role="status" aria-live="polite" style="margin-top:12px;"></div>
+                <div id="pwMessage" role="status" aria-live="polite" style="margin-top: var(--mk-space-3);"></div>
             </form>
         </section>
 
         <section class="set-card">
-            <h2>화면 테마</h2>
+            <h2 data-i18n="settings.theme">화면 테마</h2>
             <div class="theme-options" role="radiogroup" aria-label="테마 선택">
-                <button type="button" class="theme-opt" data-theme="auto" role="radio">시스템 자동</button>
-                <button type="button" class="theme-opt" data-theme="light" role="radio">라이트</button>
-                <button type="button" class="theme-opt" data-theme="dark" role="radio">다크</button>
-            </div>
-        </section>
-    </main>
-
-    <script src="js/config.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/pages/chatbot.js"></script>
-    <script src="js/chatbot-widget.js"></script>
-    <script src="js/user-menu.js"></script>
-    <script src="js/app-shell-extras.js"></script>
-    <script src="js/pages/settings.js"></script>
-</body>
-</html>
+                <button type="button" class="theme-opt" data-theme="auto" role="radio" data-i18n="settings.theme-auto">시스템 자동</button>
+                <button type="button" class="theme-opt" data-theme="light" role="radio" data-i18n="settings.theme-light"

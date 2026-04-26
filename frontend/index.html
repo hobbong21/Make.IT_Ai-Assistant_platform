@@ -5,6 +5,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MaKIT - AX 마케팅 플랫폼 | Human.Ai.D</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="/img/illustrations/login-mark.svg">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="MaKIT AI 마케팅 플랫폼. 자연어 분석, 캠페인 관리, AI 챗봇으로 비즈니스 성장 가속화.">
+    <meta name="keywords" content="MaKIT, AI 마케팅, 챗봇, 자연어 분석, 캠페인 관리">
+    <meta name="author" content="Human.Ai.D">
+    <link rel="canonical" href="https://makit.example.com/index.html">
+    <!-- Open Graph Meta -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:locale:alternate" content="ja_JP">
+    <meta property="og:title" content="MaKIT - AX 마케팅 플랫폼">
+    <meta property="og:description" content="AI 기반 마케팅 자동화 플랫폼">
+    <meta property="og:url" content="https://makit.example.com/index.html">
+    <meta property="og:image" content="https://makit.example.com/img/illustrations/intro-hero.svg">
+    <meta property="og:site_name" content="MaKIT">
+    <!-- Twitter Card Meta -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MaKIT - AX 마케팅 플랫폼">
+    <meta name="twitter:description" content="AI 기반 마케팅 자동화 플랫폼">
+    <meta name="twitter:image" content="https://makit.example.com/img/illustrations/intro-hero.svg">
+    <!-- hreflang Links -->
+    <link rel="alternate" hreflang="ko" href="https://makit.example.com/index.html">
+    <link rel="alternate" hreflang="en" href="https://makit.example.com/index.html?lang=en">
+    <link rel="alternate" hreflang="ja" href="https://makit.example.com/index.html?lang=ja">
+    <link rel="alternate" hreflang="x-default" href="https://makit.example.com/index.html">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/app-shell.css">
@@ -12,13 +42,14 @@
 </head>
 
 <body>
+    <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
     <noscript><div class="makit-noscript">이 페이지는 JavaScript가 필요합니다. 브라우저에서 JavaScript를 활성화해주세요.</div></noscript>
 
     <!-- 상단 네비게이션 -->
-    <nav class="top-nav">
+    <nav class="top-nav" aria-label="페이지 네비게이션">
         <div class="top-nav-container">
             <a href="intro.html" class="nav-back">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M19 12H5"></path>
                     <path d="M12 19l-7-7 7-7"></path>
                 </svg>
@@ -34,33 +65,33 @@
                 <div class="logo">
                     <div class="logo-text">MaKIT</div>
                 </div>
-                <button class="sidebar-toggle">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="sidebar-toggle" aria-label="사이드바 접기/펼치기" aria-expanded="true">
+                    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="m6 9 6 6 6-6"></path>
                     </svg>
                 </button>
             </div>
 
-            <nav class="sidebar-nav">
+            <nav class="sidebar-nav" aria-label="사이드바 메뉴">
                 <div class="nav-section">
                     <div class="nav-section-title">홈</div>
                     <a href="index.html" class="nav-item active">
                         <span>개요</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
                             <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                         </svg>
                     </a>
                     <a href="marketing-hub.html" class="nav-item">
                         <span>마케팅 허브</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
                             <polyline points="13 2 13 9 20 9"></polyline>
                         </svg>
                     </a>
                     <a href="all-services.html" class="nav-item">
                         <span>모든 서비스</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path>
                         </svg>
                     </a>
@@ -72,7 +103,7 @@
                     <div class="nav-dropdown">
                         <div class="nav-dropdown-header">
                             <span>AX Data Intelligence</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="m9 18 6-6-6-6"></path>
                             </svg>
                         </div>
@@ -88,7 +119,7 @@
                     <div class="nav-dropdown">
                         <div class="nav-dropdown-header">
                             <span>AX Marketing Intelligence</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="m9 18 6-6-6-6"></path>
                             </svg>
                         </div>
@@ -102,7 +133,7 @@
                     <div class="nav-dropdown">
                         <div class="nav-dropdown-header">
                             <span>AX Commerce Brain</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="m9 18 6-6-6-6"></path>
                             </svg>
                         </div>
@@ -115,7 +146,7 @@
 
                 <a href="intro.html" class="nav-item go-to-web">
                     <span>웹사이트</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M15 3h6v6"></path>
                         <path d="M10 14 21 3"></path>
                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -125,17 +156,17 @@
         </aside>
 
         <!-- 메인 콘텐츠 -->
-        <main class="main-content">
+        <main id="main-content" class="main-content">
             <div class="content-wrapper">
                 <!-- 히어로 섹션 -->
                 <div class="hero-section">
                     <div class="hero-content">
                         <div class="hero-text">
-                            <h1 class="hero-title">Welcome To<br />MaKIT Platform!</h1>
-                            <p class="hero-subtitle">AI 기반 마케팅 플랫폼의 강력한 기능들을 직접 체험해보세요</p>
+                            <h1 class="hero-title" data-i18n="dashboard.welcome">Welcome To<br />MaKIT Platform!</h1>
+                            <p class="hero-subtitle" data-i18n="dashboard.subtitle">AI 기반 마케팅 플랫폼의 강력한 기능들을 직접 체험해보세요</p>
                             <a href="all-services.html" class="cta-button">
                                 모든 서비스 보기
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M7 7h10v10"></path>
                                     <path d="M7 17 17 7"></path>
                                 </svg>
@@ -143,7 +174,7 @@
                         </div>
 
                         <div class="hero-visual">
-                            <img src="img/illustrations/index-hero.svg" alt="MaKIT Dashboard 히어로 일러스트" class="hero-illustration">
+                            <img fetchpriority="high" decoding="async" src="img/illustrations/index-hero.svg" alt="MaKIT Dashboard 히어로 일러스트" class="hero-illustration">
                         </div>
                     </div>
 
@@ -183,7 +214,7 @@
 
                 <!-- 서비스 섹션 -->
                 <div id="services" class="services-section">
-                    <h2 class="section-title">핵심 서비스</h2>
+                    <h2 class="section-title" data-i18n="services.title">핵심 서비스</h2>
                     <div class="services-grid">
                         <!-- AX Data Intelligence -->
                         <div class="service-card">
@@ -198,9 +229,9 @@
                                 <span class="feature-tag">URL 분석</span>
                             </div>
                             <div class="service-image">
-                                <img src="img/illustrations/ax-data.svg" alt="AX Data Intelligence">
+                                <img loading="lazy" decoding="async" src="img/illustrations/ax-data.svg" alt="AX Data Intelligence">
                             </div>
-                            <a href="service-detail.html?service=nlp-analyze" class="service-button">서비스 사용</a>
+                            <a href="service-detail.html?service=nlp-analyze" class="service-button" data-i18n="services.use">서비스 사용</a>
                         </div>
 
                         <!-- AX Marketing Intelligence -->
@@ -216,9 +247,9 @@
                                 <span class="feature-tag">모델컷 생성</span>
                             </div>
                             <div class="service-image">
-                                <img src="img/illustrations/ax-marketing.svg" alt="AX Marketing Intelligence">
+                                <img loading="lazy" decoding="async" src="img/illustrations/ax-marketing.svg" alt="AX Marketing Intelligence">
                             </div>
-                            <a href="service-detail.html?service=feed-generate" class="service-button">서비스 사용</a>
+                            <a href="service-detail.html?service=feed-generate" class="service-button" data-i18n="services.use">서비스 사용</a>
                         </div>
 
                         <!-- AX Commerce Brain -->
@@ -234,9 +265,9 @@
                                 <span class="feature-tag">자동 응답</span>
                             </div>
                             <div class="service-image">
-                                <img src="img/illustrations/commerce-brain.svg" alt="AX Commerce Brain">
+                                <img loading="lazy" decoding="async" src="img/illustrations/commerce-brain.svg" alt="AX Commerce Brain">
                             </div>
-                            <a href="service-detail.html?service=chatbot" class="service-button">서비스 사용</a>
+                            <a href="service-detail.html?service=chatbot" class="service-button" data-i18n="services.use">서비스 사용</a>
                         </div>
                     </div>
                 </div>
@@ -251,26 +282,6 @@
     <div id="user-menu-mount"></div>
 
     <!-- 스크립트 로딩 -->
-    <script src="js/config.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/pages/chatbot.js"></script>
-    <script src="js/chatbot-widget.js"></script>
-    <script src="js/user-menu.js"></script>
-    <script src="js/app-shell-extras.js"></script>
-    <script src="js/pages/index.js"></script>
-</body>
-
-</html>
-서비스 사용</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
@@ -279,7 +290,17 @@
     <script src="js/pages/chatbot.js"></script>
     <script src="js/chatbot-widget.js"></script>
     <script src="js/user-menu.js"></script>
+    <!-- i18n (internationalization) 스크립트 로드 순서 중요: dict 먼저, 그 다음 i18n -->
+    <script src="js/i18n-dict.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/app-shell-extras.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <script src="js/ws-client.js"></script>
     <script src="js/pages/index.js"></script>
+    <script src="js/push-subscribe.js"></script>
+    <script src="js/sw-register.js"></script>
+    <script src="js/skeleton.js"></script>
 </body>
+
 </html>

@@ -277,6 +277,16 @@
 
       appendUser(text);
       var bubble = appendBotShell();
+      // 로딩 skeleton 표시 (생각 중...)
+      if (bubble && window.makitSkeleton) {
+        bubble.innerHTML = '';
+        var skeletonWrap = document.createElement('div');
+        skeletonWrap.className = 'mk-skeleton-stack';
+        skeletonWrap.style.gap = 'var(--mk-space-2)';
+        skeletonWrap.appendChild(window.makitSkeleton.row({width: 60}));
+        skeletonWrap.appendChild(window.makitSkeleton.row({width: 80}));
+        bubble.appendChild(skeletonWrap);
+      }
       try {
         if (!window.makitChatbot || !window.makitChatbot.streamInto) {
           throw new Error('chatbot streaming helper 미로드 (chatbot.js 필요)');

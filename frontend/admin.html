@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 대시보드 | MaKIT</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="/img/illustrations/login-mark.svg">
+    <!-- noindex: Admin page should not be indexed -->
+    <meta name="robots" content="noindex,nofollow">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/app-shell.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+
+<body>
+    <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
+    <noscript><div class="makit-noscript">이 페이지는 JavaScript가 필요합니다. 브라우저에서 JavaScript를 활성화해주세요.</div></noscript>
+
+    <!-- 상단 네비게이션 -->
+    <nav class="top-nav" aria-label="페이지 네비게이션">
+        <div class="top-nav-container">
+            <a href="index.html" class="nav-back">
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5"></path>
+                    <path d="M12 19l-7-7 7-7"></path>
+                </svg>
+                대시보드로
+            </a>
+        </div>
+    </nav>
+
+    <div class="app-container">
+        <!-- 사이드바 (생략: index.html과 동일) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-text">MaKIT</div>
+                </div>
+                <button class="sidebar-toggle" aria-label="사이드바 접기/펼치기" aria-expanded="true">
+                    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m6 9 6 6 6-6"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav" aria-label="사이드바 메뉴">
+                <div class="nav-section">
+                    <div class="nav-section-title">홈</div>
+                    <a href="index.html" class="nav-item">
+                        <span>개요</span>
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
+                            <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        </svg>
+                    </a>
+                    <a href="admin.html" class="nav-item active" id="admin-nav-item" style="display:none;">
+                        <span>관리자</span>
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                    </a>
+                    <a href="components.html" class="nav-item" id="components-nav-item" style="display:none;">
+                        <span>컴포넌트 가이드</span>
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v20"></path>
+                            <path d="M2 12h20"></path>
+                        </svg>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content" id="main-content" role="main">
+            <div class="page-container">
+                <!-- 페이지 헤더 -->
+                <div class="page-header">
+                    <div>
+                        <h1 data-i18n="admin.title">관리자 대시보드</h1>
+                        <p class="text-muted">시스템 통계 및 사용자 관리</p>
+                    </div>
+                </div>
+
+                <!-- 통계 카드 섹션 -->
+                <section class="admin-stats-grid" aria-label="주요 통계">
+                    <div class="admin-stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <div class="stat-label">총 가입자</div>
+                            <div class="stat-value" id="stat-total-users">--</div>
+                        </div>
+                    </div>
+
+                    <div class="admin-stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <div class="stat-label">활성 사용자 (7일)</div>
+                            <div class="stat-value" id="stat-active-users">--</div>
+                        </div>
+                    </div>
+
+                    <div class="admin-stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <div class="stat-label">총 요청 (7일)</div>
+                            <div class="stat-value" id="stat-requests">--</div>
+                        </div>
+                    </div>
+
+                    <div class="admin-stat-card">
+                        <div class="stat-icon">🔔</div>
+                        <div class="stat-content">
+                            <div class="stat-label">총 알림 (7일)</div>
+                            <div class="stat-value" id="stat-notifications">--</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 사용량 차트 -->
+                <section class="admin-section" aria-label="30일 사용량 추이">
+                    <h2 class="section-title">30일 사용량 추이</h2>
+                    <div class="chart-wrap">
+                        <canvas id="usageChart"></canvas>
+                    </div>
+                </section>
+
+                <!-- 알림 분류 -->
+                <section class="admin-section" aria-label="알림 분석">
+                    <h2 class="section-title">알림 분석 (최근 7일)</h2>
+                    <div class="admin-notif-grid">
+                        <div class="notif-breakdown">
+                            <div class="notif-stat">
+                                <div class="notif-label">클릭됨</div>
+                                <div class="notif-count" id="notif-clicked">--</div>
+                            </div>
+                            <div class="notif-stat">
+                                <div class="notif-label">미읽음</div>
+                                <div class="notif-count" id="notif-unread">--</div>
+                            </div>
+                            <div class="notif-stat">
+                                <div class="notif-label">CTR</div>
+                                <div class="notif-count" id="notif-ctr">--</div>
+                            </div>
+                        </div>
+                        <div class="notif-chart">
+                            <canvas id="notifTypeChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 사용자 목록 -->
+                <section class="admin-section" aria-label="사용자 목록">
+                    <h2 class="section-title">사용자 목록</h2>
+                    <div class="table-wrap">
+                        <table class="admin-user-table" role="grid" aria-label="사용자 목록 테이블">
+                            <thead>
+                                <tr>
+                                    <th scope="col">이메일</th>
+                                    <th scope="col">이름</th>
+                                    <th scope="col">역할</th>
+                                    <th scope="col">가입일</th>
+                                    <th scope="col">마지막 로그인</th>
+                                    <th scope="col">요청수</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody">
+                                <tr class="skeleton-row">
+                                    <td colspan="6" class="mk-loading-cell">로딩 중...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 페이지네이션 -->
+                    <div class="pagination" id="user-pagination" style="display:none;">
+                        <button id="prev-page" class="btn btn-secondary">이전</button>
+                        <span class="page-info" id="page-info">--</span>
+                        <button id="next-page" class="btn btn-secondary">다음</button>
+                    </div>
+                </section>
+
+                <!-- 기능 라이프사이클 -->
+                <section class="admin-section" id="features-lifecycle" aria-label="기능 라이프사이클">
+                    <h2 class="section-title">기능 라이프사이클</h2>
+                    <p class="section-desc">17개 핵심 기능의 status 트래킹 (experimental → beta → stable)</p>
+
+                    <div class="features-status-grid">
+                        <div class="feature-status-card">
+                            <div class="status-count" id="status-experimental">0</div>
+                            <div class="status-label">실험 단계</div>
+                        </div>
+                        <div class="feature-status-card">
+                            <div class="status-count" id="status-beta">0</div>
+                            <div class="status-label">베타</div>
+                

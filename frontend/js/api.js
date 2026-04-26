@@ -124,7 +124,11 @@
       },
       unreadCount: function () { return request('/notifications/me/unread-count'); },
       readAll: function () { return request('/notifications/me/read-all', { method: 'POST' }); },
-      read: function (id) { return request('/notifications/' + id + '/read', { method: 'POST' }); }
+      read: function (id) { return request('/notifications/' + id + '/read', { method: 'POST' }); },
+      // Web Push (VAPID) — R14c
+      pushVapidKey: function () { return request('/notifications/push/vapid-key'); },
+      pushSubscribe: function (subscription) { return request('/notifications/push/subscribe', { method: 'POST', body: subscription }); },
+      pushUnsubscribe: function (endpoint) { return request('/notifications/push/unsubscribe?endpoint=' + encodeURIComponent(endpoint), { method: 'DELETE' }); }
     },
 
     data: {
@@ -200,6 +204,19 @@
         if (limit) path += '?limit=' + limit;
         return request(path);
       },
+      // 콘텐츠 CRUD (R8)
+      contentGet: function (id) {
+        return request('/marketing/contents/' + encodeURIComponent(id));
+      },
+      contentCreate: function (payload) {
+        return request('/marketing/contents', { method: 'POST', body: payload });
+      },
+      contentUpdate: function (id, payload) {
+        return request('/marketing/contents/' + encodeURIComponent(id), { method: 'PATCH', body: payload });
+      },
+      contentDelete: function (id) {
+        return request('/marketing/contents/' + encodeURIComponent(id), { method: 'DELETE' });
+      },
       calendar: function () {
         return request('/marketing/calendar/week');
       },
@@ -264,6 +281,25 @@
       }
     },
 
+    notifications: {
+      list: function (opts) {
+        opts = opts || {};
+        var qs = '?page=' + (opts.page || 0) + '&size=' + (opts.size || 20);
+        return request('/notifications/me' + qs);
+      }
+    },
+
+    push: {
+      // GET /api/notifications/push/analytics?days=7
+      analytics: function (days) {
+        return request('/notifications/push/analytics?days=' + (days || 7));
+      },
+      // POST /api/notifications/push/track-click (called by sw.js, but expose for testing)
+      trackClick: function (payload) {
+        return request('/notifications/push/track-click', { method: 'POST', body: payload });
+      }
+    },
+
     jobs: {
       // domain: 'data' | 'marketing' | 'commerce'
       get: function (domain, jobId) {
@@ -288,6 +324,40 @@
           }
           await new Promise(function (r) { setTimeout(r, intervalMs); });
         }
+      }
+    },
+
+    admin: {
+      // GET /api/admin/stats/overview — AdminOverviewDto
+      overview: function () {
+        return request('/admin/stats/overview');
+      },
+      // GET /api/admin/users?page=0&size=20 — Page<AdminUserDto>
+      users: function (page, size) {
+        return request('/admin/users?page=' + (page || 0) + '&size=' + (size || 20));
+      },
+      // GET /api/admin/usage?days=30 — List<UsageDto>
+      usage: function (days) {
+        return request('/admin/usage?days=' + (days || 30));
+      },
+      // GET /api/admin/notifications/breakdown?days=7 — NotificationBreakdownDto
+      notifBreakdown: function (days) {
+        return request('/admin/notifications/breakdown?days=' + (days || 7));
+      },
+      // GET /api/admin/features — List<FeatureManifestDto>
+      features: function () {
+        return request('/admin/features');
+      },
+      // GET /api/admin/features/{name} — Map with manifest, readme, changelog, api
+      featureDetail: function (name) {
+        return request('/admin/features/' + encodeURIComponent(name));
+      },
+      // PATCH /api/admin/features/{name}/status {status} — Update feature lifecycle status
+      updateFeatureStatus: function (name, status) {
+        return request('/admin/features/' + encodeURIComponent(name) + '/status', {
+          method: 'PATCH',
+          body: { status: status }
+        });
       }
     }
   };

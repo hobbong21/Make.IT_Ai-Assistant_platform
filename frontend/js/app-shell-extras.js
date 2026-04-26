@@ -249,6 +249,100 @@
     window.makitCmdk = { open: open, close: close };
   }
 
+  // ============ 언어 선택기 (i18n) ============
+  function buildLanguagePicker() {
+    // i18n API가 준비될 때까지 대기
+    if (!window.makitI18n) {
+      console.warn('makitI18n not available yet, retrying...');
+      return null;
+    }
+
+    var wrap = document.createElement('div');
+    wrap.id = 'mk-lang-picker';
+    wrap.className = 'mk-lang-picker';
+    var currentLang = window.makitI18n.getLocale();
+    var langNames = window.makitI18n.languages;
+
+    var html = '<button type="button" class="mk-lang-toggle" aria-label="언어 선택">' +
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
+      '<circle cx="12" cy="12" r="10"></circle>' +
+      '<path d="M2 12h20"></path>' +
+      '<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>' +
+      '</svg>' +
+      '<span class="mk-lang-label">' + (langNames[currentLang] || 'Language') + '</span>' +
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
+      '<path d="m6 9 6 6 6-6"></path>' +
+      '</svg>' +
+      '</button>' +
+      '<div class="mk-lang-dropdown" role="listbox" aria-hidden="true">';
+
+    Object.keys(langNames).forEach(function (code) {
+      var isActive = code === currentLang ? ' aria-selected="true" data-active' : '';
+      html += '<button type="button" class="mk-lang-option" data-code="' + code + '"' + isActive + ' role="option">' +
+        langNames[code] +
+        '</button>';
+    });
+
+    html += '</div>';
+    wrap.innerHTML = html;
+    return wrap;
+  }
+
+  function bindLanguagePicker(element) {
+    if (!window.makitI18n) return;
+
+    var toggle = element.querySelector('.mk-lang-toggle');
+    var dropdown = element.querySelector('.mk-lang-dropdown');
+    var options = element.querySelectorAll('.mk-lang-option');
+
+    function openDropdown() {
+      dropdown.classList.add('mk-lang-dropdown--open');
+      dropdown.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeDropdown() {
+      dropdown.classList.remove('mk-lang-dropdown--open');
+      dropdown.setAttribute('aria-hidden', 'true');
+    }
+
+    toggle.addEventListener('click', function () {
+      if (dropdown.classList.contains('mk-lang-dropdown--open')) {
+        closeDropdown();
+      } else {
+        openDropdown();
+      }
+    });
+
+    options.forEach(function (opt) {
+      opt.addEventListener('click', function (e) {
+        e.preventDefault();
+        var code = opt.getAttribute('data-code');
+        if (code) {
+          window.makitI18n.setLocale(code);
+          // UI 업데이트
+          options.forEach(function (o) {
+            o.removeAttribute('data-active');
+            o.removeAttribute('aria-selected');
+          });
+          opt.setAttribute('data-active', '');
+          opt.setAttribute('aria-selected', 'true');
+          toggle.querySelector('.mk-lang-label').textContent = window.makitI18n.languages[code];
+          closeDropdown();
+        }
+      });
+    });
+
+    // ESC 닫기
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeDropdown();
+    });
+
+    // 외부 클릭 닫기
+    document.addEventListener('click', function (e) {
+      if (!element.contains(e.target)) closeDropdown();
+    });
+  }
+
   // ============ 마운트 ============
   function mount() {
     var bell = buildBell();
@@ -257,6 +351,15 @@
     var palette = buildPalette();
     document.body.appendChild(palette);
     bindPalette(palette);
+
+    // 언어 선택기 (i18n 준비 후 마운트)
+    setTimeout(function () {
+      var langPicker = buildLanguagePicker();
+      if (langPicker) {
+        document.body.appendChild(langPicker);
+        bindLanguagePicker(langPicker);
+      }
+    }, 100);
   }
 
   if (document.readyState === 'loading') {

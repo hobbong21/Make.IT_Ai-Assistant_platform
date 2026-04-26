@@ -8,14 +8,14 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
-    color: #333;
-    background: #fff;
+    color: var(--mk-color-text-muted, #737373);
+    background: var(--mk-color-bg, #ffffff);
 }
 
 /* 상단 네비게이션 */
 .top-nav {
     background: white;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
     padding: 0.75rem 0;
 }
 
@@ -29,14 +29,14 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: #6b7280;
+    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
     text-decoration: none;
     font-size: 0.875rem;
-    transition: color 0.2s;
+    transition: color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .nav-back:hover {
-    color: #000;
+    color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
 }
 
 /* 앱 컨테이너 */
@@ -51,7 +51,7 @@ body {
 .sidebar {
     width: 256px;
     background: white;
-    border-right: 1px solid #e5e7eb;
+    border-right: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -59,7 +59,7 @@ body {
 
 .sidebar-header {
     padding: 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -68,20 +68,20 @@ body {
 .logo-text {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #000;
+    color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
     letter-spacing: -0.5px;
 }
 
 .sidebar-toggle {
     background: none;
     border: none;
-    color: #6b7280;
+    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
     cursor: pointer;
     padding: 4px;
 }
 
 .sidebar-toggle:hover {
-    color: #000;
+    color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
 }
 
 /* 사이드바 네비게이션 */
@@ -100,7 +100,7 @@ body {
 .nav-section-title {
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
     font-weight: 500;
 }
 
@@ -109,18 +109,18 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 1rem;
-    color: #374151;
+    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
     text-decoration: none;
-    transition: background-color 0.2s;
+    transition: background-color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .nav-item:hover {
-    background-color: #f3f4f6;
+    background-color: var(--mk-color-bg-muted, var(--mk-color-bg-muted, #f2f2f2));
 }
 
 .nav-item.active {
-    background-color: #000;
-    color: #fff;
+    background-color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
+    color: var(--mk-color-bg, #ffffff);
     border-radius: 6px;
     margin: 0 0.5rem;
 }
@@ -131,17 +131,17 @@ body {
     justify-content: space-between;
     padding: 1rem;
     cursor: pointer;
-    color: #374151;
-    transition: background-color 0.2s;
+    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
+    transition: background-color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .nav-dropdown-header:hover {
-    background-color: #f9fafb;
+    background-color: var(--mk-color-bg-subtle, #fafafa);
 }
 
 .go-to-web {
     margin-top: auto;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
     padding-top: 0.75rem;
 }
 
@@ -149,7 +149,7 @@ body {
 .main-content {
     flex: 1;
     overflow: auto;
-    background: #f8fafc;
+    background: var(--mk-color-bg-subtle, #fafafa);
 }
 
 .content-wrapper {
@@ -166,13 +166,13 @@ body {
 .page-title {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #1f2937;
+    color: var(--mk-color-text, #1a1a1a);
     margin-bottom: 0.5rem;
 }
 
 .page-subtitle {
     font-size: 1.125rem;
-    color: #6b7280;
+    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
 }
 
 /* 검색 및 필터 */
@@ -181,7 +181,7 @@ body {
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--mk-shadow-xs, 0 1px 2px 0 rgb(0 0 0 / 0.05));
 }
 
 .search-box {
@@ -194,21 +194,21 @@ body {
     left: 1rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #6b7280;
+    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
 }
 
 .search-input {
     width: 100%;
     padding: 0.75rem 1rem 0.75rem 3rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
     border-radius: 8px;
     font-size: 1rem;
-    transition: border-color 0.2s;
+    transition: border-color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .search-input:focus {
     outline: none;
-    border-color: #000;
+    border-color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
 }
 
 .filter-tabs {
@@ -219,22 +219,22 @@ body {
 
 .filter-tab {
     padding: 0.5rem 1rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
     background: white;
     border-radius: 20px;
     font-size: 0.875rem;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .filter-tab:hover {
-    border-color: #000;
+    border-color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
 }
 
 .filter-tab.active {
-    background: #000;
+    background: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
     color: white;
-    border-color: #000;
+    border-color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
 }
 
 /* 서비스 컨테이너 */
@@ -248,7 +248,7 @@ body {
     background: white;
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--mk-shadow-xs, 0 1px 2px 0 rgb(0 0 0 / 0.05));
 }
 
 .category-title {
@@ -257,7 +257,7 @@ body {
     gap: 0.75rem;
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1f2937;
+    color: var(--mk-color-text, #1a1a1a);
     margin-bottom: 1.5rem;
 }
 
@@ -273,18 +273,18 @@ body {
 }
 
 .service-card {
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
+    background: var(--mk-color-bg-subtle, #fafafa);
+    border: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
     border-radius: 12px;
     padding: 1.5rem;
-    transition: all 0.3s ease;
+    transition: all var(--mk-motion-duration-slow) var(--mk-motion-ease-standard);
     position: relative;
 }
 
 .service-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    border-color: #000;
+    box-shadow: var(--mk-shadow-md, 0 10px 30px -8px rgb(0 0 0 / 0.15));
+    border-color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
 }
 
 .service-header {
@@ -299,7 +299,7 @@ body {
 }
 
 .service-status {
-    background: #10b981;
+    background: var(--mk-color-success-text, var(--mk-color-success-text, #0f7134));
     color: white;
     padding: 0.25rem 0.75rem;
     border-radius: 12px;
@@ -310,12 +310,12 @@ body {
 .service-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #1f2937;
+    color: var(--mk-color-text, #1a1a1a);
     margin-bottom: 0.75rem;
 }
 
 .service-description {
-    color: #6b7280;
+    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
     margin-bottom: 1rem;
     line-height: 1.5;
 }
@@ -328,8 +328,8 @@ body {
 }
 
 .tag {
-    background: #e5e7eb;
-    color: #374151;
+    background: var(--mk-color-border, var(--mk-color-border, #e6e6e6));
+    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
     padding: 0.25rem 0.5rem;
     border-radius: 12px;
     font-size: 0.75rem;
@@ -338,18 +338,18 @@ body {
 
 .service-button {
     width: 100%;
-    background: #000;
+    background: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
     color: white;
     border: none;
     padding: 0.75rem;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .service-button:hover {
-    background: #333;
+    background: var(--mk-color-text-muted, #737373);
     transform: translateY(-1px);
 }
 
@@ -404,7 +404,7 @@ body {
         width: 100%;
         height: auto;
         border-right: none;
-        border-bottom: 1px solid #e5e7eb;
+        border-bottom: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
     }
 
     .main-content {

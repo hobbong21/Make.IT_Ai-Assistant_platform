@@ -4,309 +4,221 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MaKIT 로그인 | Human.Ai.D</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="/img/illustrations/login-mark.svg">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="MaKIT에 로그인하세요. AI 마케팅 플랫폼에 접속하여 캠페인을 관리하세요.">
+    <meta name="keywords" content="MaKIT, 로그인, 마케팅 플랫폼, AI">
+    <meta name="author" content="Human.Ai.D">
+    <link rel="canonical" href="https://makit.example.com/login.html">
+    <!-- Open Graph Meta -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:locale:alternate" content="ja_JP">
+    <meta property="og:title" content="MaKIT 로그인">
+    <meta property="og:description" content="AI 마케팅 플랫폼에 로그인">
+    <meta property="og:url" content="https://makit.example.com/login.html">
+    <meta property="og:image" content="https://makit.example.com/img/illustrations/intro-hero.svg">
+    <meta property="og:site_name" content="MaKIT">
+    <!-- Twitter Card Meta -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MaKIT 로그인">
+    <meta name="twitter:description" content="AI 마케팅 플랫폼에 로그인">
+    <meta name="twitter:image" content="https://makit.example.com/img/illustrations/intro-hero.svg">
+    <!-- hreflang Links -->
+    <link rel="alternate" hreflang="ko" href="https://makit.example.com/login.html">
+    <link rel="alternate" hreflang="en" href="https://makit.example.com/login.html?lang=en">
+    <link rel="alternate" hreflang="ja" href="https://makit.example.com/login.html?lang=ja">
+    <link rel="alternate" hreflang="x-default" href="https://makit.example.com/login.html">
+    <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/common.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .login-container {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-            width: 100%;
-            max-width: 420px;
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .logo h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 0.3rem;
-        }
-
-        .logo p {
-            color: #888;
-            font-size: 0.85rem;
-        }
-
-        .tabs {
-            display: flex;
-            border-bottom: 2px solid #e1e5e9;
-            margin-bottom: 1.5rem;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 0.65rem;
-            background: none;
-            border: none;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #999;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
-            transition: color 0.2s, border-color 0.2s;
-        }
-
-        .tab-btn.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-
-        .tab-panel {
-            display: none;
-        }
-
-        .tab-panel.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.4rem;
-            color: #333;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e1e5e9;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 0.8rem;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-        }
-
-        .submit-btn:hover {
-            background: #5a6fd8;
-        }
-
-        .submit-btn:active {
-            transform: scale(0.99);
-        }
-
-        .submit-btn:disabled {
-            background: #c5c9f0;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .demo-accounts {
-            margin-top: 1.5rem;
-            padding: 0.9rem 1rem;
-            background: #f4f5ff;
-            border-radius: 6px;
-            border-left: 4px solid #667eea;
-        }
-
-        .demo-accounts h3 {
-            color: #444;
-            margin-bottom: 0.6rem;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .demo-account {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.4rem;
-            font-size: 0.82rem;
-            color: #555;
-        }
-
-        .demo-account:last-child {
-            margin-bottom: 0;
-        }
-
-        .demo-fill-btn {
-            background: none;
-            border: 1px solid #667eea;
-            color: #667eea;
-            cursor: pointer;
-            font-size: 0.75rem;
-            padding: 0.15rem 0.5rem;
-            border-radius: 4px;
-            margin-left: auto;
-            transition: background 0.15s, color 0.15s;
-        }
-
-        .demo-fill-btn:hover {
-            background: #667eea;
-            color: white;
-        }
-
-        .message-area {
-            min-height: 1.5rem;
-            margin-top: 0.8rem;
-            text-align: center;
-            font-size: 0.88rem;
-        }
-
-        .msg-error { color: #e74c3c; }
-        .msg-success { color: #27ae60; }
-
-        .spinner-wrap {
-            display: none;
-            text-align: center;
-            margin-top: 0.6rem;
-        }
-
-        .spinner {
-            border: 2px solid #e0e0e0;
-            border-top: 2px solid #667eea;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 0.8s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 0.4rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-family-base, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); background: linear-gradient(135deg, var(--color-primary, #3b82f6) 0%, var(--color-secondary, #8b5cf6) 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .login-container { background: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15); width: 100%; max-width: 420px; }
+        .logo { text-align: center; margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+        .logo img { width: 48px; height: 48px; }
+        .logo h1 { font-size: 1.75rem; font-weight: 700; color: var(--color-text-primary, #1a1a1a); margin: 0; }
+        .logo p { color: var(--color-text-secondary, #737373); font-size: 0.85rem; margin: 0; }
+        .tab-selector { display: flex; border-bottom: 2px solid var(--color-border, #e6e6e6); margin-bottom: 1.5rem; gap: 0.5rem; }
+        .tab-selector button { flex: 1; padding: 0.75rem; background: none; border: none; cursor: pointer; font-size: 1rem; font-weight: 500; color: var(--color-text-secondary, #737373); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.3s ease; }
+        .tab-selector button.active { color: var(--color-primary, #3b82f6); border-bottom-color: var(--color-primary, #3b82f6); }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 600; color: var(--color-text-primary, #1a1a1a); }
+        .form-group input { width: 100%; padding: 0.75rem; border: 1px solid var(--color-border, #e6e6e6); border-radius: 6px; font-size: 1rem; font-family: inherit; transition: all 0.3s ease; }
+        .form-group input:focus { outline: none; border-color: var(--color-primary, #3b82f6); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .password-input-wrapper { position: relative; display: flex; align-items: center; }
+        .password-input-wrapper input { flex: 1; }
+        .password-toggle { position: absolute; right: 0.75rem; background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--color-text-secondary, #737373); }
+        .strength-bar { width: 100%; height: 4px; background: var(--color-border, #e6e6e6); border-radius: 2px; margin: 0.25rem 0 0.5rem; overflow: hidden; }
+        .strength-bar span { display: block; height: 100%; background: var(--color-text-secondary, #737373); border-radius: 2px; transition: all 0.3s ease; }
+        .strength-bar.strength-weak span { background: #ef4444; }
+        .strength-bar.strength-medium span { background: #eab308; }
+        .strength-bar.strength-strong span { background: #10b981; }
+        .strength-label { font-size: 0.8rem; color: var(--color-text-secondary, #737373); }
+        .checkbox-group { display: flex; align-items: center; gap: 0.5rem; margin: 1rem 0; }
+        .checkbox-group input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary, #3b82f6); }
+        .checkbox-group label { margin: 0; font-weight: 400; cursor: pointer; flex: 1; }
+        .terms-label { font-size: 0.85rem; color: var(--color-text-secondary, #737373); }
+        .terms-label a { color: var(--color-primary, #3b82f6); text-decoration: none; }
+        .link-secondary { text-align: center; margin-top: 1rem; font-size: 0.9rem; }
+        .link-secondary a { color: var(--color-primary, #3b82f6); text-decoration: none; font-weight: 500; }
+        .submit-button { width: 100%; padding: 0.75rem; background: var(--color-primary, #3b82f6); color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 1rem; position: relative; }
+        .submit-button:hover:not(:disabled) { background: var(--color-primary-dark, #2563eb); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+        .spinner { display: none; position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: white; animation: spin 0.6s linear infinite; }
+        @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+        .message-area { min-height: 24px; margin-bottom: 1rem; font-size: 0.9rem; }
+        .msg-success { color: #10b981; }
+        .msg-error { color: #ef4444; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+        @media (max-width: 640px) { .login-container { padding: 1.5rem; border-radius: 8px; } }
     </style>
 </head>
+
 <body>
-    <noscript><div class="makit-noscript">이 페이지는 JavaScript가 필요합니다.</div></noscript>
-    <div class="login-container">
+    <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
+    <main class="login-container" id="main-content" role="main">
         <div class="logo">
+            <img src="img/illustrations/login-mark.svg" alt="MaKIT Logo">
             <h1>MaKIT</h1>
-            <p>AI 마케팅 플랫폼 | Human.Ai.D</p>
+            <p>AI 마케팅 플랫폼</p>
         </div>
 
-        <div class="tabs">
-            <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">로그인</button>
-            <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">회원가입</button>
+        <div class="tab-selector" role="tablist" aria-label="인증 모드 선택">
+            <button class="active" role="tab" aria-selected="true" aria-controls="login-pane" id="tab-login" onclick="switchTab('login')" data-i18n="auth.login">로그인</button>
+            <button role="tab" aria-selected="false" aria-controls="register-pane" id="tab-register" onclick="switchTab('register')" data-i18n="auth.register">회원가입</button>
         </div>
 
-        <!-- 로그인 패널 -->
-        <div class="tab-panel active" id="panelLogin">
-            <form id="loginForm">
+        <div id="login-pane" class="tab-pane active" role="tabpanel" aria-labelledby="tab-login">
+            <form id="loginForm" onsubmit="return false;">
                 <div class="form-group">
-                    <label for="email">이메일</label>
-                    <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" required autocomplete="email">
+                    <label for="loginEmail" data-i18n="auth.email">이메일</label>
+                    <input type="email" id="loginEmail" name="email" data-i18n-attr="placeholder:auth.email" placeholder="your@email.com" required>
                 </div>
+
                 <div class="form-group">
-                    <label for="password">비밀번호</label>
-                    <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required autocomplete="current-password">
+                    <label for="loginPassword" data-i18n="auth.password">비밀번호</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="loginPassword" name="password" placeholder="6자 이상" required>
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('loginPassword')" aria-label="비밀번호 표시/숨김" aria-pressed="false">
+                            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
                 </div>
-                <button type="submit" class="submit-btn" id="loginBtn">로그인</button>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="rememberMe" checked>
+                    <label for="rememberMe" data-i18n="auth.remember">로그인 상태 유지</label>
+                </div>
+
+                <div class="link-secondary">
+                    <a href="#" data-i18n="auth.forgot">비밀번호 찾기</a>
+                </div>
+
+                <div class="message-area" id="loginMessage" role="status" aria-live="polite"></div>
+
+                <button type="button" class="submit-button" id="loginBtn" onclick="doLogin()" data-i18n="auth.submit-login">
+                    로그인
+                    <div class="spinner" id="loginSpinner"></div>
+                </button>
             </form>
-            <div class="spinner-wrap" id="loginSpinner">
-                <span class="spinner"></span> 로그인 중...
-            </div>
-            <div class="message-area" id="loginMessage"></div>
-
-            <div class="demo-accounts">
-                <h3>🚀 데모 계정으로 바로 체험</h3>
-                <div class="demo-account">
-                    <span><strong>관리자</strong> — demo@Human.Ai.D.com</span>
-                    <button class="demo-fill-btn" onclick="fillDemo('demo@Human.Ai.D.com','password123')">사용하기</button>
-                </div>
-                <div class="demo-account">
-                    <span><strong>마케터</strong> — marketer@example.com</span>
-                    <button class="demo-fill-btn" onclick="fillDemo('marketer@example.com','password123')">사용하기</button>
-                </div>
-            </div>
         </div>
 
-        <!-- 회원가입 패널 -->
-        <div class="tab-panel" id="panelRegister">
-            <form id="registerForm">
+        <div id="register-pane" class="tab-pane" role="tabpanel" aria-labelledby="tab-register">
+            <form id="registerForm" onsubmit="return false;">
                 <div class="form-group">
-                    <label for="regName">이름</label>
-                    <input type="text" id="regName" name="name" placeholder="이름을 입력하세요" required autocomplete="name">
+                    <label for="regName" data-i18n="auth.name">이름</label>
+                    <input type="text" id="regName" name="name" data-i18n-attr="placeholder:auth.name" placeholder="홍길동" required>
                 </div>
+
                 <div class="form-group">
-                    <label for="regEmail">이메일</label>
-                    <input type="email" id="regEmail" name="email" placeholder="이메일을 입력하세요" required autocomplete="email">
+                    <label for="regEmail" data-i18n="auth.email">이메일</label>
+                    <input type="email" id="regEmail" name="email" data-i18n-attr="placeholder:auth.email" placeholder="your@email.com" required>
                 </div>
+
                 <div class="form-group">
-                    <label for="regPassword">비밀번호</label>
-                    <input type="password" id="regPassword" name="password" placeholder="6자 이상 입력하세요" required autocomplete="new-password" minlength="6">
+                    <label for="regPassword" data-i18n="auth.password">비밀번호</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="regPassword" name="password" placeholder="6자 이상" required oninput="renderPasswordStrength()">
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('regPassword')" aria-label="비밀번호 표시/숨김" aria-pressed="false">
+                            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
+                    <div id="regPasswordStrength"></div>
                 </div>
+
                 <div class="form-group">
-                    <label for="regPasswordConfirm">비밀번호 확인</label>
-                    <input type="password" id="regPasswordConfirm" name="passwordConfirm" placeholder="비밀번호를 다시 입력하세요" required autocomplete="new-password">
+                    <label for="regPasswordConfirm" data-i18n="auth.password-confirm">비밀번호 확인</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="regPasswordConfirm" name="passwordConfirm" data-i18n-attr="placeholder:auth.password-confirm" placeholder="비밀번호 재입력" required>
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('regPasswordConfirm')" aria-label="비밀번호 확인 표시/숨김" aria-pressed="false">
+                            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
                 </div>
-                <button type="submit" class="submit-btn" id="registerBtn">가입하기</button>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="agreeTerms" required>
+                    <label for="agreeTerms" class="terms-label" data-i18n="auth.terms">
+                        <a href="#">이용약관</a> 및 <a href="#">개인정보 처리방침</a>에 동의합니다
+                    </label>
+                </div>
+
+                <div class="message-area" id="regMessage" role="status" aria-live="polite"></div>
+
+                <button type="button" class="submit-button" id="regBtn" onclick="doRegister()" data-i18n="auth.submit-register">
+                    회원가입
+                    <div class="spinner" id="regSpinner"></div>
+                </button>
             </form>
-            <div class="spinner-wrap" id="registerSpinner">
-                <span class="spinner"></span> 가입 처리 중...
-            </div>
-            <div class="message-area" id="registerMessage"></div>
         </div>
-    </div>
+    </main>
 
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/ui.js"></script>
+    <script src="js/i18n-dict.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/pages/login.js"></script>
+
     <script>
         function switchTab(tab) {
-            document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
-            document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
-            document.getElementById('panelLogin').classList.toggle('active', tab === 'login');
-            document.getElementById('panelRegister').classList.toggle('active', tab === 'register');
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-selector button').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab + '-pane').classList.add('active');
+            event.target.classList.add('active');
+            document.getElementById('loginMessage').innerHTML = '';
+            document.getElementById('regMessage').innerHTML = '';
         }
-
-        function fillDemo(email, password) {
-            var e = document.getElementById('email');
-            var p = document.getElementById('password');
-            if (e) e.value = email;
-            if (p) p.value = password;
+        function togglePasswordVisibility(inputId) {
+            var input = document.getElementById(inputId);
+            if (!input) return;
+            input.type = input.type === 'password' ? 'text' : 'password';
         }
-
-        // Legacy global used by old onclick attributes
-        window.fillDemoAccount = fillDemo;
+        function renderPasswordStrength() {
+            var pw = document.getElementById('regPassword').value;
+            var box = document.getElementById('regPasswordStrength');
+            if (!box) return;
+            if (!pw) { box.innerHTML = ''; return; }
+            var score = 0;
+            if (pw.length >= 8) score++;
+            if (pw.length >= 12) score++;
+            if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+            if (/[0-9]/.test(pw)) score++;
+            if (/[^A-Za-z0-9]/.test(pw)) score++;
+            score = Math.min(4, score);
+            var labels = ['매우 약함', '약함', '보통', '강함', '매우 강함'];
+            var levels = ['weak', 'weak', 'medium', 'strong', 'strong'];
+            box.innerHTML = '<div class="strength-bar strength-' + levels[score] + '"><span style="width:' + ((score / 4) * 100) + '%"></span></div><small class="strength-label">비밀번호 강도: <strong>' + labels[score] + '</strong></small>';
+        }
     </script>
+    <script src="js/sw-register.js"></script>
+    <script src="js/skeleton.js"></script>
 </body>
 </html>
+ 

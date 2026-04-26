@@ -82,7 +82,13 @@
 
   async function load() {
     var box = document.getElementById('historyList');
-    if (box) box.innerHTML = '<div class="history-empty"><p>이력을 불러오는 중...</p></div>';
+    // 로딩 skeleton 표시
+    if (box && window.makitSkeleton) {
+      box.innerHTML = '';
+      for (var i = 0; i < 8; i++) {
+        box.appendChild(window.makitSkeleton.listRow());
+      }
+    }
     try {
       var pageData = await api.audit.mine({ page: state.page, size: state.size });
       var items = pageData.content || [];

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 - 페이지를 찾을 수 없습니다 | MaKIT</title>
+    <!-- noindex: Error page should not be indexed -->
+    <meta name="robots" content="noindex,nofollow">
     <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/app-shell.css">
@@ -90,7 +92,8 @@
     </style>
 </head>
 <body>
-    <main class="err-card" role="main">
+    <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
+    <main id="main-content" class="err-card" role="main">
         <svg class="err-illustration" viewBox="0 0 200 120" role="img" aria-labelledby="errIllustTitle">
             <title id="errIllustTitle">길 잃은 데이터 노드</title>
             <defs>
