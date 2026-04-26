@@ -1,0 +1,86 @@
+{
+  "name": "marketing-hub",
+  "displayName": "마케팅 허브",
+  "version": "1.0.0",
+  "category": "platform",
+  "status": "stable",
+  "owners": ["@hobbong21"],
+  "description": "캠페인/콘텐츠/일정/인사이트/성과 통합 대시보드",
+  "files": {
+    "backend": [
+      "backend/src/main/java/com/humanad/makit/marketing/hub/MarketingHubController.java",
+      "backend/src/main/java/com/humanad/makit/marketing/hub/MarketingHubService.java",
+      "backend/src/main/java/com/humanad/makit/marketing/campaign/Campaign.java",
+      "backend/src/main/java/com/humanad/makit/marketing/content/Content.java",
+      "backend/src/main/java/com/humanad/makit/marketing/hub/dto/HubSummaryResponse.java",
+      "backend/src/main/java/com/humanad/makit/marketing/hub/dto/CampaignDto.java",
+      "backend/src/main/java/com/humanad/makit/marketing/hub/dto/ChannelPerformance.java",
+      "backend/src/main/java/com/humanad/makit/ai/insight/WeeklyInsightService.java"
+    ],
+    "frontend": [
+      "frontend/marketing-hub.html",
+      "frontend/js/pages/marketing-hub.js",
+      "frontend/js/pages/marketing-hub-campaign.js",
+      "frontend/js/pages/marketing-hub-content.js",
+      "frontend/js/modal.js",
+      "frontend/js/api.js"
+    ],
+    "tests": [
+      "tests/e2e/service.spec.ts"
+    ],
+    "docs": [
+      "docs/architecture/marketing_hub_master_plan.md"
+    ],
+    "migrations": [
+      "backend/src/main/resources/db/migration/V{N}__create_campaigns.sql",
+      "backend/src/main/resources/db/migration/V{N}__create_contents.sql"
+    ]
+  },
+  "endpoints": [
+    "GET /api/marketing/hub",
+    "POST /api/marketing/campaigns",
+    "GET /api/marketing/campaigns/:id",
+    "PATCH /api/marketing/campaigns/:id",
+    "POST /api/marketing/campaigns/:id/status",
+    "DELETE /api/marketing/campaigns/:id",
+    "POST /api/marketing/contents",
+    "GET /api/marketing/contents",
+    "PATCH /api/marketing/contents/:id",
+    "DELETE /api/marketing/contents/:id",
+    "GET /api/marketing/calendar/week",
+    "GET /api/marketing/insights/weekly",
+    "GET /api/marketing/channels/performance"
+  ],
+  "roundHistory": [
+    {
+      "round": "R6",
+      "date": "2026-04-25",
+      "changes": "마케팅 허브 신설 — 마스터 플랜 + 기본 구조"
+    },
+    {
+      "round": "R7",
+      "date": "2026-04-25",
+      "changes": "캠페인 CRUD + 상태머신 + Bedrock 인사이트"
+    },
+    {
+      "round": "R8",
+      "date": "2026-04-25",
+      "changes": "콘텐츠 CRUD + 채널 metric 실수집 + WebSocket 알림"
+    },
+    {
+      "round": "R14a",
+      "date": "2026-04-26",
+      "changes": "캠페인 변경 알림 트리거 통합"
+    }
+  ],
+  "dependencies": {
+    "internal": ["auth", "audit", "ai", "notifications"],
+    "external": ["aws-bedrock", "postgresql", "redis", "chart.js"]
+  },
+  "environment": {
+    "AWS_BEDROCK_REGION": "us-east-1",
+    "AWS_BEDROCK_MODEL_ID": "anthropic.claude-3-5-haiku-20241022-v1:0",
+    "MARKETING_HUB_ENABLE_INSIGHTS": "true",
+    "CACHE_ENABLED": "true"
+  }
+}

@@ -94,6 +94,51 @@ frontend/
 - 빌드/배포에서 제외되는 휴면 자산
 - 향후 참고용으로 보존 (삭제하지 않음)
 
+### `features/` — 기능별 카탈로그 (NEW — R17)
+
+기능 단일 진입점. 각 기능의 문서, 파일 경로, API 명세를 한곳에서 관리.
+
+```
+features/
+├── _TEMPLATE/              ← 새 기능 생성 시 템플릿
+├── INDEX.md                ← 전체 기능 목록 + 네비게이션
+│
+├── nlp-analyze/            ← 자연어 분석
+├── youtube-comments/       ← 유튜브 댓글 분석
+├── youtube-influence/      ← 유튜브 영향력 분석
+├── youtube-keyword-search/ ← 유튜브 키워드 검색
+├── url-analyze/            ← URL 콘텐츠 분석
+│
+├── feed-generate/          ← 인스타그램 피드 생성
+├── remove-bg/              ← 배경 제거
+├── modelshot/              ← 모델컷 생성
+│
+├── chatbot/                ← AI 챗봇
+├── review-analysis/        ← 리뷰 분석
+│
+├── auth/                   ← 인증 시스템
+├── marketing-hub/          ← 마케팅 대시보드
+├── notifications/          ← 알림 시스템
+├── push-notifications/     ← 웹 푸시
+├── admin-dashboard/        ← 관리자 대시보드
+├── i18n/                   ← 다국어
+├── pwa/                    ← 프로그레시브 웹 앱
+```
+
+각 기능 폴더는 4개 파일 포함:
+1. **README.md** — 기능 설명, 시나리오, 기술 스택
+2. **manifest.json** — 파일 경로 매핑, 엔드포인트, 의존성
+3. **api.md** — REST 명세 (요청/응답 예시)
+4. **changelog.md** — R 라운드별 이력
+
+신규 기능 생성 헬퍼:
+```bash
+./deploy/scripts/new-feature.sh my-feature  # Bash
+.\deploy\scripts\new-feature.ps1 -Name my-feature  # PowerShell
+```
+
+자세한 사항: `features/INDEX.md`
+
 ## 변경 매핑 (이전 → 신규)
 
 | 이전 위치 | 신규 위치 | 비고 |

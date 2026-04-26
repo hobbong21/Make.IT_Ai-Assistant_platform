@@ -1,0 +1,77 @@
+{
+  "name": "auth",
+  "displayName": "사용자 인증 & 관리",
+  "version": "2.0.0",
+  "category": "platform",
+  "status": "stable",
+  "owners": ["@hobbong21"],
+  "description": "JWT 기반 인증 + RefreshToken + RateLimit + DemoUserSeeder",
+  "files": {
+    "backend": [
+      "backend/src/main/java/com/humanad/makit/auth/AuthController.java",
+      "backend/src/main/java/com/humanad/makit/auth/AuthService.java",
+      "backend/src/main/java/com/humanad/makit/auth/JwtTokenProvider.java",
+      "backend/src/main/java/com/humanad/makit/auth/JwtAuthenticationFilter.java",
+      "backend/src/main/java/com/humanad/makit/auth/RateLimitFilter.java",
+      "backend/src/main/java/com/humanad/makit/auth/DemoUserSeeder.java",
+      "backend/src/main/java/com/humanad/makit/auth/dto/LoginRequest.java",
+      "backend/src/main/java/com/humanad/makit/auth/dto/UpdateProfileRequest.java",
+      "backend/src/main/java/com/humanad/makit/auth/dto/ChangePasswordRequest.java",
+      "backend/src/main/java/com/humanad/makit/entity/User.java",
+      "backend/src/main/java/com/humanad/makit/repository/UserRepository.java"
+    ],
+    "frontend": [
+      "frontend/login.html",
+      "frontend/js/pages/login.js",
+      "frontend/js/auth.js",
+      "frontend/js/api.js"
+    ],
+    "tests": [
+      "tests/e2e/auth.spec.ts"
+    ],
+    "docs": [
+      "docs/architecture/01_architect_system_design.md"
+    ],
+    "migrations": [
+      "backend/src/main/resources/db/migration/V{N}__create_users.sql"
+    ]
+  },
+  "endpoints": [
+    "POST /api/auth/login",
+    "POST /api/auth/register",
+    "GET /api/auth/me",
+    "PATCH /api/auth/me",
+    "POST /api/auth/change-password",
+    "POST /api/auth/logout",
+    "POST /api/auth/refresh"
+  ],
+  "roundHistory": [
+    {
+      "round": "R1",
+      "date": "2026-04-20",
+      "changes": "JWT + RefreshToken + RateLimit 초기 구현"
+    },
+    {
+      "round": "R5",
+      "date": "2026-04-25",
+      "changes": "프로필 편집 + 비밀번호 변경 엔드포인트 추가"
+    },
+    {
+      "round": "R16b",
+      "date": "2026-04-26",
+      "changes": "관리자 역할(ROLE_ADMIN) 추가"
+    }
+  ],
+  "dependencies": {
+    "internal": ["audit", "dashboard"],
+    "external": ["spring-security", "io.jsonwebtoken", "postgresql", "bcrypt"]
+  },
+  "environment": {
+    "JWT_SECRET": "your-256-bit-secret-key",
+    "JWT_EXPIRATION_MS": "3600000",
+    "JWT_REFRESH_EXPIRATION_MS": "604800000",
+    "DEMO_USER_ENABLED": "true",
+    "RATE_LIMIT_ENABLED": "true",
+    "RATE_LIMIT_REQUESTS_PER_MINUTE": "100"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "name": "nlp-analyze",
+  "displayName": "NLP 자연어 분석",
+  "version": "1.0.0",
+  "category": "ax-data",
+  "status": "stable",
+  "owners": ["@hobbong21"],
+  "description": "AWS Bedrock Claude를 사용한 자연어 감정/의도 분석",
+  "files": {
+    "backend": [
+      "backend/src/main/java/com/humanad/makit/data/nlp/DataIntelligenceController.java",
+      "backend/src/main/java/com/humanad/makit/data/nlp/NlpService.java",
+      "backend/src/main/java/com/humanad/makit/data/nlp/dto/NlpAnalysisRequest.java",
+      "backend/src/main/java/com/humanad/makit/data/nlp/dto/NlpAnalysisResponse.java",
+      "backend/src/main/resources/prompts/nlp-analyze-prompt.txt"
+    ],
+    "frontend": [
+      "frontend/service-detail.html",
+      "frontend/js/pages/service-detail.js",
+      "frontend/js/api.js"
+    ],
+    "tests": [
+      "tests/e2e/service.spec.ts"
+    ],
+    "docs": [
+      "docs/architecture/01_architect_system_design.md"
+    ]
+  },
+  "endpoints": [
+    "POST /api/data/nlp-analyze"
+  ],
+  "roundHistory": [
+    {
+      "round": "R1",
+      "date": "2026-04-20",
+      "changes": "초기 구현 — Bedrock Claude 통합"
+    }
+  ],
+  "dependencies": {
+    "internal": ["auth", "audit"],
+    "external": ["aws-bedrock", "postgresql"]
+  },
+  "environment": {
+    "AWS_BEDROCK_REGION": "us-east-1",
+    "AWS_BEDROCK_MODEL_ID": "anthropic.claude-3-5-haiku-20241022-v1:0"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "name": "url-analyze",
+  "displayName": "{한국어 이름}",
+  "version": "1.0.0",
+  "category": "ax-data | ax-marketing | ax-commerce | platform",
+  "status": "stable | beta | experimental",
+  "owners": [
+    "@hobbong21"
+  ],
+  "description": "{기능 요약}",
+  "files": {
+    "backend": [
+      "backend/src/main/java/com/humanad/makit/{path}/Controller.java",
+      "backend/src/main/java/com/humanad/makit/{path}/Service.java",
+      "backend/src/main/java/com/humanad/makit/{path}/Entity.java",
+      "backend/src/main/java/com/humanad/makit/{path}/Repository.java",
+      "backend/src/main/java/com/humanad/makit/{path}/dto/"
+    ],
+    "frontend": [
+      "frontend/{feature}.html",
+      "frontend/js/pages/{feature}.js",
+      "frontend/css/{feature}-styles.css"
+    ],
+    "tests": [
+      "tests/e2e/{feature}.spec.ts"
+    ],
+    "docs": [
+      "docs/architecture/",
+      "docs/design/",
+      "docs/rounds/"
+    ],
+    "migrations": [
+      "backend/src/main/resources/db/migration/V{N}__{feature}.sql"
+    ]
+  },
+  "endpoints": [
+    "GET /api/{path}",
+    "POST /api/{path}",
+    "PATCH /api/{path}/:id",
+    "DELETE /api/{path}/:id"
+  ],
+  "roundHistory": [
+    {
+      "round": "R{N}",
+      "date": "2026-04-{DD}",
+      "changes": "{변경 요약}"
+    }
+  ],
+  "dependencies": {
+    "internal": [
+      "{other-feature}"
+    ],
+    "external": [
+      "aws-bedrock",
+      "postgresql",
+      "redis"
+    ]
+  },
+  "environment": {
+    "{ENV_VAR}": "{설명}"
+  }
+}
