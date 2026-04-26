@@ -83,7 +83,7 @@ body {
     padding: 0.5rem 1rem;
     color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
     text-decoration: none;
-    transition: background-color 0.2s;
+    transition: background-color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .nav-item:hover {
@@ -109,7 +109,7 @@ body {
     padding: 1rem;
     cursor: pointer;
     color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
-    transition: background-color 0.2s;
+    transition: background-color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .nav-dropdown-header:hover {
@@ -117,7 +117,7 @@ body {
 }
 
 .nav-dropdown-header svg {
-    transition: transform 0.2s;
+    transition: transform var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .nav-dropdown.expanded .nav-dropdown-header svg {
@@ -127,7 +127,7 @@ body {
 .nav-dropdown-content {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease;
+    transition: max-height var(--mk-motion-duration-slow) var(--mk-motion-ease-standard);
     margin-left: 1rem;
     padding-left: 1rem;
     border-left: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
@@ -145,7 +145,7 @@ body {
     text-decoration: none;
     font-size: 0.875rem;
     border-radius: 6px;
-    transition: all 0.2s;
+    transition: all var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .nav-sub-item:hover {
@@ -192,7 +192,7 @@ body {
     gap: 0.5rem;
     color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
     text-decoration: none;
-    transition: color 0.2s;
+    transition: color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .breadcrumb-back:hover {
@@ -203,7 +203,7 @@ body {
     color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
     text-decoration: none;
     font-size: 0.875rem;
-    transition: color 0.2s;
+    transition: color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .breadcrumb-category:hover {
@@ -485,7 +485,7 @@ body {
     border-radius: 12px;
     text-align: left;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
     font-size: 0.875rem;
 }
 

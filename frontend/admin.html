@@ -9,6 +9,8 @@
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="/img/illustrations/login-mark.svg">
+    <!-- noindex: Admin page should not be indexed -->
+    <meta name="robots" content="noindex,nofollow">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/common.css">
@@ -64,6 +66,13 @@
                             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                             <polyline points="17 21 17 13 7 13 7 21"></polyline>
                             <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                    </a>
+                    <a href="components.html" class="nav-item" id="components-nav-item" style="display:none;">
+                        <span>컴포넌트 가이드</span>
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v20"></path>
+                            <path d="M2 12h20"></path>
                         </svg>
                     </a>
                 </div>
@@ -164,7 +173,7 @@
                             </thead>
                             <tbody id="users-tbody">
                                 <tr class="skeleton-row">
-                                    <td colspan="6" style="text-align:center; padding: 20px;">로딩 중...</td>
+                                    <td colspan="6" class="mk-loading-cell">로딩 중...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -191,57 +200,4 @@
                         <div class="feature-status-card">
                             <div class="status-count" id="status-beta">0</div>
                             <div class="status-label">베타</div>
-                        </div>
-                        <div class="feature-status-card">
-                            <div class="status-count" id="status-stable">0</div>
-                            <div class="status-label">안정화</div>
-                        </div>
-                        <div class="feature-status-card">
-                            <div class="status-count" id="status-deprecated">0</div>
-                            <div class="status-label">중단됨</div>
-                        </div>
-                    </div>
-
-                    <div class="features-table-wrap">
-                        <table class="features-table" role="grid" aria-label="기능 라이프사이클 테이블">
-                            <thead>
-                                <tr>
-                                    <th scope="col">기능</th>
-                                    <th scope="col">카테고리</th>
-                                    <th scope="col">상태</th>
-                                    <th scope="col">엔드포인트</th>
-                                    <th scope="col">파일</th>
-                                    <th scope="col">최근 라운드</th>
-                                </tr>
-                            </thead>
-                            <tbody id="featuresTableBody">
-                                <tr class="skeleton-row">
-                                    <td colspan="6" style="text-align:center; padding: 20px;">로딩 중...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-            </div>
-        </main>
-    </div>
-
-    <!-- 우하단 챗봇 -->
-    <script src="js/config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/chatbot-widget.js"></script>
-    <script src="js/user-menu.js"></script>
-    <script src="js/i18n-dict.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/app-shell-extras.js"></script>
-    <script src="js/skeleton.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-    <script src="js/ws-client.js"></script>
-    <script src="js/sw-register.js"></script>
-    <script src="js/pages/admin.js"></script>
-</body>
-
-</html>
+                

@@ -405,13 +405,160 @@ Include in Prometheus config:
 
 ```yaml
 rule_files:
-  - 'prometheus-rules.yml'
+  - 'deploy/prometheus/alerts/makit-features.yml'
 
 alerting:
   alertmanagers:
     - static_configs:
         - targets: ['localhost:9093']  # Alertmanager service
 ```
+
+## Alertmanager 통합 (R23c)
+
+MaKIT는 **deploy/prometheus/alertmanager.yml**에서 Prometheus 알림을 라우팅합니다. 심각도별 채널 분리:
+
+### 설정 파일
+
+**파일**: `deploy/prometheus/alertmanager.yml`
+
+주요 구성:
+- **전역 resolve_timeout**: 5분 (알림 자동 해제)
+- **기본 라우터**: 심각도별 분기
+  - `severity: critical` → PagerDuty (온콜 엔지니어에게 페이지)
+  - `severity: warning` → Slack #makit-alerts-warnings
+  - `alertname: *Bedrock*` → Slack #makit-bedrock-oncall + OpsGenie
+
+### 환경 변수
+
+아래 환경 변수를 설정하여 알림 채널 활성화:
+
+```bash
+# PagerDuty (critical 알림 자동 페이지)
+export PAGERDUTY_KEY="your-service-integration-key"
+
+# Slack 웹훅 (경고 알림)
+export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+
+# Bedrock 장애 시 별도 PagerDuty (선택)
+export PAGERDUTY_BEDROCK_KEY="your-bedrock-service-key"
+
+# Email 설정 (기본값)
+export OPS_EMAIL="ops@makit.example.com"
+export SMTP_HOST="smtp.example.com"
+export SMTP_USER="alertmanager@makit.example.com"
+export SMTP_PASSWORD="your-password"
+```
+
+### 알림 규칙 (makit-features.yml)
+
+R23c에서 정의된 5개 그룹:
+
+1. **makit-feature-availability** (5 alerts)
+   - Tier 1 Critical: 99.9% SLO 위반 (5분 지속)
+   - Tier 2 Standard: 99.5% SLO 위반 (10분 지속)
+   - Tier 3 Async: 95% 성공률 미만 (15분)
+   - Tier 4 Admin: 99% SLO 위반 (15분)
+
+2. **makit-feature-latency** (4 alerts)
+   - Tier 1: p95 > 500ms (5분)
+   - Tier 2: p95 > 2s (5분)
+   - Tier 3: p95 > 30s (10분)
+   - Critical: p95 > 5s (2분 — Bedrock 타임아웃)
+
+3. **makit-error-budget-burn** (2 alerts)
+   - 시간당 10% 이상 에러 버짓 소비
+   - 지속적 5% 이상 에러율 (30분)
+
+4. **makit-infrastructure** (4 alerts)
+   - Bedrock 헬스체크 실패
+   - DB 연결 풀 > 85% 사용
+   - pgvector 인덱스 bloat > 50%
+   - Feature 호출률 50% 이상 급락
+
+5. **makit-slo-health** (3 recording rules)
+   - Tier 1/2 성공률 트래킹
+   - p95 지연 시간 메트릭
+
+### Docker Compose에서 Alertmanager 실행
+
+```yaml
+alertmanager:
+  image: prom/alertmanager:v0.26.0
+  ports:
+    - "9093:9093"
+  volumes:
+    - ./deploy/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    - alertmanager-data:/alertmanager
+  command:
+    - '--config.file=/etc/alertmanager/alertmanager.yml'
+    - '--storage.path=/alertmanager'
+  environment:
+    - PAGERDUTY_KEY=${PAGERDUTY_KEY}
+    - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+    - OPS_EMAIL=${OPS_EMAIL}
+  networks:
+    - makit-network
+
+volumes:
+  alertmanager-data:
+```
+
+### 알림 수신 테스트
+
+**Prometheus UI에서 알림 발생 시뮬레이션:**
+
+```promql
+# 1. Prometheus → Status → Rules 확인
+# 2. Rules 중 alert 상태: pending → firing (1분 후)
+# 3. Alerting → Alerts 탭에서 firing 확인
+# 4. Alertmanager UI (http://localhost:9093) → Alerts 탭에서 라우팅 확인
+```
+
+**수동 테스트 (Alertmanager webhook):**
+
+```bash
+curl -X POST http://localhost:9093/api/v1/alerts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "alerts": [
+      {
+        "labels": {
+          "alertname": "TestAlert",
+          "severity": "critical",
+          "feature": "auth"
+        },
+        "annotations": {
+          "summary": "Test alert firing",
+          "description": "This is a test alert"
+        }
+      }
+    ]
+  }'
+```
+
+### 알림 해결 (Resolved)
+
+조건이 정상화되면 Alertmanager가 자동으로 `resolved` 상태 전송:
+
+- Slack: "resolved" 표시 + 해결 시간 기록
+- PagerDuty: 인시던트 자동 해제
+- Email: 복구 알림 발송
+
+### 트러블슈팅
+
+**Slack 알림 안 옴**
+1. SLACK_WEBHOOK_URL 설정 확인: `echo $SLACK_WEBHOOK_URL`
+2. Alertmanager 로그: `docker logs alertmanager`
+3. 채널명 일치 확인: #makit-alerts-warnings 등 존재 여부
+
+**PagerDuty 페이지 안 옴**
+1. PAGERDUTY_KEY 유효성 확인
+2. Alertmanager 로그에서 `pagerduty` 섹션 상태 확인
+3. PagerDuty 웹에서 service integrations 활성화 확인
+
+**알림 중복 발송**
+- `group_interval` 설정 확인 (기본 10분)
+- `repeat_interval` 확인 (경고 12시간, 심각 1시간 반복)
 
 ## Metrics Integration with AOP
 

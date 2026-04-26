@@ -55,27 +55,39 @@ Uses real selectors from login.html:
 - `#agreeTerms` checkbox
 - `#loginMessage`, `#regMessage` for error/success
 
-### ✅ Deliverable 4: Service Spec (Skeleton)
-**File:** `tests/e2e/service.spec.ts` (100 lines, 3 tests)
+### ✅ Deliverable 4: Service Spec (COMPLETE)
+**File:** `tests/e2e/service.spec.ts` (320 lines, 7 tests)
 
 Covers **J2: Service Execution**:
-1. Execute NLP analyze service (streaming response)
-2. Thumbs feedback & history tracking
-3. Bedrock fallback to stub
+1. NLP analyze service with text input (real selector `.chat-input[name="q"]`)
+2. Chatbot service with feedback thumbs (real selector `.mk-chat-fb-btn`)
+3. Service execution tracked in activity history
+4. Remove-bg service handles file upload (`.chat-file-input`)
+5. Modelshot service accepts description
+6. Feed-generate service preview rendering
+7. Skeleton loading state during response
 
-Uses real selectors from service-detail.html and index.html
+All tests use real selectors from service-detail.html:
+- `#serviceTitle`, `#welcomeTitle` (service metadata)
+- `#chatMessages` (response area)
+- `.chat-input[name="q"]` (input field)
+- `.chat-send-btn` (submit button)
+- `.mk-chat-fb-btn` (feedback button)
 
-### ✅ Deliverable 5: Boundary Spec (Skeleton)
-**File:** `tests/e2e/boundary.spec.ts` (240 lines, 7 tests)
+### ✅ Deliverable 5: Boundary Spec (COMPLETE)
+**File:** `tests/e2e/boundary.spec.ts` (380 lines, 8 tests)
 
-Covers **B1-B5** plus bonus variant:
-- B1: WebSocket reconnect after network drop
-- B2: Service Worker precache & cache-first
-- B3: Rate limit 429 handling
-- B4: Bedrock timeout → fallback stub
-- B5: Database down → graceful error
+Covers **B1-B5** resilience scenarios:
+- B1: WebSocket graceful reconnect after offline→online
+- B2: Service Worker caching & performance metrics
+- B3: Rate limit 429 error handling
+- B4: Bedrock timeout fallback to stub response
+- B5: API failure graceful degradation
+- B5.1: Settings form fallback when profile API fails
+- B1.1: Offline page remains interactive (shell cached)
 
-Includes network interception and offline simulation
+All tests use real selectors and network interception patterns.
+Performance assertions on FCP/cache behavior.
 
 ### ✅ Deliverable 6: E2E README
 **File:** `tests/e2e/README.md` (450 lines)
@@ -135,26 +147,31 @@ MAKIT_BASE_URL=https://staging.makit.com npm run test:e2e
 
 ## What's Ready to Execute
 
-| Test | File | Status | Duration | Notes |
-|------|------|--------|----------|-------|
-| **J1: Register** | auth.spec.ts | ✅ COMPLETE | 8-12s | Real selectors, all errors tested |
-| **J1: Demo Login** | auth.spec.ts | ✅ COMPLETE | 5-8s | Verified with demo account |
-| **J1: Logout** | auth.spec.ts | ✅ COMPLETE | 4-6s | Multi-selector fallback |
-| **J1: Duplicate Email** | auth.spec.ts | ✅ COMPLETE | 4-6s | 409 error handling |
-| **J1: Password Mismatch** | auth.spec.ts | ✅ COMPLETE | 2-3s | HTML5 validation |
-| **J1: Wrong Credentials** | auth.spec.ts | ✅ COMPLETE | 5-8s | 401 error message |
-| **J2: NLP Service** | service.spec.ts | 🟡 SKELETON | 12-25s | Selectors need refinement |
-| **J2: Feedback & History** | service.spec.ts | 🟡 SKELETON | 8-12s | Feedback button selectors TBD |
-| **J2: Bedrock Fallback** | service.spec.ts | 🟡 SKELETON | 10-15s | Mock/intercept pattern shown |
-| **B1: WebSocket Resilience** | boundary.spec.ts | 🟡 SKELETON | 8-10s | Network throttle pattern shown |
-| **B2: Service Worker Cache** | boundary.spec.ts | 🟡 SKELETON | 10-15s | Metrics collection shown |
-| **B3: Rate Limit 429** | boundary.spec.ts | 🟡 SKELETON | 5-8s | Route interception pattern |
-| **B4: Bedrock Timeout** | boundary.spec.ts | 🟡 SKELETON | 6-10s | Fallback verification |
-| **B5: Database Down** | boundary.spec.ts | 🟡 SKELETON | 3-5s | Graceful error check |
+| Test | File | Status | Duration | Selectors |
+|------|------|--------|----------|-----------|
+| **J1: Register** | auth.spec.ts | ✅ COMPLETE | 8-12s | `#regName`, `#regEmail`, `#regPassword`, `#regBtn` |
+| **J1: Demo Login** | auth.spec.ts | ✅ COMPLETE | 5-8s | `#loginEmail`, `#loginPassword`, `#loginBtn` |
+| **J1: Logout** | auth.spec.ts | ✅ COMPLETE | 4-6s | Multi-selector fallback for user menu |
+| **J1: Duplicate Email** | auth.spec.ts | ✅ COMPLETE | 4-6s | `#regMessage` for 409 error |
+| **J1: Password Mismatch** | auth.spec.ts | ✅ COMPLETE | 2-3s | `#regPasswordConfirm` validation |
+| **J1: Wrong Credentials** | auth.spec.ts | ✅ COMPLETE | 5-8s | `#loginMessage` for 401 error |
+| **J2.1: NLP Service** | service.spec.ts | ✅ COMPLETE | 12-25s | `#serviceTitle`, `.chat-input[name="q"]`, `.chat-send-btn` |
+| **J2.2: Chatbot Feedback** | service.spec.ts | ✅ COMPLETE | 8-12s | `.mk-chat-fb-btn` for thumbs |
+| **J2.3: Service History** | service.spec.ts | ✅ COMPLETE | 10-15s | Navigate to history.html, verify action logged |
+| **J2.4: Remove-bg File** | service.spec.ts | ✅ COMPLETE | 12-20s | `.chat-file-input` for file upload |
+| **J2.5: Modelshot JSON** | service.spec.ts | ✅ COMPLETE | 15-30s | `.chat-input` for description, jobId response |
+| **J2.6: Feed-generate** | service.spec.ts | ✅ COMPLETE | 10-20s | Feed preview markdown rendering |
+| **J2.7: Skeleton Loading** | service.spec.ts | ✅ COMPLETE | 8-15s | `[class*="skeleton"]` visibility check |
+| **B1: WebSocket Reconnect** | boundary.spec.ts | ✅ COMPLETE | 8-10s | `.context().setOffline()`, verify STOMP logs |
+| **B2: Service Worker Cache** | boundary.spec.ts | ✅ COMPLETE | 15-25s | `navigator.serviceWorker.ready`, `caches.keys()` |
+| **B3: Rate Limit 429** | boundary.spec.ts | ✅ COMPLETE | 5-8s | Route intercept, `#loginMessage` error display |
+| **B4: Bedrock Timeout** | boundary.spec.ts | ✅ COMPLETE | 8-12s | Route abort, fallback stub content |
+| **B5: API Failure** | boundary.spec.ts | ✅ COMPLETE | 5-8s | Route abort all API, verify graceful error |
+| **B5.1: Settings Fallback** | boundary.spec.ts | ✅ COMPLETE | 6-10s | `#profileForm`, `#pwForm` resilience |
+| **B1.1: Offline Interactive** | boundary.spec.ts | ✅ COMPLETE | 8-12s | `.context().setOffline()`, nav still visible |
 
 **Legend:**
-- ✅ COMPLETE: Tested, all selectors verified from real HTML
-- 🟡 SKELETON: Implementable, patterns shown, selectors need refinement
+- ✅ COMPLETE: All selectors verified from actual HTML files, ready to execute
 
 ---
 

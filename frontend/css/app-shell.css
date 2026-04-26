@@ -1184,3 +1184,50 @@
     display: none;
   }
 }
+
+/* =============================
+   D8 Utility Classes (R21 BATCH 2)
+   ============================= */
+
+/* Analytics / Status card base */
+.mk-stat-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--mk-space-3);
+}
+
+.mk-stat-card-item {
+  padding: var(--mk-space-3);
+  background: var(--mk-color-bg-subtle);
+  border-radius: var(--mk-radius-md);
+  text-align: center;
+}
+
+.mk-stat-label {
+  font-size: var(--mk-font-size-sm);
+  color: var(--mk-color-text-muted);
+  margin-bottom: var(--mk-space-1);
+}
+
+.mk-stat-value {
+  font-size: var(--mk-font-size-2xl);
+  font-weight: var(--mk-font-weight-semibold);
+}
+
+/* Loading placeholder cell */
+.mk-loading-cell {
+  text-align: center;
+  padding: var(--mk-space-5);
+}
+
+/* Standard input padding */
+.mk-input-base {
+  padding: var(--mk-space-2) var(--mk-space-3);
+}
+
+/* Bordered separator helper */
+.mk-section-divider {
+  margin-top: var(--mk-space-4);
+  padding-top: var(--mk-space-4);
+  border-top: 1px solid var(--mk-color-border);
+}

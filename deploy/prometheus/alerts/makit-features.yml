@@ -1,0 +1,237 @@
+---
+# MaKIT Feature Prometheus Alert Rules
+# Defines SLO-based alerts per feature tier (Tier 1/2/3/4)
+# Refer to docs/runbooks/sli-slo.md for SLO targets
+
+groups:
+  - name: makit-feature-availability
+    interval: 30s
+    rules:
+      # Tier 1 Critical (auth, dashboard, marketing-hub, i18n, pwa)
+      # SLO: 99.9% availability (0.1% error rate allowed)
+      - alert: MaKITFeatureAvailabilityCriticalBreach
+        expr: |
+          (1 - (
+            sum(rate(makit_feature_invocation_total{feature=~"auth|dashboard|marketing-hub|i18n|pwa", status="error"}[5m])) by (feature)
+            /
+            sum(rate(makit_feature_invocation_total{feature=~"auth|dashboard|marketing-hub|i18n|pwa"}[5m])) by (feature)
+          )) < 0.999
+        for: 5m
+        labels:
+          severity: critical
+          tier: "1"
+        annotations:
+          summary: "Critical feature {{ $labels.feature }} availability below 99.9% SLO"
+          description: "{{ $labels.feature }} has been below 99.9% availability for >5 minutes. Current error rate exceeds 0.1% threshold."
+          runbook_url: "docs/runbooks/sli-slo.md#tier-1-critical"
+
+      # Tier 2 Standard (chatbot, nlp-analyze, youtube-*, url-analyze, notifications, push-notifications, review-analysis)
+      # SLO: 99.5% availability (0.5% error rate allowed)
+      - alert: MaKITFeatureAvailabilityStandardBreach
+        expr: |
+          (1 - (
+            sum(rate(makit_feature_invocation_total{feature=~"chatbot|nlp-analyze|youtube-comments|youtube-influence|youtube-keyword-search|url-analyze|notifications|push-notifications|review-analysis", status="error"}[5m])) by (feature)
+            /
+            sum(rate(makit_feature_invocation_total{feature=~"chatbot|nlp-analyze|youtube-comments|youtube-influence|youtube-keyword-search|url-analyze|notifications|push-notifications|review-analysis"}[5m])) by (feature)
+          )) < 0.995
+        for: 10m
+        labels:
+          severity: warning
+          tier: "2"
+        annotations:
+          summary: "Standard feature {{ $labels.feature }} availability below 99.5% SLO"
+          description: "{{ $labels.feature }} has been below 99.5% availability for >10 minutes. Current error rate exceeds 0.5% threshold."
+          runbook_url: "docs/runbooks/sli-slo.md#tier-2-standard"
+
+      # Tier 3 Async (feed-generate, remove-bg, modelshot)
+      # SLO: 95% job success rate
+      - alert: MaKITFeatureAsyncSuccessRateLow
+        expr: |
+          (
+            sum(rate(makit_feature_invocation_total{feature=~"feed-generate|remove-bg|modelshot", status="success"}[5m])) by (feature)
+            /
+            sum(rate(makit_feature_invocation_total{feature=~"feed-generate|remove-bg|modelshot"}[5m])) by (feature)
+          ) < 0.95
+        for: 15m
+        labels:
+          severity: warning
+          tier: "3"
+        annotations:
+          summary: "Async job feature {{ $labels.feature }} success rate below 95%"
+          description: "{{ $labels.feature }} job completion rate has fallen below 95% for >15 minutes."
+          runbook_url: "docs/runbooks/sli-slo.md#tier-3-async"
+
+      # Tier 4 Admin (admin-dashboard)
+      # SLO: 99% availability (1% error rate allowed)
+      - alert: MaKITFeatureAdminAvailabilityBreach
+        expr: |
+          (1 - (
+            sum(rate(makit_feature_invocation_total{feature="admin-dashboard", status="error"}[5m])) by (feature)
+            /
+            sum(rate(makit_feature_invocation_total{feature="admin-dashboard"}[5m])) by (feature)
+          )) < 0.99
+        for: 15m
+        labels:
+          severity: warning
+          tier: "4"
+        annotations:
+          summary: "Admin feature {{ $labels.feature }} availability below 99%"
+          description: "{{ $labels.feature }} has been below 99% availability for >15 minutes."
+          runbook_url: "docs/runbooks/sli-slo.md#tier-4-admin"
+
+  - name: makit-feature-latency
+    interval: 30s
+    rules:
+      # Tier 1 latency SLO: p95 < 500ms
+      - alert: MaKITFeatureLatencyCriticalTier1
+        expr: |
+          histogram_quantile(0.95, sum(rate(makit_feature_duration_seconds_bucket{feature=~"auth|dashboard|marketing-hub|i18n|pwa"}[5m])) by (feature, le)) > 0.5
+        for: 5m
+        labels:
+          severity: critical
+          tier: "1"
+        annotations:
+          summary: "Tier 1 feature {{ $labels.feature }} p95 latency >500ms SLO"
+          description: "{{ $labels.feature }} has exceeded 500ms p95 latency for >5 minutes."
+          runbook_url: "docs/runbooks/sli-slo.md#latency-targets"
+
+      # Tier 2 latency SLO: p95 < 2s
+      - alert: MaKITFeatureLatencyHighTier2
+        expr: |
+          histogram_quantile(0.95, sum(rate(makit_feature_duration_seconds_bucket{feature=~"chatbot|nlp-analyze|youtube-comments|youtube-influence|youtube-keyword-search|url-analyze|notifications|push-notifications|review-analysis"}[5m])) by (feature, le)) > 2.0
+        for: 5m
+        labels:
+          severity: warning
+          tier: "2"
+        annotations:
+          summary: "Tier 2 feature {{ $labels.feature }} p95 latency >2s SLO"
+          description: "{{ $labels.feature }} has exceeded 2s p95 latency for >5 minutes. Check Bedrock/API timeout."
+          runbook_url: "docs/runbooks/sli-slo.md#latency-targets"
+
+      # Tier 3 (async job) latency SLO: p95 < 30s
+      - alert: MaKITFeatureLatencyHighTier3
+        expr: |
+          histogram_quantile(0.95, sum(rate(makit_feature_duration_seconds_bucket{feature=~"feed-generate|remove-bg|modelshot"}[5m])) by (feature, le)) > 30.0
+        for: 10m
+        labels:
+          severity: warning
+          tier: "3"
+        annotations:
+          summary: "Async feature {{ $labels.feature }} p95 duration >30s SLO"
+          description: "{{ $labels.feature }} has exceeded 30s p95 duration for >10 minutes."
+
+      # Critical: p95 latency > 5s indicates likely Bedrock timeout
+      - alert: MaKITFeatureLatencyCritical
+        expr: |
+          histogram_quantile(0.95, sum(rate(makit_feature_duration_seconds_bucket[5m])) by (feature, le)) > 5.0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Feature {{ $labels.feature }} p95 latency >5s — likely Bedrock/external timeout"
+          description: "Latency >5s for 2min suggests external service degradation (Bedrock, YouTube API, etc)."
+
+  - name: makit-error-budget-burn
+    interval: 1m
+    rules:
+      # Error budget burn rate: if sustained, will exhaust 30-day budget in <3 days
+      - alert: MaKITErrorBudgetBurnHigh
+        expr: |
+          (
+            sum(rate(makit_feature_invocation_total{status="error"}[1h])) by (feature)
+            /
+            sum(rate(makit_feature_invocation_total[1h])) by (feature)
+          ) > 0.10
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Feature {{ $labels.feature }} burning >10% error budget per hour"
+          description: "At current error rate, 30-day error budget will be exhausted in <3 days. Immediate investigation required."
+          runbook_url: "docs/runbooks/sli-slo.md#error-budget"
+
+      # Sustained high error rate (>5% for 30min)
+      - alert: MaKITErrorRateHigh
+        expr: |
+          (
+            sum(rate(makit_feature_invocation_total{status="error"}[5m])) by (feature)
+            /
+            sum(rate(makit_feature_invocation_total[5m])) by (feature)
+          ) > 0.05
+        for: 30m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Feature {{ $labels.feature }} error rate >5% for 30min"
+          description: "Sustained high error rate indicates service degradation."
+
+  - name: makit-infrastructure
+    interval: 30s
+    rules:
+      # Bedrock health check (optional — if health endpoint exists)
+      - alert: MaKITBedrockHealthDown
+        expr: |
+          up{job="makit",endpoint="bedrock-health"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Bedrock health check failed — chatbot + AI features affected"
+          description: "Bedrock healthcheck has failed for >2 minutes. Claude chat, insights, and analysis features are degraded."
+          runbook_url: "docs/runbooks/sli-slo.md#bedrock-dependency"
+
+      # Database connection pool utilization > 85%
+      - alert: MaKITDatabaseConnectionsHigh
+        expr: |
+          hikaricp_connections_active / hikaricp_connections_max > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DB connection pool >85% utilized"
+          description: "Connection pool exhaustion risk. Check for connection leaks or slow queries."
+
+      # PostgreSQL pgvector index bloat (if available)
+      - alert: MaKITPgvectorIndexBloat
+        expr: |
+          pg_index_bloat_ratio > 0.5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL pgvector index bloat >50%"
+          description: "Vector search index has significant bloat. Schedule REINDEX."
+
+      # Feature invocation rate dropped (potential outage)
+      - alert: MaKITFeatureInvocationRateDrop
+        expr: |
+          (
+            sum(rate(makit_feature_invocation_total[5m])) by (feature)
+            / avg_over_time(sum(rate(makit_feature_invocation_total[5m])) by (feature)[1h:5m])
+          ) < 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Feature {{ $labels.feature }} invocation rate dropped >50%"
+          description: "Request volume has dropped significantly. Check frontend + backend connectivity."
+
+  - name: makit-slo-health
+    interval: 5m
+    rules:
+      # SLO dashboard: track success rate per tier
+      - record: makit:slo:success_rate:tier1
+        expr: |
+          sum(rate(makit_feature_invocation_total{feature=~"auth|dashboard|marketing-hub|i18n|pwa", status="success"}[5m])) by (feature)
+          /
+          sum(rate(makit_feature_invocation_total{feature=~"auth|dashboard|marketing-hub|i18n|pwa"}[5m])) by (feature)
+
+      - record: makit:slo:success_rate:tier2
+        expr: |
+          sum(rate(makit_feature_invocation_total{feature=~"chatbot|nlp-analyze|youtube-comments|youtube-influence|youtube-keyword-search|url-analyze|notifications|push-notifications|review-analysis", status="success"}[5m])) by (feature)
+          /
+          sum(rate(makit_feature_invocation_total{feature=~"chatbot|nlp-analyze|youtube-comments|youtube-influence|youtube-keyword-search|url-analyze|notifications|push-notifications|review-analysis"}[5m])) by (feature)
+
+      - record: makit:slo:p95_latency
+        expr: |
+          histogram_quantile(0.95, sum(rate(makit_feature_duration_seconds_bucket[5m])) by (feature, le))

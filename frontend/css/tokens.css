@@ -61,9 +61,14 @@
 
   /* ----- Status (Anthropic 패턴: 채도 낮은 배경 + 진한 텍스트) ----- */
   --mk-color-success-bg:   #d7efdc;  --mk-color-success-text:  #0f7134;
+  --mk-color-success-500:  #10b981;
+  --mk-color-success-400:  #6ee7b7;
   --mk-color-info-bg:      #dce1f9;  --mk-color-info-text:     #334bfa;
   --mk-color-warn-bg:      #fef3c7;  --mk-color-warn-text:     #92400e;
   --mk-color-error-bg:     #fee2e2;  --mk-color-error-text:    #991b1b;
+  --mk-color-error-500:    #ef4444;
+  --mk-color-error-400:    #f87171;
+  --mk-color-brand-400:    #60a5fa;  /* Lighter brand blue for UI accents */
 
   /* ----- Shadow (Anthropic 패턴: 거의 무감각한 깊이감) ----- */
   --mk-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -189,9 +194,14 @@
     --mk-color-border-strong: #404040;
     /* brand 그대로 — #2563eb는 다크에서도 충분히 대비 (5.17:1 vs #fff) */
     --mk-color-success-bg:  #052e16;  --mk-color-success-text: #86efac;
+    --mk-color-success-500: #10b981;
+    --mk-color-success-400: #6ee7b7;
     --mk-color-info-bg:     #172554;  --mk-color-info-text:    #93c5fd;
     --mk-color-warn-bg:     #451a03;  --mk-color-warn-text:    #fcd34d;
     --mk-color-error-bg:    #450a0a;  --mk-color-error-text:   #fca5a5;
+    --mk-color-error-500:   #ef4444;
+    --mk-color-error-400:   #f87171;
+    --mk-color-brand-400:   #60a5fa;
     --mk-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.4);
     --mk-shadow-sm: 0 2px 6px -1px rgb(0 0 0 / 0.5);
     --mk-shadow-md: 0 10px 30px -8px rgb(0 0 0 / 0.6);
@@ -209,9 +219,14 @@
   --mk-color-border:        #262626;
   --mk-color-border-strong: #404040;
   --mk-color-success-bg:  #052e16;  --mk-color-success-text: #86efac;
+  --mk-color-success-500: #10b981;
+  --mk-color-success-400: #6ee7b7;
   --mk-color-info-bg:     #172554;  --mk-color-info-text:    #93c5fd;
   --mk-color-warn-bg:     #451a03;  --mk-color-warn-text:    #fcd34d;
   --mk-color-error-bg:    #450a0a;  --mk-color-error-text:   #fca5a5;
+  --mk-color-error-500:   #ef4444;
+  --mk-color-error-400:   #f87171;
+  --mk-color-brand-400:   #60a5fa;
   --mk-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.4);
   --mk-shadow-sm: 0 2px 6px -1px rgb(0 0 0 / 0.5);
   --mk-shadow-md: 0 10px 30px -8px rgb(0 0 0 / 0.6);

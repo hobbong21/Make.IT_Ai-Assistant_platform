@@ -8,6 +8,31 @@
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="/img/illustrations/login-mark.svg">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="MaKIT 설정. 프로필 정보, 비밀번호, 알림 등을 관리하세요.">
+    <meta name="keywords" content="MaKIT, 설정, 프로필, 계정">
+    <meta name="author" content="Human.Ai.D">
+    <link rel="canonical" href="https://makit.example.com/settings.html">
+    <!-- Open Graph Meta -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:locale:alternate" content="ja_JP">
+    <meta property="og:title" content="MaKIT - 설정">
+    <meta property="og:description" content="계정 설정 및 프로필 관리">
+    <meta property="og:url" content="https://makit.example.com/settings.html">
+    <meta property="og:image" content="https://makit.example.com/img/illustrations/intro-hero.svg">
+    <meta property="og:site_name" content="MaKIT">
+    <!-- Twitter Card Meta -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MaKIT - 설정">
+    <meta name="twitter:description" content="계정 설정 및 프로필 관리">
+    <meta name="twitter:image" content="https://makit.example.com/img/illustrations/intro-hero.svg">
+    <!-- hreflang Links -->
+    <link rel="alternate" hreflang="ko" href="https://makit.example.com/settings.html">
+    <link rel="alternate" hreflang="en" href="https://makit.example.com/settings.html?lang=en">
+    <link rel="alternate" hreflang="ja" href="https://makit.example.com/settings.html?lang=ja">
+    <link rel="alternate" hreflang="x-default" href="https://makit.example.com/settings.html">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/common.css">
@@ -98,7 +123,7 @@
                 <div class="set-actions">
                     <button type="submit" class="btn-primary" id="profSaveBtn" data-i18n="common.save">저장</button>
                 </div>
-                <div id="profMessage" role="status" aria-live="polite" style="margin-top:12px;"></div>
+                <div id="profMessage" role="status" aria-live="polite" style="margin-top: var(--mk-space-3);"></div>
             </form>
         </section>
 
@@ -114,7 +139,7 @@
                 <div class="set-actions">
                     <button type="submit" class="btn-primary" id="pwSaveBtn" data-i18n="settings.password">비밀번호 변경</button>
                 </div>
-                <div id="pwMessage" role="status" aria-live="polite" style="margin-top:12px;"></div>
+                <div id="pwMessage" role="status" aria-live="polite" style="margin-top: var(--mk-space-3);"></div>
             </form>
         </section>
 
@@ -122,72 +147,4 @@
             <h2 data-i18n="settings.theme">화면 테마</h2>
             <div class="theme-options" role="radiogroup" aria-label="테마 선택">
                 <button type="button" class="theme-opt" data-theme="auto" role="radio" data-i18n="settings.theme-auto">시스템 자동</button>
-                <button type="button" class="theme-opt" data-theme="light" role="radio" data-i18n="settings.theme-light">라이트</button>
-                <button type="button" class="theme-opt" data-theme="dark" role="radio" data-i18n="settings.theme-dark">다크</button>
-            </div>
-            <div class="motion-setting">
-                <label for="reduceMotionCheck" data-i18n="settings.motion">
-                    <input type="checkbox" id="reduceMotionCheck" name="reduceMotion">
-                    애니메이션 줄이기
-                </label>
-                <small>시스템 접근성 설정을 따라 모션 효과를 최소화합니다.</small>
-            </div>
-        </section>
-
-        <section class="set-card" id="pushNotificationCard" style="display:none;">
-            <h2>푸시 알림</h2>
-            <p id="pushStatus" style="font-size: var(--mk-font-size-sm); color: var(--mk-color-text-muted); margin-bottom: var(--mk-space-3);">확인 중...</p>
-            <div class="set-actions">
-                <button type="button" class="btn-primary" id="pushToggleBtn">활성화</button>
-                <button type="button" class="btn-primary" id="pushTestBtn" style="display:none;">테스트 알림 전송</button>
-            </div>
-            <div id="pushMessage" role="status" aria-live="polite" style="margin-top:12px;"></div>
-        </section>
-
-        <section class="set-card" id="pushAnalyticsCard" style="display:none;">
-            <h2>푸시 통계 (7일)</h2>
-            <div id="analyticsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--mk-space-3, 12px); margin-bottom: var(--mk-space-4, 16px);">
-                <div style="padding: var(--mk-space-3, 12px); background: var(--mk-color-bg-subtle); border-radius: var(--mk-radius-md); text-align: center;">
-                    <div style="font-size: var(--mk-font-size-sm); color: var(--mk-color-text-muted); margin-bottom: 4px;">전송</div>
-                    <div id="analyticsSent" style="font-size: var(--mk-font-size-2xl); font-weight: 600; color: var(--mk-color-brand-500);">-</div>
-                </div>
-                <div style="padding: var(--mk-space-3, 12px); background: var(--mk-color-bg-subtle); border-radius: var(--mk-radius-md); text-align: center;">
-                    <div style="font-size: var(--mk-font-size-sm); color: var(--mk-color-text-muted); margin-bottom: 4px;">클릭</div>
-                    <div id="analyticsClicked" style="font-size: var(--mk-font-size-2xl); font-weight: 600; color: var(--mk-color-success-500);">-</div>
-                </div>
-                <div style="padding: var(--mk-space-3, 12px); background: var(--mk-color-bg-subtle); border-radius: var(--mk-radius-md); text-align: center;">
-                    <div style="font-size: var(--mk-font-size-sm); color: var(--mk-color-text-muted); margin-bottom: 4px;">실패</div>
-                    <div id="analyticsFailed" style="font-size: var(--mk-font-size-2xl); font-weight: 600; color: var(--mk-color-error-500);">-</div>
-                </div>
-                <div style="padding: var(--mk-space-3, 12px); background: var(--mk-color-bg-subtle); border-radius: var(--mk-radius-md); text-align: center;">
-                    <div style="font-size: var(--mk-font-size-sm); color: var(--mk-color-text-muted); margin-bottom: 4px;">클릭률</div>
-                    <div id="analyticsCtr" style="font-size: var(--mk-font-size-2xl); font-weight: 600; color: var(--mk-color-brand-400);">-%</div>
-                </div>
-            </div>
-            <div style="margin-top: var(--mk-space-4, 16px); padding-top: var(--mk-space-4, 16px); border-top: 1px solid var(--mk-color-border);">
-                <canvas id="pushAnalyticsChart" style="max-height: 200px;"></canvas>
-            </div>
-            <div id="analyticsMessage" role="status" aria-live="polite" style="margin-top:12px;"></div>
-        </section>
-    </main>
-
-    <script src="js/config.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/pages/chatbot.js"></script>
-    <script src="js/chatbot-widget.js"></script>
-    <script src="js/user-menu.js"></script>
-    <script src="js/i18n-dict.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/app-shell-extras.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
-    <script src="js/ws-client.js"></script>
-    <script src="js/push-subscribe.js"></script>
-    <script src="js/pages/settings.js"></script>
-    <script src="js/sw-register.js"></script>
-    <script src="js/skeleton.js"></script>
-</body>
-</html>
+                <button type="button" class="theme-opt" data-theme="light" role="radio" data-i18n="settings.theme-light"

@@ -54,7 +54,7 @@ body {
     text-decoration: none;
     color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
     font-weight: 500;
-    transition: color 0.2s;
+    transition: color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .nav-link:hover,
@@ -113,7 +113,7 @@ body {
     border-radius: 50px;
     text-decoration: none;
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: all var(--mk-motion-duration-slow) var(--mk-motion-ease-standard);
     display: inline-block;
 }
 
@@ -130,7 +130,7 @@ body {
     border-radius: 50px;
     text-decoration: none;
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: all var(--mk-motion-duration-slow) var(--mk-motion-ease-standard);
     display: inline-block;
 }
 
@@ -230,7 +230,7 @@ body {
     text-align: center;
     box-shadow: var(--mk-shadow-xs, 0 1px 2px 0 rgb(0 0 0 / 0.05));
     border: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
-    transition: all 0.3s ease;
+    transition: all var(--mk-motion-duration-slow) var(--mk-motion-ease-standard);
 }
 
 .problem-card:hover {
@@ -371,7 +371,7 @@ body {
     padding: 2rem;
     box-shadow: var(--mk-shadow-xs, 0 1px 2px 0 rgb(0 0 0 / 0.05));
     border: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
-    transition: all 0.3s ease;
+    transition: all var(--mk-motion-duration-slow) var(--mk-motion-ease-standard);
 }
 
 .feature-card:hover {
@@ -505,7 +505,7 @@ body {
     border-radius: 50px;
     text-decoration: none;
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: all var(--mk-motion-duration-slow) var(--mk-motion-ease-standard);
     display: inline-block;
 }
 
@@ -554,7 +554,7 @@ body {
 .footer-links a {
     color: var(--mk-color-border-strong, var(--mk-color-border-strong, #d4d4d4));
     text-decoration: none;
-    transition: color 0.2s;
+    transition: color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .footer-links a:hover {
@@ -612,7 +612,7 @@ body {
     background: var(--mk-color-bg-subtle, #fafafa);
     border: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
     border-radius: 12px;
-    transition: all 0.3s ease;
+    transition: all var(--mk-motion-duration-slow) var(--mk-motion-ease-standard);
     text-align: center;
 }
 
@@ -629,7 +629,7 @@ body {
     object-fit: contain;
     margin-bottom: 0.75rem;
     filter: grayscale(100%);
-    transition: filter 0.3s ease;
+    transition: filter var(--mk-motion-duration-slow) var(--mk-motion-ease-standard);
 }
 
 .tech-item:hover .tech-logo {
@@ -640,7 +640,7 @@ body {
     font-size: 0.875rem;
     font-weight: 600;
     color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
-    transition: color 0.3s ease;
+    transition: color var(--mk-motion-duration-slow) var(--mk-motion-ease-standard);
 }
 
 .tech-item:hover .tech-name {
@@ -709,7 +709,7 @@ body {
     color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
     text-decoration: none;
     font-weight: 400;
-    transition: opacity 0.2s;
+    transition: opacity var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .learn-more:hover {

@@ -55,9 +55,9 @@ MaKIT/
 ### `frontend/` — Vanilla JS PWA
 ```
 frontend/
-├── *.html (10 페이지)         ← index/intro/login/all-services/service-detail/
-│                                marketing-hub/settings/history/admin/404
-├── css/                       ← D1 토큰 (tokens.css) + 페이지별 + app-shell
+├── *.html (11 페이지)         ← index/intro/login/all-services/service-detail/
+│                                marketing-hub/settings/history/admin/components/404
+├── css/                       ← D1 토큰 (tokens.css) + 페이지별 + app-shell + components-guide
 ├── js/
 │   ├── api.js, auth.js, ui.js, config.js
 │   ├── chatbot-widget.js, user-menu.js, modal.js
@@ -70,6 +70,15 @@ frontend/
 ├── manifest.webmanifest       ← PWA 매니페스트
 └── sw.js                      ← 서비스 워커 (offline + push)
 ```
+
+**R22c: `components.html`** — Design system 완전 가이드
+- 색상 팔레트 (brand/surface/text/status)
+- 타이포그래피 스케일 (4xl~sm, weights)
+- 스페이싱 & 라디우스 토큰 시각화
+- 모션 & 애니메이션 (duration/easing) 인터랙티브 데모
+- 라이브 컴포넌트 예제 (buttons/inputs/modal/notifications/badges/skeleton/stat-cards)
+- 유틸리티 클래스 목록
+- i18n & a11y 베이스라인 설명
 
 ### `tests/e2e/` — Playwright
 - `auth.spec.ts` (production-ready, 6 테스트)

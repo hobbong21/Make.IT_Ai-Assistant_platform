@@ -1,0 +1,107 @@
+---
+# Alertmanager Configuration for MaKIT
+# Routes alerts by severity (critical -> PagerDuty, warning -> Slack)
+# Environment variables: PAGERDUTY_KEY, SLACK_WEBHOOK_URL (optional)
+
+global:
+  resolve_timeout: 5m
+  slack_api_url: "${SLACK_WEBHOOK_URL:-https://hooks.slack.com/services/YOUR/WEBHOOK/URL}"
+
+route:
+  receiver: 'default-email'
+  group_by: ['alertname', 'severity', 'feature']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+
+  routes:
+    # Critical alerts -> PagerDuty (page on-call)
+    - match:
+        severity: critical
+      receiver: 'pagerduty'
+      group_wait: 0s
+      group_interval: 5m
+      repeat_interval: 1h
+
+    # Warning alerts -> Slack channel
+    - match:
+        severity: warning
+      receiver: 'slack-warnings'
+      group_wait: 30s
+      group_interval: 10m
+      repeat_interval: 4h
+
+    # Bedrock-specific alerts -> Slack + OpsGenie
+    - match_re:
+        alertname: "MaKITBedrock.*"
+      receiver: 'bedrock-oncall'
+      group_wait: 1m
+      repeat_interval: 30m
+
+inhibit_rules:
+  # Inhibit warning alerts if a critical alert already exists
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['feature', 'alertname']
+
+receivers:
+  # Default: Email to ops team
+  - name: 'default-email'
+    email_configs:
+      - to: '${OPS_EMAIL:-ops@makit.example.com}'
+        from: 'alertmanager@makit.example.com'
+        smarthost: '${SMTP_HOST:-smtp.example.com}:587'
+        auth_username: '${SMTP_USER}'
+        auth_password: '${SMTP_PASSWORD}'
+        headers:
+          Subject: '[MaKIT Alert] {{ .GroupLabels.alertname }}'
+
+  # Critical: PagerDuty integration (page on-call engineer)
+  - name: 'pagerduty'
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_KEY}'
+        client: 'MaKIT Alertmanager'
+        client_url: '{{ .ExternalURL }}'
+        description: '{{ .GroupLabels.alertname }}: {{ (index .Alerts 0).Annotations.summary }}'
+        details:
+          feature: '{{ .GroupLabels.feature }}'
+          severity: '{{ .GroupLabels.severity }}'
+          alerts_count: '{{ len .Alerts }}'
+
+  # Slack: Warnings channel
+  - name: 'slack-warnings'
+    slack_configs:
+      - channel: '#makit-alerts-warnings'
+        api_url: '${SLACK_WEBHOOK_URL}'
+        title: 'MaKIT Warning Alert'
+        title_link: '{{ .ExternalURL }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+        footer: 'MaKIT Monitoring'
+        color: 'warning'
+        send_resolved: true
+        actions:
+          - type: button
+            text: 'View Alert'
+            url: '{{ .ExternalURL }}'
+          - type: button
+            text: 'Runbook'
+            url: '{{ (index .Alerts 0).Annotations.runbook_url }}'
+
+  # Bedrock on-call (critical AI dependency)
+  - name: 'bedrock-oncall'
+    slack_configs:
+      - channel: '#makit-bedrock-oncall'
+        api_url: '${SLACK_WEBHOOK_URL}'
+        title: 'Bedrock Service Alert (URGENT)'
+        color: 'danger'
+        text: |
+          Feature: {{ .GroupLabels.feature }}
+          Status: {{ .Status }}
+          Summary: {{ (index .Alerts 0).Annotations.summary }}
+          Runbook: {{ (index .Alerts 0).Annotations.runbook_url }}
+        send_resolved: true
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_BEDROCK_KEY}'
+        description: 'Bedrock dependency: {{ (index .Alerts 0).Annotations.summary }}'

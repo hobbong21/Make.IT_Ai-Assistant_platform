@@ -32,7 +32,7 @@ body {
     color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
     text-decoration: none;
     font-size: 0.875rem;
-    transition: color 0.2s;
+    transition: color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .nav-back:hover {
@@ -111,7 +111,7 @@ body {
     padding: 0.5rem 1rem;
     color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
     text-decoration: none;
-    transition: background-color 0.2s;
+    transition: background-color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .nav-item:hover {
@@ -132,7 +132,7 @@ body {
     padding: 1rem;
     cursor: pointer;
     color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
-    transition: background-color 0.2s;
+    transition: background-color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .nav-dropdown-header:hover {
@@ -203,7 +203,7 @@ body {
     border: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
     border-radius: 8px;
     font-size: 1rem;
-    transition: border-color 0.2s;
+    transition: border-color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .search-input:focus {
@@ -224,7 +224,7 @@ body {
     border-radius: 20px;
     font-size: 0.875rem;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .filter-tab:hover {
@@ -277,7 +277,7 @@ body {
     border: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
     border-radius: 12px;
     padding: 1.5rem;
-    transition: all 0.3s ease;
+    transition: all var(--mk-motion-duration-slow) var(--mk-motion-ease-standard);
     position: relative;
 }
 
@@ -345,7 +345,7 @@ body {
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
 
 .service-button:hover {

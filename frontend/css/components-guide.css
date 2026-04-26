@@ -1,0 +1,549 @@
+/* MaKIT Component Guide Styles (R22c)
+   Showcasing all design tokens, utilities, and components
+   D1 tokens only — no hardcoded colors
+*/
+
+/* ========================================
+   Page Structure & Layout
+   ======================================== */
+
+.guide-section {
+    margin-bottom: var(--mk-space-12);
+    padding-bottom: var(--mk-space-8);
+    border-bottom: 1px solid var(--mk-color-border);
+}
+
+.guide-section:last-of-type {
+    border-bottom: none;
+}
+
+.guide-section h2 {
+    font-size: var(--mk-font-size-2xl);
+    font-weight: var(--mk-font-weight-semibold);
+    line-height: var(--mk-line-height-tight);
+    color: var(--mk-color-text);
+    margin-bottom: var(--mk-space-2);
+}
+
+.guide-section h3 {
+    font-size: var(--mk-font-size-lg);
+    font-weight: var(--mk-font-weight-semibold);
+    color: var(--mk-color-text);
+    margin: var(--mk-space-6) 0 var(--mk-space-3) 0;
+}
+
+.section-desc {
+    color: var(--mk-color-text-muted);
+    font-size: var(--mk-font-size-sm);
+    margin-bottom: var(--mk-space-4);
+}
+
+/* ========================================
+   1. Color Section
+   ======================================== */
+
+.color-section {
+    margin-bottom: var(--mk-space-6);
+}
+
+.swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: var(--mk-space-4);
+    margin-bottom: var(--mk-space-6);
+}
+
+.swatch-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mk-space-2);
+}
+
+.swatch {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--mk-radius-md);
+    border: 1px solid var(--mk-color-border);
+    box-shadow: var(--mk-shadow-xs);
+}
+
+.swatch-item code {
+    font-family: var(--mk-font-mono);
+    font-size: var(--mk-font-size-xs);
+    color: var(--mk-color-text-muted);
+    word-break: break-word;
+}
+
+/* ========================================
+   2. Typography Section
+   ======================================== */
+
+.typography-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mk-space-4);
+}
+
+.typo-example {
+    padding: var(--mk-space-4);
+    background: var(--mk-color-bg-subtle);
+    border-radius: var(--mk-radius-md);
+    border: 1px solid var(--mk-color-border);
+}
+
+.typo-example code {
+    display: block;
+    font-family: var(--mk-font-mono);
+    font-size: var(--mk-font-size-xs);
+    color: var(--mk-color-text-muted);
+    margin-top: var(--mk-space-2);
+}
+
+/* ========================================
+   3. Spacing & Radius Section
+   ======================================== */
+
+.spacing-section {
+    margin-bottom: var(--mk-space-6);
+}
+
+.spacing-demo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mk-space-3);
+    margin-bottom: var(--mk-space-4);
+}
+
+.spacing-bar {
+    background: var(--mk-color-brand-500);
+    height: 24px;
+    border-radius: var(--mk-radius-xs);
+    display: flex;
+    align-items: center;
+    padding-left: var(--mk-space-2);
+    color: var(--mk-color-text-on-brand);
+    font-size: var(--mk-font-size-xs);
+    font-weight: var(--mk-font-weight-semibold);
+}
+
+.small-note {
+    font-size: var(--mk-font-size-sm);
+    color: var(--mk-color-text-muted);
+    margin-top: var(--mk-space-2);
+}
+
+.radius-section {
+    margin-bottom: var(--mk-space-6);
+}
+
+.radius-demo {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: var(--mk-space-4);
+    margin-bottom: var(--mk-space-4);
+}
+
+.radius-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mk-space-2);
+    align-items: center;
+}
+
+.radius-box {
+    width: 80px;
+    height: 80px;
+    background: var(--mk-color-brand-500);
+    border: 1px solid var(--mk-color-border);
+    box-shadow: var(--mk-shadow-sm);
+}
+
+.radius-item code {
+    font-family: var(--mk-font-mono);
+    font-size: var(--mk-font-size-xs);
+    color: var(--mk-color-text-muted);
+}
+
+/* ========================================
+   4. Motion Section
+   ======================================== */
+
+.motion-section {
+    margin-bottom: var(--mk-space-6);
+}
+
+.duration-buttons {
+    display: flex;
+    gap: var(--mk-space-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--mk-space-4);
+}
+
+.duration-btn {
+    padding: var(--mk-space-2) var(--mk-space-4);
+    background: var(--mk-color-bg-subtle);
+    border: 1px solid var(--mk-color-border);
+    border-radius: var(--mk-radius-md);
+    cursor: pointer;
+    font-size: var(--mk-font-size-sm);
+    font-family: var(--mk-font-sans);
+    color: var(--mk-color-text);
+    transition: background var(--mk-motion-duration-base) var(--mk-motion-ease-standard),
+                border-color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
+}
+
+.duration-btn:hover {
+    background: var(--mk-color-bg-muted);
+    border-color: var(--mk-color-border-strong);
+}
+
+.duration-btn:focus-visible {
+    outline: 2px solid var(--mk-color-brand-500);
+    outline-offset: 2px;
+}
+
+.easing-section {
+    margin-bottom: var(--mk-space-4);
+}
+
+.easing-boxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--mk-space-4);
+    margin-bottom: var(--mk-space-4);
+}
+
+.easing-box {
+    padding: var(--mk-space-4);
+    background: var(--mk-color-bg-subtle);
+    border: 1px solid var(--mk-color-border);
+    border-radius: var(--mk-radius-md);
+}
+
+.easing-slider {
+    width: 100%;
+    height: 40px;
+    background: var(--mk-color-brand-500);
+    border-radius: var(--mk-radius-sm);
+    margin-bottom: var(--mk-space-3);
+}
+
+.easing-box code {
+    font-family: var(--mk-font-mono);
+    font-size: var(--mk-font-size-xs);
+    color: var(--mk-color-text-muted);
+}
+
+/* ========================================
+   5. Components Section
+   ======================================== */
+
+.component-group {
+    margin-bottom: var(--mk-space-8);
+}
+
+.component-example {
+    padding: var(--mk-space-6);
+    background: var(--mk-color-bg-subtle);
+    border: 1px solid var(--mk-color-border);
+    border-radius: var(--mk-radius-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--mk-space-4);
+    margin-bottom: var(--mk-space-4);
+}
+
+.code-block {
+    background: var(--mk-color-bg-muted);
+    border: 1px solid var(--mk-color-border);
+    border-radius: var(--mk-radius-md);
+    padding: var(--mk-space-4);
+    overflow-x: auto;
+    margin-bottom: var(--mk-space-4);
+}
+
+.code-block pre {
+    margin: 0;
+    font-family: var(--mk-font-mono);
+    font-size: var(--mk-font-size-sm);
+    color: var(--mk-color-text);
+    line-height: var(--mk-line-height-relaxed);
+}
+
+.code-block code {
+    background: transparent;
+    color: inherit;
+}
+
+/* 버튼 스타일 */
+.btn {
+    padding: var(--mk-space-2) var(--mk-space-4);
+    font-family: var(--mk-font-sans);
+    font-size: var(--mk-font-size-sm);
+    font-weight: var(--mk-font-weight-medium);
+    border: 1px solid transparent;
+    border-radius: var(--mk-radius-md);
+    cursor: pointer;
+    transition: background var(--mk-motion-duration-base) var(--mk-motion-ease-standard),
+                border-color var(--mk-motion-duration-base) var(--mk-motion-ease-standard),
+                color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--mk-color-brand-500);
+    outline-offset: 2px;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: var(--mk-color-brand-500);
+    color: var(--mk-color-text-on-brand);
+    border-color: var(--mk-color-brand-500);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--mk-color-brand-600);
+    border-color: var(--mk-color-brand-600);
+}
+
+.btn-primary:active:not(:disabled) {
+    background: var(--mk-color-brand-700);
+    border-color: var(--mk-color-brand-700);
+}
+
+.btn-secondary {
+    background: var(--mk-color-bg);
+    color: var(--mk-color-text);
+    border-color: var(--mk-color-border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--mk-color-bg-subtle);
+    border-color: var(--mk-color-border-strong);
+}
+
+.btn-danger {
+    background: var(--mk-color-error-bg);
+    color: var(--mk-color-error-text);
+    border-color: var(--mk-color-error-bg);
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: var(--mk-color-error-500);
+    color: var(--mk-color-text-on-brand);
+}
+
+/* 입력 필드 — mk-input-base는 app-shell.css에서 정의 */
+
+/* 알림 (Notification) */
+.notification {
+    padding: var(--mk-space-4);
+    border-radius: var(--mk-radius-md);
+    margin-bottom: var(--mk-space-3);
+}
+
+.notification-demo {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 뱃지 */
+.badge {
+    display: inline-block;
+    padding: var(--mk-space-1) var(--mk-space-2);
+    border-radius: var(--mk-radius-pill);
+    font-size: var(--mk-font-size-xs);
+    font-weight: var(--mk-font-weight-semibold);
+    margin-right: var(--mk-space-2);
+}
+
+.badge-experimental {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge-beta {
+    background: var(--mk-color-info-bg);
+    color: var(--mk-color-info-text);
+}
+
+.badge-stable {
+    background: var(--mk-color-success-bg);
+    color: var(--mk-color-success-text);
+}
+
+.badge-deprecated {
+    background: var(--mk-color-bg-muted);
+    color: var(--mk-color-text-muted);
+}
+
+.badges-demo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mk-space-2);
+}
+
+/* ========================================
+   6. Utility Classes List
+   ======================================== */
+
+.utility-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--mk-space-4);
+}
+
+.utility-item {
+    padding: var(--mk-space-4);
+    background: var(--mk-color-bg-subtle);
+    border: 1px solid var(--mk-color-border);
+    border-radius: var(--mk-radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--mk-space-2);
+}
+
+.utility-item code {
+    font-family: var(--mk-font-mono);
+    font-size: var(--mk-font-size-sm);
+    color: var(--mk-color-brand-500);
+    background: var(--mk-color-bg);
+    padding: var(--mk-space-1) var(--mk-space-2);
+    border-radius: var(--mk-radius-xs);
+}
+
+.utility-item span {
+    font-size: var(--mk-font-size-sm);
+    color: var(--mk-color-text-muted);
+}
+
+/* ========================================
+   7. i18n & a11y Section
+   ======================================== */
+
+.i18n-section {
+    margin-bottom: var(--mk-space-6);
+}
+
+.a11y-section {
+    margin-bottom: var(--mk-space-6);
+}
+
+.a11y-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--mk-space-3);
+}
+
+.a11y-list li {
+    padding: var(--mk-space-3) var(--mk-space-4);
+    background: var(--mk-color-success-bg);
+    border-left: 4px solid var(--mk-color-success-500);
+    border-radius: var(--mk-radius-sm);
+    color: var(--mk-color-success-text);
+    font-size: var(--mk-font-size-sm);
+}
+
+.a11y-list strong {
+    font-weight: var(--mk-font-weight-semibold);
+}
+
+.reduced-motion-section {
+    padding: var(--mk-space-4);
+    background: var(--mk-color-bg-subtle);
+    border: 1px solid var(--mk-color-border);
+    border-radius: var(--mk-radius-md);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--mk-space-2);
+    cursor: pointer;
+    font-size: var(--mk-font-size-sm);
+    user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--mk-color-brand-500);
+}
+
+/* ========================================
+   Dark Mode Support
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+    .component-example,
+    .code-block,
+    .swatch,
+    .radius-box,
+    .duration-btn {
+        background: var(--mk-color-bg-muted);
+        border-color: var(--mk-color-border);
+    }
+}
+
+/* ========================================
+   Mobile Responsive
+   ======================================== */
+
+@media (max-width: 768px) {
+    .swatch-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+
+    .easing-boxes {
+        grid-template-columns: 1fr;
+    }
+
+    .duration-buttons {
+        flex-direction: column;
+    }
+
+    .duration-btn {
+        width: 100%;
+    }
+
+    .guide-section h2 {
+        font-size: var(--mk-font-size-xl);
+    }
+
+    .component-example {
+        padding: var(--mk-space-3);
+        gap: var(--mk-space-3);
+    }
+
+    .utility-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========================================
+   Reduced Motion
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .btn,
+    .duration-btn,
+    .easing-slider {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* Override for HTML data-reduce-motion attribute */
+html[data-reduce-motion="true"] .btn,
+html[data-reduce-motion="true"] .duration-btn,
+html[data-reduce-motion="true"] .easing-slider {
+    transition: none !important;
+    animation: none !important;
+}
