@@ -49,3 +49,6 @@ The full backend (Spring Boot) requires:
 ## Deployment
 - Configured as a static site deployment serving the `frontend/` directory
 - In production with backend: uses Docker Compose with Nginx proxying to Spring Boot
+
+## User preferences
+- **Coding guidelines**: Follow `CLAUDE.md` strictly for all development work. Four principles: (1) Think Before Coding — surface assumptions, ask when ambiguous; (2) Simplicity First — minimum code, no speculative features; (3) Surgical Changes — only touch what's required by the request; (4) Goal-Driven Execution — define verifiable success criteria before implementing.
