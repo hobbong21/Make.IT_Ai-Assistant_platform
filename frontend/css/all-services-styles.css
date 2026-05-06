@@ -1,214 +1,254 @@
-/* 기본 스타일 리셋 */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* ========================================================================
+   all-services / history / marketing-playbooks (list) — Claude UI inspired
+   - Warm dark sidebar (matches index, service-detail)
+   - Warm cream main, coral accents, rounded radii
+   - Mobile sidebar handled by common.css off-canvas
+   ======================================================================== */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--mk-font-sans);
     line-height: 1.6;
-    color: var(--mk-color-text-muted, #737373);
-    background: var(--mk-color-bg, #ffffff);
+    color: var(--mk-color-text);
+    background: var(--mk-color-bg);
 }
 
-/* 상단 네비게이션 */
+/* ---------- Top nav (back link) ---------- */
 .top-nav {
-    background: white;
-    border-bottom: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
+    background: var(--mk-color-bg);
+    border-bottom: 1px solid var(--mk-color-border);
     padding: 0.75rem 0;
+    position: sticky;
+    top: 0;
+    z-index: var(--mk-z-sticky, 100);
 }
-
 .top-nav-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 2rem;
 }
-
 .nav-back {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
+    color: var(--mk-color-text-muted);
     text-decoration: none;
     font-size: 0.875rem;
     transition: color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
+.nav-back:hover { color: var(--mk-color-brand-500); }
 
-.nav-back:hover {
-    color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
-}
-
-/* 앱 컨테이너 */
+/* ---------- App shell ---------- */
 .app-container {
     display: flex;
-    height: calc(100vh - 60px);
+    min-height: calc(100vh - 60px);
     overflow: hidden;
-    margin-top: 60px;
 }
 
-/* 사이드바 */
+/* ---------- Sidebar (Claude warm dark) ---------- */
 .sidebar {
-    width: 256px;
-    background: white;
-    border-right: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
+    width: 260px;
+    background: var(--mk-color-sidebar-bg);
+    border-right: 1px solid var(--mk-color-sidebar-border);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    color: var(--mk-color-sidebar-text);
 }
-
 .sidebar-header {
-    padding: 1rem;
-    border-bottom: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
+    padding: 1.125rem 1.25rem;
+    border-bottom: 1px solid var(--mk-color-sidebar-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
-
 .logo-text {
-    font-size: 1.5rem;
+    font-size: 1.375rem;
     font-weight: 700;
-    color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
+    color: var(--mk-color-sidebar-text-strong);
     letter-spacing: -0.5px;
 }
-
 .sidebar-toggle {
     background: none;
     border: none;
-    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
+    color: var(--mk-color-sidebar-text-muted);
     cursor: pointer;
     padding: 4px;
+    border-radius: var(--mk-radius-sm);
+    transition: background 0.15s, color 0.15s;
 }
-
 .sidebar-toggle:hover {
-    color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
+    background: var(--mk-color-sidebar-bg-hover);
+    color: var(--mk-color-sidebar-text-strong);
 }
 
-/* 사이드바 네비게이션 */
 .sidebar-nav {
     flex: 1;
-    padding: 1rem 0;
+    padding: 0.75rem 0.5rem;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
 }
-
-.nav-section {
-    margin-bottom: 1.5rem;
-}
-
+.nav-section { margin-bottom: 1.25rem; }
 .nav-section-title {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
-    font-weight: 500;
+    padding: 0.5rem 0.75rem 0.375rem;
+    font-size: 0.6875rem;
+    color: var(--mk-color-sidebar-text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
 .nav-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 1rem;
-    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
+    padding: 0.5rem 0.75rem;
+    margin: 0.125rem 0;
+    border-radius: var(--mk-radius-md);
+    color: var(--mk-color-sidebar-text);
     text-decoration: none;
-    transition: background-color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
+    font-size: 0.875rem;
+    transition: background 0.15s, color 0.15s;
 }
-
 .nav-item:hover {
-    background-color: var(--mk-color-bg-muted, var(--mk-color-bg-muted, #f2f2f2));
+    background: var(--mk-color-sidebar-bg-hover);
+    color: var(--mk-color-sidebar-text-strong);
 }
-
 .nav-item.active {
-    background-color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
-    color: var(--mk-color-bg, #ffffff);
-    border-radius: 6px;
-    margin: 0 0.5rem;
+    background: var(--mk-color-sidebar-bg-active);
+    color: var(--mk-color-sidebar-text-strong);
 }
+.nav-item svg { color: currentColor; opacity: 0.75; }
 
+/* dropdown */
+.nav-dropdown { margin: 0.125rem 0; }
 .nav-dropdown-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--mk-radius-md);
     cursor: pointer;
-    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
-    transition: background-color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
+    color: var(--mk-color-sidebar-text);
+    font-size: 0.875rem;
+    transition: background 0.15s;
 }
+.nav-dropdown-header:hover { background: var(--mk-color-sidebar-bg-hover); }
+.nav-dropdown-header svg {
+    transition: transform var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
+    opacity: 0.6;
+}
+.nav-dropdown.expanded .nav-dropdown-header svg { transform: rotate(90deg); }
 
-.nav-dropdown-header:hover {
-    background-color: var(--mk-color-bg-subtle, #fafafa);
+.nav-dropdown-items,
+.nav-dropdown-content {
+    max-height: 0;
+    overflow: hidden;
+    margin-left: 0.75rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--mk-color-sidebar-border);
+    transition: max-height var(--mk-motion-duration-slow) var(--mk-motion-ease-standard);
+}
+.nav-dropdown.expanded .nav-dropdown-items,
+.nav-dropdown.expanded .nav-dropdown-content {
+    max-height: 600px;
+    padding: 0.25rem 0 0.25rem 0.75rem;
+}
+.nav-dropdown-item,
+.nav-sub-item {
+    display: block;
+    padding: 0.4375rem 0.75rem;
+    margin: 0.0625rem 0;
+    border-radius: var(--mk-radius-sm);
+    color: var(--mk-color-sidebar-text-muted);
+    text-decoration: none;
+    font-size: 0.8125rem;
+    transition: background 0.15s, color 0.15s;
+}
+.nav-dropdown-item:hover,
+.nav-sub-item:hover {
+    background: var(--mk-color-sidebar-bg-hover);
+    color: var(--mk-color-sidebar-text-strong);
+}
+.nav-sub-item.active {
+    background: var(--mk-color-sidebar-bg-active);
+    color: var(--mk-color-sidebar-text-strong);
 }
 
 .go-to-web {
     margin-top: auto;
-    border-top: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
-    padding-top: 0.75rem;
+    border-top: 1px solid var(--mk-color-sidebar-border);
+    padding: 0.75rem;
+    border-radius: 0;
 }
+.go-to-web:hover { background: var(--mk-color-sidebar-bg-hover); border-radius: 0; }
 
-/* 메인 콘텐츠 */
+/* ---------- Main content ---------- */
 .main-content {
     flex: 1;
     overflow: auto;
-    background: var(--mk-color-bg-subtle, #fafafa);
+    background: var(--mk-color-bg);
 }
-
 .content-wrapper {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 2rem 2rem 4rem;
 }
 
-/* 페이지 헤더 */
+/* ---------- Page header ---------- */
 .page-header {
     margin-bottom: 2rem;
 }
-
 .page-title {
-    font-size: 2.5rem;
+    font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
     font-weight: 700;
-    color: var(--mk-color-text, #1a1a1a);
+    color: var(--mk-color-text);
     margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
 }
-
 .page-subtitle {
-    font-size: 1.125rem;
-    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
+    font-size: 1.0625rem;
+    color: var(--mk-color-text-muted);
 }
 
-/* 검색 및 필터 */
+/* ---------- Search & filter ---------- */
 .search-filter-section {
-    background: white;
-    border-radius: 12px;
+    background: var(--mk-color-bg-subtle);
+    border: 1px solid var(--mk-color-border);
+    border-radius: var(--mk-radius-xl);
     padding: 1.5rem;
     margin-bottom: 2rem;
-    box-shadow: var(--mk-shadow-xs, 0 1px 2px 0 rgb(0 0 0 / 0.05));
 }
-
 .search-box {
     position: relative;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
 }
-
 .search-box svg {
     position: absolute;
     left: 1rem;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
+    color: var(--mk-color-text-muted);
 }
-
 .search-input {
     width: 100%;
     padding: 0.75rem 1rem 0.75rem 3rem;
-    border: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
-    border-radius: 8px;
+    border: 1px solid var(--mk-color-border);
+    background: var(--mk-color-bg);
+    border-radius: var(--mk-radius-md);
     font-size: 1rem;
-    transition: border-color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
+    font-family: inherit;
+    color: var(--mk-color-text);
+    transition: border-color var(--mk-motion-duration-base) var(--mk-motion-ease-standard),
+                box-shadow var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
-
+.search-input::placeholder { color: var(--mk-color-text-faint); }
 .search-input:focus {
     outline: none;
-    border-color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
+    border-color: var(--mk-color-brand-500);
+    box-shadow: var(--mk-shadow-focus);
 }
 
 .filter-tabs {
@@ -216,198 +256,180 @@ body {
     gap: 0.5rem;
     flex-wrap: wrap;
 }
-
 .filter-tab {
     padding: 0.5rem 1rem;
-    border: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
-    background: white;
-    border-radius: 20px;
+    border: 1px solid var(--mk-color-border);
+    background: var(--mk-color-bg);
+    color: var(--mk-color-text);
+    border-radius: var(--mk-radius-pill);
     font-size: 0.875rem;
+    font-family: inherit;
     cursor: pointer;
     transition: all var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
-
 .filter-tab:hover {
-    border-color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
+    border-color: var(--mk-color-brand-400);
+    color: var(--mk-color-brand-700);
 }
-
 .filter-tab.active {
-    background: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
-    color: white;
-    border-color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
+    background: var(--mk-color-brand-500);
+    color: #fff;
+    border-color: var(--mk-color-brand-500);
 }
 
-/* 서비스 컨테이너 */
+/* ---------- Service categories ---------- */
 .services-container {
     display: flex;
     flex-direction: column;
-    gap: 3rem;
+    gap: 2rem;
 }
-
 .category-section {
-    background: white;
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: var(--mk-shadow-xs, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+    background: var(--mk-color-bg-subtle);
+    border: 1px solid var(--mk-color-border);
+    border-radius: var(--mk-radius-xl);
+    padding: 1.75rem;
 }
-
 .category-title {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    font-size: 1.5rem;
+    font-size: 1.375rem;
     font-weight: 700;
-    color: var(--mk-color-text, #1a1a1a);
-    margin-bottom: 1.5rem;
+    color: var(--mk-color-text);
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.01em;
 }
-
 .category-icon {
-    font-size: 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--mk-radius-md);
+    background: var(--mk-color-brand-50);
+    color: var(--mk-color-brand-700);
+    font-size: 1.125rem;
 }
 
-/* 서비스 그리드 */
+/* ---------- Service grid / cards ---------- */
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
 }
-
 .service-card {
-    background: var(--mk-color-bg-subtle, #fafafa);
-    border: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
-    border-radius: 12px;
-    padding: 1.5rem;
-    transition: all var(--mk-motion-duration-slow) var(--mk-motion-ease-standard);
+    background: var(--mk-color-bg);
+    border: 1px solid var(--mk-color-border);
+    border-radius: var(--mk-radius-lg);
+    padding: 1.25rem;
+    transition: transform var(--mk-motion-duration-slow) var(--mk-motion-ease-standard),
+                box-shadow var(--mk-motion-duration-slow) var(--mk-motion-ease-standard),
+                border-color var(--mk-motion-duration-slow) var(--mk-motion-ease-standard);
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
-
 .service-card:hover {
     transform: translateY(-2px);
-    box-shadow: var(--mk-shadow-md, 0 10px 30px -8px rgb(0 0 0 / 0.15));
-    border-color: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
+    box-shadow: var(--mk-shadow-md);
+    border-color: var(--mk-color-brand-400);
 }
-
-.service-header {
+.service-card .service-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.875rem;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
 }
-
-.service-icon {
-    font-size: 2rem;
+.service-card .service-icon {
+    font-size: 1.75rem;
+    line-height: 1;
 }
-
-.service-status {
-    background: var(--mk-color-success-text, var(--mk-color-success-text, #0f7134));
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 500;
-}
-
-.service-title {
-    font-size: 1.25rem;
+.service-card .service-status {
+    background: var(--mk-color-brand-50);
+    color: var(--mk-color-brand-700);
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--mk-radius-pill);
+    font-size: 0.6875rem;
     font-weight: 600;
-    color: var(--mk-color-text, #1a1a1a);
-    margin-bottom: 0.75rem;
+    letter-spacing: 0.02em;
 }
-
-.service-description {
-    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
+.service-card .service-title {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--mk-color-text);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+}
+.service-card .service-description {
+    color: var(--mk-color-text-muted);
     margin-bottom: 1rem;
     line-height: 1.5;
+    font-size: 0.9375rem;
+    flex: 1;
 }
-
 .service-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    gap: 0.375rem;
+    margin-bottom: 1.125rem;
 }
-
 .tag {
-    background: var(--mk-color-border, var(--mk-color-border, #e6e6e6));
-    color: var(--mk-color-text-muted, var(--mk-color-text-muted, #737373));
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
+    background: var(--mk-color-bg-muted);
+    color: var(--mk-color-text-muted);
+    padding: 0.1875rem 0.5rem;
+    border-radius: var(--mk-radius-pill);
+    font-size: 0.6875rem;
     font-weight: 500;
 }
-
 .service-button {
     width: 100%;
-    background: var(--mk-color-text, var(--mk-color-text, #1a1a1a));
-    color: white;
+    background: var(--mk-color-brand-500);
+    color: #fff;
     border: none;
-    padding: 0.75rem;
-    border-radius: 8px;
+    padding: 0.625rem 0.875rem;
+    border-radius: var(--mk-radius-md);
     font-weight: 600;
+    font-size: 0.875rem;
+    font-family: inherit;
     cursor: pointer;
-    transition: all var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
+    transition: background var(--mk-motion-duration-base) var(--mk-motion-ease-standard),
+                transform var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
 }
-
 .service-button:hover {
-    background: var(--mk-color-text-muted, #737373);
+    background: var(--mk-color-brand-600);
     transform: translateY(-1px);
 }
-
-/* 반응형 디자인 */
-@media (max-width: 1024px) {
-    .services-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    }
-
-    .content-wrapper {
-        padding: 1rem;
-    }
-
-    .page-title {
-        font-size: 2rem;
-    }
+.service-button:active { transform: translateY(0); }
+.service-button:focus-visible {
+    outline: 2px solid var(--mk-color-brand-500);
+    outline-offset: 2px;
 }
 
-@media (max-width: 768px) {
-    .sidebar {
-        width: 200px;
-    }
+/* ---------- Responsive ---------- */
+@media (max-width: 1023px) {
+    .content-wrapper { padding: 1.5rem 1.25rem 4rem; }
+    .services-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+}
 
-    .services-grid {
-        grid-template-columns: 1fr;
-    }
+@media (max-width: 767px) {
+    .top-nav-container { padding: 0 1rem; }
+    .content-wrapper { padding: 1.25rem 1rem 3.5rem; }
+
+    .search-filter-section { padding: 1.25rem; }
+    .category-section { padding: 1.25rem; }
+    .category-title { font-size: 1.1875rem; }
+    .services-grid { grid-template-columns: 1fr; }
 
     .filter-tabs {
-        flex-direction: column;
+        gap: 0.375rem;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 0.25rem;
+        margin: 0 -0.25rem;
     }
-
-    .filter-tab {
-        text-align: center;
-    }
-
-    .page-title {
-        font-size: 1.75rem;
-    }
-
-    .category-section {
-        padding: 1.5rem;
-    }
-}
-
-@media (max-width: 640px) {
-    .app-container {
-        flex-direction: column;
-        height: auto;
-    }
-
-    .sidebar {
-        width: 100%;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--mk-color-border, var(--mk-color-border, #e6e6e6));
-    }
-
-    .main-content {
-        height: auto;
-    }
+    .filter-tab { flex-shrink: 0; }
 }

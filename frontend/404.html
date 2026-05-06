@@ -16,7 +16,10 @@
             align-items: center;
             justify-content: center;
             padding: var(--mk-space-6, 24px);
-            background: linear-gradient(135deg, var(--mk-color-brand-50, #eff6ff) 0%, var(--mk-color-bg, #ffffff) 100%);
+            background:
+                radial-gradient(circle at 20% 10%, rgba(201, 100, 66, 0.10) 0%, transparent 55%),
+                radial-gradient(circle at 85% 95%, rgba(217, 138, 108, 0.08) 0%, transparent 55%),
+                var(--mk-color-bg, #faf9f5);
         }
         .err-card {
             max-width: 560px;
@@ -32,7 +35,7 @@
             font-size: clamp(4rem, 12vw, 7rem);
             font-weight: var(--mk-font-weight-bold, 700);
             line-height: 1;
-            color: var(--mk-color-brand-500, #2563eb);
+            color: var(--mk-color-brand-500, #c96442);
             letter-spacing: -0.04em;
             margin: 0;
         }
@@ -68,12 +71,17 @@
             transition: all var(--mk-duration-fast, 150ms) ease;
         }
         .err-btn-primary {
-            background: var(--mk-color-brand-500, #2563eb);
+            background: var(--mk-color-brand-500, #c96442);
             color: var(--mk-color-text-on-brand, #ffffff);
             border: 1px solid transparent;
         }
         .err-btn-primary:hover {
-            background: var(--mk-color-brand-600, #1d4ed8);
+            background: var(--mk-color-brand-600, #b3563a);
+        }
+        .err-btn-primary:focus-visible,
+        .err-btn-secondary:focus-visible {
+            outline: 2px solid var(--mk-color-brand-500, #c96442);
+            outline-offset: 2px;
         }
         .err-btn-secondary {
             background: transparent;
@@ -98,19 +106,19 @@
             <title id="errIllustTitle">길 잃은 데이터 노드</title>
             <defs>
                 <linearGradient id="grad404" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stop-color="#eff6ff"/>
-                    <stop offset="100%" stop-color="#dbeafe"/>
+                    <stop offset="0%" stop-color="#fdf4ee"/>
+                    <stop offset="100%" stop-color="#fbeae3"/>
                 </linearGradient>
             </defs>
             <rect width="200" height="120" rx="14" fill="url(#grad404)"/>
-            <g stroke="#2563eb" stroke-width="1.5" fill="none" stroke-dasharray="3 3">
+            <g stroke="#c96442" stroke-width="1.5" fill="none" stroke-dasharray="3 3">
                 <path d="M30 60 Q70 40 100 60 Q130 80 170 60"/>
             </g>
-            <circle cx="30" cy="60" r="6" fill="#2563eb"/>
-            <circle cx="170" cy="60" r="6" fill="#2563eb"/>
+            <circle cx="30" cy="60" r="6" fill="#c96442"/>
+            <circle cx="170" cy="60" r="6" fill="#c96442"/>
             <g transform="translate(100 60)">
-                <circle r="14" fill="#ffffff" stroke="#991b1b" stroke-width="2"/>
-                <path d="M-5 -5 L5 5 M5 -5 L-5 5" stroke="#991b1b" stroke-width="2" stroke-linecap="round"/>
+                <circle r="14" fill="#ffffff" stroke="#9c4a2f" stroke-width="2"/>
+                <path d="M-5 -5 L5 5 M5 -5 L-5 5" stroke="#9c4a2f" stroke-width="2" stroke-linecap="round"/>
             </g>
         </svg>
 
