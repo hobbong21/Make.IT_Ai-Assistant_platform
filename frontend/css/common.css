@@ -77,3 +77,38 @@
     bottom: var(--mk-space-4, 16px);
   }
 }
+
+/* ----- Site-wide mobile sidebar (off-canvas).
+   Applies to all pages that use `.sidebar` + `.sidebar-toggle` shell.
+   `!important`은 페이지별 CSS의 width/position 오버라이드를 안전하게 무력화하기 위함. */
+.mk-sidebar-overlay {
+  position: fixed;
+  inset: 60px 0 0 0;
+  background: var(--mk-color-bg-overlay, rgba(0,0,0,0.5));
+  z-index: calc(var(--mk-z-modal, 1300) - 1);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--mk-motion-duration-base, 0.2s) var(--mk-motion-ease-standard, ease);
+}
+.mk-sidebar-overlay.is-visible { opacity: 1; pointer-events: auto; }
+
+@media (min-width: 768px) {
+  .mk-sidebar-overlay { display: none; }
+}
+
+@media (max-width: 767px) {
+  .sidebar {
+    position: fixed !important;
+    top: 60px;
+    left: 0;
+    bottom: 0;
+    width: 280px !important;
+    max-width: 85vw;
+    z-index: var(--mk-z-modal, 1300);
+    transform: translateX(-100%);
+    transition: transform var(--mk-motion-duration-base, 0.2s) var(--mk-motion-ease-standard, ease);
+    box-shadow: var(--mk-shadow-lg, 0 25px 50px -12px rgba(0,0,0,0.4));
+    overflow-y: auto;
+  }
+  .sidebar.is-open { transform: translateX(0); }
+}

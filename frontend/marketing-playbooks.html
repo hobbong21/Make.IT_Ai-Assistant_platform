@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MaKIT - 마케팅 플레이북 | Human.Ai.D</title>
     <link rel="manifest" href="/manifest.webmanifest">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#c96442">
     <meta name="description" content="MaKIT 마케팅 플레이북. CRO, SEO, 카피, 광고 등 41개의 마케팅 스킬 라이브러리.">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
@@ -34,6 +34,11 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo"><div class="logo-text">MaKIT</div></div>
+                <button class="sidebar-toggle" aria-label="사이드바 접기/펼치기" aria-expanded="true">
+                    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m6 9 6 6 6-6"></path>
+                    </svg>
+                </button>
             </div>
             <nav class="sidebar-nav" aria-label="사이드바 메뉴">
                 <div class="nav-section">
@@ -59,7 +64,7 @@
 
                 <div class="mp-toolbar">
                     <input id="mpSearch" class="mp-search" type="search" placeholder="스킬 이름 또는 키워드 검색…" aria-label="플레이북 검색">
-                    <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--color-text-secondary,#4b5563);">
+                    <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mk-color-text-muted);">
                         <input id="mpFavOnly" type="checkbox"> 즐겨찾기만
                     </label>
                 </div>
@@ -74,8 +79,10 @@
     </div>
 
     <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/i18n-dict.js"></script>
     <script src="js/i18n.js"></script>
     <script src="js/pages/marketing-playbooks.js"></script>
+    <script src="js/app-shell-extras.js"></script>
 </body>
 </html>

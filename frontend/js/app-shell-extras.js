@@ -4,6 +4,49 @@
   if (window.__makitShellExtrasMounted) return;
   window.__makitShellExtrasMounted = true;
   if (/login\.html$/i.test(location.pathname)) return;
+  // 사이드바 토글은 인증과 무관하게 모바일에서 항상 필요 → 게이트보다 먼저 마운트.
+  function mountSidebarToggleEarly() {
+    var sidebar = document.querySelector('.sidebar');
+    var btn = document.querySelector('.sidebar-toggle');
+    if (!sidebar || !btn) return;
+    if (sidebar.__mkToggleBound) return;
+    sidebar.__mkToggleBound = true;
+
+    var overlay = document.createElement('div');
+    overlay.className = 'mk-sidebar-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(overlay);
+
+    function close() {
+      sidebar.classList.remove('is-open');
+      overlay.classList.remove('is-visible');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+    function open() {
+      sidebar.classList.add('is-open');
+      overlay.classList.add('is-visible');
+      btn.setAttribute('aria-expanded', 'true');
+    }
+    btn.addEventListener('click', function (e) {
+      if (window.matchMedia('(max-width: 767px)').matches) {
+        e.preventDefault();
+        if (sidebar.classList.contains('is-open')) close(); else open();
+      }
+    });
+    overlay.addEventListener('click', close);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && sidebar.classList.contains('is-open')) close();
+    });
+    window.matchMedia('(min-width: 768px)').addEventListener('change', function (e) {
+      if (e.matches) close();
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mountSidebarToggleEarly);
+  } else {
+    mountSidebarToggleEarly();
+  }
+
   if (!window.auth || !auth.isLoggedIn()) return;
 
   // ============ 다크모드 토글 ============
