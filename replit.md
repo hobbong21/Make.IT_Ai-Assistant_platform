@@ -37,7 +37,7 @@ The full backend (Spring Boot) requires:
 │   ├── *.html               # All pages at root (URL 안정성 위해 평면 유지)
 │   ├── css/
 │   │   ├── core/            # tokens, common, app-shell, components-guide (전 페이지 공통)
-│   │   └── pages/           # styles(index), intro, all-services, service-detail, marketing-playbooks, admin
+│   │   └── pages/           # styles(index), intro, all-services, service-detail, marketing-playbooks, marketing-hub, admin
 │   ├── js/
 │   │   ├── core/            # api, config, auth, i18n(+dict), ui, modal, sw-register, push-subscribe, ws-client
 │   │   ├── widgets/         # app-shell-extras, user-menu, skeleton, chatbot-widget
