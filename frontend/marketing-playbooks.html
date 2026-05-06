@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaKIT - 마케팅 플레이북 | Human.Ai.D</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="description" content="MaKIT 마케팅 플레이북. CRO, SEO, 카피, 광고 등 41개의 마케팅 스킬 라이브러리.">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/app-shell.css">
+    <link rel="stylesheet" href="css/all-services-styles.css">
+    <link rel="stylesheet" href="css/marketing-playbooks.css">
+</head>
+<body>
+    <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
+    <noscript><div class="makit-noscript">이 페이지는 JavaScript가 필요합니다.</div></noscript>
+
+    <nav class="top-nav" aria-label="페이지 네비게이션">
+        <div class="top-nav-container">
+            <a href="index.html" class="nav-back">
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path>
+                </svg>
+                플랫폼으로 돌아가기
+            </a>
+        </div>
+    </nav>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo"><div class="logo-text">MaKIT</div></div>
+            </div>
+            <nav class="sidebar-nav" aria-label="사이드바 메뉴">
+                <div class="nav-section">
+                    <div class="nav-section-title">홈</div>
+                    <a href="index.html" class="nav-item"><span>개요</span></a>
+                    <a href="all-services.html" class="nav-item"><span>모든 서비스</span></a>
+                    <a href="marketing-playbooks.html" class="nav-item active"><span>마케팅 플레이북</span></a>
+                </div>
+            </nav>
+        </aside>
+
+        <main id="main-content" class="main-content">
+            <div class="content-wrapper">
+                <div class="page-header">
+                    <h1>마케팅 플레이북</h1>
+                    <p>CRO · SEO · 카피 · 광고 · 그로스 — 41개 검증된 마케팅 스킬 라이브러리 (출처: <a href="https://github.com/coreyhaines31/marketingskills" target="_blank" rel="noopener">coreyhaines31/marketingskills</a>, MIT)</p>
+                </div>
+
+                <div id="updateBanner" class="mp-update-banner" style="display:none;">
+                    <span id="updateBannerText"></span>
+                    <button id="updateBannerDismiss">확인</button>
+                </div>
+
+                <div class="mp-toolbar">
+                    <input id="mpSearch" class="mp-search" type="search" placeholder="스킬 이름 또는 키워드 검색…" aria-label="플레이북 검색">
+                    <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--color-text-secondary,#4b5563);">
+                        <input id="mpFavOnly" type="checkbox"> 즐겨찾기만
+                    </label>
+                </div>
+
+                <div id="mpCatTabs" class="mp-cat-tabs"></div>
+
+                <div id="mpList">
+                    <div class="mp-loading">불러오는 중…</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/i18n-dict.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/pages/marketing-playbooks.js"></script>
+</body>
+</html>

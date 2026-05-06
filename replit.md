@@ -46,6 +46,12 @@ The full backend (Spring Boot) requires:
 └── serve.js           # Simple Node.js static file server for Replit
 ```
 
+## Marketing Playbooks (additive feature)
+- Pages: `marketing-playbooks.html` (list), `marketing-playbook.html` (detail)
+- Scripts: `frontend/js/pages/marketing-playbooks.js`, `frontend/js/pages/marketing-playbook.js`
+- Style: `frontend/css/marketing-playbooks.css`
+- Source: live fetch from `raw.githubusercontent.com/coreyhaines31/marketingskills/main` (MIT). 41 skills, 7 categories, search/favorites/version-bump notice. Markdown rendered via `marked` CDN. Cached in sessionStorage (30 min). Linked from AX Marketing Intelligence dropdown in `index.html`, `all-services.html`, `service-detail.html`.
+
 ## Deployment
 - Configured as a static site deployment serving the `frontend/` directory
 - In production with backend: uses Docker Compose with Nginx proxying to Spring Boot
