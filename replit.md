@@ -31,20 +31,29 @@ The full backend (Spring Boot) requires:
 - Redis
 - AWS credentials for Bedrock, S3, Cognito
 
-## Project Structure
+## Project Structure (업무 단위 정리, 2026-05-06)
 ```
-├── frontend/          # Static web app (HTML/CSS/JS)
-│   ├── css/           # Stylesheets
-│   ├── js/            # API client, auth, page scripts
-│   └── *.html         # Pages (index, login, intro, all-services, service-detail)
-├── backend/           # Spring Boot application (src/, pom.xml)
-├── infra/             # Terraform IaC for AWS
-├── docs/              # Architecture documentation
-├── scripts/           # Deployment & setup scripts
-├── docker-compose.yml # Full local stack orchestration
-├── nginx.conf         # Nginx reverse proxy config (Docker)
-└── serve.js           # Simple Node.js static file server for Replit
+├── frontend/                # Static web app
+│   ├── *.html               # All pages at root (URL 안정성 위해 평면 유지)
+│   ├── css/
+│   │   ├── core/            # tokens, common, app-shell, components-guide (전 페이지 공통)
+│   │   └── pages/           # styles(index), intro, all-services, service-detail, marketing-playbooks, admin
+│   ├── js/
+│   │   ├── core/            # api, config, auth, i18n(+dict), ui, modal, sw-register, push-subscribe, ws-client
+│   │   ├── widgets/         # app-shell-extras, user-menu, skeleton, chatbot-widget
+│   │   └── pages/           # 페이지별 엔트리 스크립트 (기존 그대로)
+│   ├── img/, sw.js, manifest.webmanifest
+├── backend/                 # Spring Boot (src/, pom.xml)
+├── infra/                   # Terraform IaC for AWS
+├── docs/                    # Architecture documentation
+├── scripts/                 # Deployment & setup scripts
+├── archive/                 # 더 이상 활성 사용하지 않는 자료
+│   ├── Design1_Mockup_legacy/   # 구 디자인 목업 (구: "0. Design1_Mokup")
+│   └── _workspace/              # 구 작업 산출물/리포트
+├── docker-compose.yml, nginx.conf, Dockerfile
+└── serve.js                 # Replit용 Node.js 정적 서버
 ```
+파일 이동 시 갱신된 곳: 모든 `frontend/*.html`의 `<link>/<script>` 경로, `frontend/sw.js` precache 목록.
 
 ## Design system (Claude UI inspired, 2026-05-06)
 - `tokens.css` D2: warm cream (#faf9f5), Claude coral accent (#c96442), warm-dark sidebar tokens (`--mk-color-sidebar-*`), more rounded radii (md=12, lg=16, xl=24). Light + warm-dark theme pair (auto + `[data-theme]`).

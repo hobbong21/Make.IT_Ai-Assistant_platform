@@ -34,10 +34,10 @@
     <link rel="alternate" hreflang="ja" href="https://makit.example.com/all-services.html?lang=ja">
     <link rel="alternate" hreflang="x-default" href="https://makit.example.com/all-services.html">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="stylesheet" href="css/tokens.css">
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/app-shell.css">
-    <link rel="stylesheet" href="css/all-services-styles.css">
+    <link rel="stylesheet" href="css/core/tokens.css">
+    <link rel="stylesheet" href="css/core/common.css">
+    <link rel="stylesheet" href="css/core/app-shell.css">
+    <link rel="stylesheet" href="css/pages/all-services-styles.css">
 </head>
 <body>
     <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
@@ -313,22 +313,22 @@
     <div id="chatbot-widget-mount"></div>
     <div id="user-menu-mount"></div>
 
-    <script src="js/config.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/ui.js"></script>
+    <script src="js/core/config.js"></script>
+    <script src="js/core/api.js"></script>
+    <script src="js/core/auth.js"></script>
+    <script src="js/core/ui.js"></script>
     <script src="js/pages/chatbot.js"></script>
-    <script src="js/chatbot-widget.js"></script>
-    <script src="js/user-menu.js"></script>
-    <script src="js/i18n-dict.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/app-shell-extras.js"></script>
+    <script src="js/widgets/chatbot-widget.js"></script>
+    <script src="js/widgets/user-menu.js"></script>
+    <script src="js/core/i18n-dict.js"></script>
+    <script src="js/core/i18n.js"></script>
+    <script src="js/widgets/app-shell-extras.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
-    <script src="js/ws-client.js"></script>
+    <script src="js/core/ws-client.js"></script>
     <script src="js/pages/all-services.js"></script>
-    <script src="js/push-subscribe.js"></script>
-    <script src="js/sw-register.js"></script>
-    <script src="js/skeleton.js"></script>
+    <script src="js/core/push-subscribe.js"></script>
+    <script src="js/core/sw-register.js"></script>
+    <script src="js/widgets/skeleton.js"></script>
 </body>
 </html>

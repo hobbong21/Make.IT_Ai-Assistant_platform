@@ -35,10 +35,10 @@
     <link rel="alternate" hreflang="ja" href="https://makit.example.com/index.html?lang=ja">
     <link rel="alternate" hreflang="x-default" href="https://makit.example.com/index.html">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="stylesheet" href="css/tokens.css">
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/app-shell.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/core/tokens.css">
+    <link rel="stylesheet" href="css/core/common.css">
+    <link rel="stylesheet" href="css/core/app-shell.css">
+    <link rel="stylesheet" href="css/pages/styles.css">
 </head>
 
 <body>
@@ -301,24 +301,24 @@
 
     <!-- 스크립트 로딩 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/ui.js"></script>
+    <script src="js/core/config.js"></script>
+    <script src="js/core/api.js"></script>
+    <script src="js/core/auth.js"></script>
+    <script src="js/core/ui.js"></script>
     <script src="js/pages/chatbot.js"></script>
-    <script src="js/chatbot-widget.js"></script>
-    <script src="js/user-menu.js"></script>
+    <script src="js/widgets/chatbot-widget.js"></script>
+    <script src="js/widgets/user-menu.js"></script>
     <!-- i18n (internationalization) 스크립트 로드 순서 중요: dict 먼저, 그 다음 i18n -->
-    <script src="js/i18n-dict.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/app-shell-extras.js"></script>
+    <script src="js/core/i18n-dict.js"></script>
+    <script src="js/core/i18n.js"></script>
+    <script src="js/widgets/app-shell-extras.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
-    <script src="js/ws-client.js"></script>
+    <script src="js/core/ws-client.js"></script>
     <script src="js/pages/index.js"></script>
-    <script src="js/push-subscribe.js"></script>
-    <script src="js/sw-register.js"></script>
-    <script src="js/skeleton.js"></script>
+    <script src="js/core/push-subscribe.js"></script>
+    <script src="js/core/sw-register.js"></script>
+    <script src="js/widgets/skeleton.js"></script>
 </body>
 
 </html>
