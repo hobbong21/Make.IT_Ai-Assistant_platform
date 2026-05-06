@@ -46,6 +46,11 @@ The full backend (Spring Boot) requires:
 └── serve.js           # Simple Node.js static file server for Replit
 ```
 
+## Design system (Claude UI inspired, 2026-05-06)
+- `tokens.css` D2: warm cream (#faf9f5), Claude coral accent (#c96442), warm-dark sidebar tokens (`--mk-color-sidebar-*`), more rounded radii (md=12, lg=16, xl=24). Light + warm-dark theme pair (auto + `[data-theme]`).
+- `index.html` 재설계: 인사 헤딩 + 챗 입력 모형(`.chat-mock`) + quick-action 칩 + 컴팩트 stats + activity + 서비스 카드 (Claude.ai 홈 레이아웃 모티브). 사이드바는 다크.
+- `styles.css` 전체 교체 (index 전용). 다른 페이지는 토큰 변경분만 자동 반영.
+
 ## Marketing Playbooks (additive feature)
 - Pages: `marketing-playbooks.html` (list), `marketing-playbook.html` (detail)
 - Scripts: `frontend/js/pages/marketing-playbooks.js`, `frontend/js/pages/marketing-playbook.js`

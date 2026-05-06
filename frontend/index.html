@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MaKIT - AX 마케팅 플랫폼 | Human.Ai.D</title>
     <link rel="manifest" href="/manifest.webmanifest">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#c96442">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="/img/illustrations/login-mark.svg">
     <!-- SEO Meta Tags -->
@@ -159,23 +159,40 @@
         <!-- 메인 콘텐츠 -->
         <main id="main-content" class="main-content">
             <div class="content-wrapper">
-                <!-- 히어로 섹션 -->
+                <!-- 히어로 섹션 (Claude UI: 인사 + 챗 입력 미리보기) -->
                 <div class="hero-section">
                     <div class="hero-content">
                         <div class="hero-text">
-                            <h1 class="hero-title" data-i18n="dashboard.welcome">Welcome To<br />MaKIT Platform!</h1>
-                            <p class="hero-subtitle" data-i18n="dashboard.subtitle">AI 기반 마케팅 플랫폼의 강력한 기능들을 직접 체험해보세요</p>
-                            <a href="all-services.html" class="cta-button">
-                                모든 서비스 보기
-                                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M7 7h10v10"></path>
-                                    <path d="M7 17 17 7"></path>
-                                </svg>
-                            </a>
+                            <h1 class="hero-title" data-i18n="dashboard.welcome">안녕하세요, MaKIT입니다</h1>
+                            <p class="hero-subtitle" data-i18n="dashboard.subtitle">오늘은 어떤 마케팅 업무를 도와드릴까요?</p>
                         </div>
 
                         <div class="hero-visual">
-                            <img fetchpriority="high" decoding="async" src="img/illustrations/index-hero.svg" alt="MaKIT Dashboard 히어로 일러스트" class="hero-illustration">
+                            <a href="all-services.html" class="chat-mock" aria-label="모든 서비스로 이동">
+                                <div class="chat-mock-input">메시지를 입력하거나 서비스를 선택하세요…</div>
+                                <div class="chat-mock-actions">
+                                    <div class="chat-mock-tools" aria-hidden="true">
+                                        <span class="chat-mock-tool" title="첨부">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 17.93 8.8l-8.58 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                                        </span>
+                                        <span class="chat-mock-tool" title="모델">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6m11-11h-6M7 12H1m17.07-7.07-4.24 4.24M9.17 14.83 4.93 19.07m14.14 0-4.24-4.24M9.17 9.17 4.93 4.93"/></svg>
+                                        </span>
+                                    </div>
+                                    <span class="cta-button">
+                                        모든 서비스
+                                        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                    </span>
+                                </div>
+                            </a>
+
+                            <div class="quick-actions">
+                                <a class="quick-chip" href="service-detail.html?service=feed-generate">📸 인스타 피드 생성</a>
+                                <a class="quick-chip" href="service-detail.html?service=nlp-analyze">📝 자연어 분석</a>
+                                <a class="quick-chip" href="service-detail.html?service=youtube-comments">▶️ 유튜브 댓글 분석</a>
+                                <a class="quick-chip" href="service-detail.html?service=chatbot">💬 AI 챗봇</a>
+                                <a class="quick-chip" href="marketing-playbooks.html">📚 플레이북</a>
+                            </div>
                         </div>
                     </div>
 
@@ -220,7 +237,7 @@
                         <!-- AX Data Intelligence -->
                         <div class="service-card">
                             <div class="service-header">
-                                <div class="service-icon">📊</div>
+                                <div class="service-icon" aria-hidden="true">📊</div>
                                 <h3>AX Data Intelligence</h3>
                             </div>
                             <p>데이터 통합부터 예측 분석까지 전과정에 AI 기술을 적용합니다.</p>
@@ -238,7 +255,7 @@
                         <!-- AX Marketing Intelligence -->
                         <div class="service-card">
                             <div class="service-header">
-                                <div class="service-icon">🎨</div>
+                                <div class="service-icon" aria-hidden="true">🎨</div>
                                 <h3>AX Marketing Intelligence</h3>
                             </div>
                             <p>AI 기반으로 마케팅 콘텐츠를 생성하고 최적화합니다.</p>
@@ -256,7 +273,7 @@
                         <!-- AX Commerce Brain -->
                         <div class="service-card">
                             <div class="service-header">
-                                <div class="service-icon">🛍️</div>
+                                <div class="service-icon" aria-hidden="true">🛍️</div>
                                 <h3>AX Commerce Brain</h3>
                             </div>
                             <p>전자상거래를 위한 AI 기반 고객 응대와 분석 솔루션입니다.</p>
