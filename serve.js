@@ -678,11 +678,14 @@ const server = http.createServer(async (req, res) => {
   }
 
   let filePath = path.join(ROOT, urlPath);
-  if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+  // Root → intro.html (public landing). index.html은 로그인 필요(클라 가드).
+  if (urlPath === '/' || urlPath === '') {
+    filePath = path.join(ROOT, 'intro.html');
+  } else if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
     filePath = path.join(filePath, 'index.html');
   }
   if (!fs.existsSync(filePath)) {
-    filePath = path.join(ROOT, 'index.html');
+    filePath = path.join(ROOT, 'intro.html');
   }
 
   const ext = path.extname(filePath);

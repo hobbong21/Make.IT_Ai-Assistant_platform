@@ -20,6 +20,12 @@ The frontend is served as a static site using a simple Node.js HTTP server (`ser
 ### Workflow
 - **Start application**: `node serve.js` → serves `frontend/` on port 5000
 
+### Entry flow (2026-05-07)
+- Root `/` → `intro.html` (public landing)
+- `index.html`(플랫폼 홈) requires login — `js/pages/index.js` calls `auth.requireLogin()`, which redirects to `login.html` if no token
+- `login.html` 성공 후 `index.html`로 이동
+- 알 수 없는 경로(404 fallback)도 `intro.html`로 (퍼블릭)
+
 ### API Configuration
 The frontend (`frontend/js/config.js`) auto-detects the environment:
 - Served via same-origin: uses `/api` (expects Nginx proxy to backend)
