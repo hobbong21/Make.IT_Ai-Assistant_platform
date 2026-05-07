@@ -18,7 +18,7 @@
       if (latest) {
         if (byId('profName')) byId('profName').value = latest.name || '';
         if (byId('profEmail')) byId('profEmail').value = latest.email || '';
-        try { localStorage.setItem('makit_user', JSON.stringify(latest)); } catch (_) {}
+        if (window.auth && auth.updateUser) auth.updateUser(latest);
       }
     }).catch(function () {});
 
@@ -35,7 +35,7 @@
             email: byId('profEmail').value.trim()
           });
           if (updated) {
-            try { localStorage.setItem('makit_user', JSON.stringify(updated)); } catch (_) {}
+            if (window.auth && auth.updateUser) auth.updateUser(updated);
             showMsg('profMessage', '프로필이 저장되었습니다.', true);
           }
         } catch (err) {

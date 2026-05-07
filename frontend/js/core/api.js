@@ -15,8 +15,21 @@
     }
   }
 
+  function readToken() {
+    if (window.auth && typeof auth.getToken === 'function') return auth.getToken();
+    // fallback: auth.js 로드 전이면 양쪽 스토어를 직접 확인
+    return sessionStorage.getItem(KEYS.token) || localStorage.getItem(KEYS.token);
+  }
+  function clearStoredSession() {
+    if (window.auth && typeof auth.clearSession === 'function') { auth.clearSession(); return; }
+    ['token', 'refresh', 'user'].forEach(function (k) {
+      sessionStorage.removeItem(KEYS[k]);
+      localStorage.removeItem(KEYS[k]);
+    });
+  }
+
   function buildHeaders(extra) {
-    var token = localStorage.getItem(KEYS.token);
+    var token = readToken();
     var headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = 'Bearer ' + token;
     if (extra) Object.keys(extra).forEach(function (k) { headers[k] = extra[k]; });
@@ -45,15 +58,22 @@
       throw new ApiError(0, 'NETWORK_ERROR', '서버와 연결할 수 없습니다. 잠시 후 다시 시도하세요.', { cause: String(networkErr) });
     }
 
-    // 401 handling: clear session and redirect to login (unless already on login)
+    // 401 handling: clear session and redirect to login.
+    // /auth/login, /auth/register는 사용자가 직접 인증 시도 중이므로 redirect 제외 (페이지 내 에러 메시지로 처리).
     if (resp.status === 401) {
-      localStorage.removeItem(KEYS.token);
-      localStorage.removeItem(KEYS.refresh);
-      localStorage.removeItem(KEYS.user);
-      if (!/login\.html$/.test(location.pathname)) {
-        location.href = 'login.html';
+      var isAuthAttempt = path === '/auth/login' || path === '/auth/register';
+      if (!isAuthAttempt) {
+        clearStoredSession();
+        if (!/login\.html$/.test(location.pathname)) {
+          location.href = 'login.html';
+        }
       }
-      throw new ApiError(401, 'UNAUTHORIZED', '로그인이 필요합니다');
+      // 응답 body에서 에러 메시지/코드 추출 (login.js가 INVALID_CREDENTIALS 등 활용)
+      var errData = null;
+      try { errData = await resp.json(); } catch (_) { errData = null; }
+      var errCode = (errData && errData.errorCode) || 'UNAUTHORIZED';
+      var errMsg = (errData && errData.message) || '로그인이 필요합니다';
+      throw new ApiError(401, errCode, errMsg, errData || {});
     }
 
     if (resp.status === 204) return null;

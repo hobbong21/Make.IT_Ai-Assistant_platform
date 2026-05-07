@@ -135,7 +135,7 @@
     if (window.api && api.auth && api.auth.me) {
       api.auth.me().then(function (latest) {
         if (latest) {
-          try { localStorage.setItem('makit_user', JSON.stringify(latest)); } catch (_) {}
+          if (window.auth && auth.updateUser) auth.updateUser(latest);
           // 라벨/이름 갱신
           var nameEl = root.querySelector('.mk-user-name');
           var infoStrong = root.querySelector('.mk-user-info strong');

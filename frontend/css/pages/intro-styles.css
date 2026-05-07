@@ -60,6 +60,17 @@ body {
 }
 .nav-link:hover,
 .nav-link.active { color: var(--mk-color-brand-500); }
+.nav-link-cta {
+    padding: 0.4375rem 0.875rem;
+    border: 1px solid var(--mk-color-brand-500);
+    color: var(--mk-color-brand-500);
+    border-radius: var(--mk-radius-md, 10px);
+    transition: background var(--mk-motion-duration-base) var(--mk-motion-ease-standard), color var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
+}
+.nav-link-cta:hover {
+    background: var(--mk-color-brand-500);
+    color: #fff;
+}
 
 /* ---------- Hero ---------- */
 .hero {
@@ -713,12 +724,13 @@ body {
     .hero-container { padding-left: 1.25rem; padding-right: 1.25rem; }
 
     .nav-links { gap: 1rem; }
-    .nav-links .nav-link:not(.btn-primary):not(.btn-secondary) { display: none; }
+    .nav-links .nav-link:not(.btn-primary):not(.btn-secondary):not(.nav-link-cta) { display: none; }
     .nav-links .btn-primary,
     .nav-links .btn-secondary {
         padding: 0.5rem 0.875rem;
         font-size: 0.875rem;
     }
+    .nav-links .nav-link-cta { padding: 0.4375rem 0.75rem; font-size: 0.875rem; }
 
     .hero { margin-top: 56px; }
 

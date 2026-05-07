@@ -121,8 +121,8 @@
         </div>
 
         <div class="tab-selector" role="tablist" aria-label="인증 모드 선택">
-            <button class="active" role="tab" aria-selected="true" aria-controls="login-pane" id="tab-login" onclick="switchTab('login')" data-i18n="auth.login">로그인</button>
-            <button role="tab" aria-selected="false" aria-controls="register-pane" id="tab-register" onclick="switchTab('register')" data-i18n="auth.register">회원가입</button>
+            <button class="active" role="tab" aria-selected="true" aria-controls="login-pane" id="tab-login" onclick="switchTab(event, 'login')" data-i18n="auth.login">로그인</button>
+            <button role="tab" aria-selected="false" aria-controls="register-pane" id="tab-register" onclick="switchTab(event, 'register')" data-i18n="auth.register">회원가입</button>
         </div>
 
         <div id="login-pane" class="tab-pane active" role="tabpanel" aria-labelledby="tab-login">
@@ -148,7 +148,7 @@
                 </div>
 
                 <div class="link-secondary">
-                    <a href="#" data-i18n="auth.forgot">비밀번호 찾기</a>
+                    <a href="#" id="forgotPasswordLink" data-i18n="auth.forgot">비밀번호 찾기</a>
                 </div>
 
                 <div class="message-area" id="loginMessage" role="status" aria-live="polite"></div>
@@ -219,14 +219,25 @@
     <script src="js/pages/login.js"></script>
 
     <script>
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-selector button').forEach(el => el.classList.remove('active'));
-            document.getElementById(tab + '-pane').classList.add('active');
-            event.target.classList.add('active');
-            document.getElementById('loginMessage').innerHTML = '';
-            document.getElementById('regMessage').innerHTML = '';
+        function switchTab(evt, tab) {
+            // 호환: switchTab('login')처럼 한 인자로만 부르는 옛 호출도 허용
+            if (typeof evt === 'string' && tab === undefined) { tab = evt; evt = null; }
+            document.querySelectorAll('.tab-pane').forEach(function (el) { el.classList.remove('active'); });
+            document.querySelectorAll('.tab-selector button').forEach(function (el) {
+                el.classList.remove('active');
+                el.setAttribute('aria-selected', 'false');
+            });
+            var pane = document.getElementById(tab + '-pane');
+            if (pane) pane.classList.add('active');
+            var targetBtn = (evt && (evt.currentTarget || evt.target)) || document.getElementById('tab-' + tab);
+            if (targetBtn) {
+                targetBtn.classList.add('active');
+                targetBtn.setAttribute('aria-selected', 'true');
+            }
+            var lm = document.getElementById('loginMessage'); if (lm) lm.innerHTML = '';
+            var rm = document.getElementById('regMessage'); if (rm) rm.innerHTML = '';
         }
+        window.switchTab = switchTab;
         function togglePasswordVisibility(inputId) {
             var input = document.getElementById(inputId);
             if (!input) return;

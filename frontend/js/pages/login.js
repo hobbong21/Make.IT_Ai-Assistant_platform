@@ -34,6 +34,8 @@
   async function doLogin() {
     var email = byId('loginEmail') ? byId('loginEmail').value.trim() : '';
     var password = byId('loginPassword') ? byId('loginPassword').value : '';
+    var rememberEl = byId('rememberMe');
+    var remember = rememberEl ? !!rememberEl.checked : true;
 
     if (!isValidEmail(email)) {
       showMessage('loginMessage', '올바른 이메일 형식이 아닙니다.', 'error');
@@ -52,7 +54,7 @@
         showMessage('loginMessage', '로그인에 실패했습니다.', 'error');
         return;
       }
-      auth.saveSession(data);
+      auth.saveSession(data, remember);
       showMessage('loginMessage', '로그인 성공! 플랫폼으로 이동합니다…', 'success');
       setTimeout(function () { location.href = 'index.html'; }, 800);
     } catch (err) {
@@ -103,24 +105,23 @@
     setLoading('regSpinner', 'regBtn', true);
     showMessage('regMessage', '', '');
     try {
-      // 1) 회원가입 (응답 UserDto, token 없음)
-      await api.auth.register({ name: name, email: email, password: password });
+      // 회원가입 한 번에 — 백엔드 /api/auth/register가 이미 {token, refreshToken, user}를 반환.
+      var data = await api.auth.register({ name: name, email: email, password: password });
 
-      // 2) 즉시 자동 로그인하여 JWT 발급
-      showMessage('regMessage', '가입 완료! 자동 로그인 중…', 'success');
-      var loginData = await api.auth.login(email, password);
-      if (!loginData || !loginData.token) {
-        showMessage('regMessage', '가입은 완료되었습니다. 로그인 탭에서 로그인해주세요.', 'success');
-        setTimeout(function () {
-          if (typeof window.switchTab === 'function') window.switchTab('login');
-          var emailEl = byId('loginEmail');
-          if (emailEl) emailEl.value = email;
-        }, 1200);
+      if (data && data.token) {
+        auth.saveSession(data, true); // 신규 가입자는 remember=true 기본
+        showMessage('regMessage', '환영합니다! 플랫폼으로 이동합니다…', 'success');
+        setTimeout(function () { location.href = 'index.html'; }, 800);
         return;
       }
-      auth.saveSession(loginData);
-      showMessage('regMessage', '환영합니다! 플랫폼으로 이동합니다…', 'success');
-      setTimeout(function () { location.href = 'index.html'; }, 800);
+
+      // (이론상 도달 안 함) 토큰을 못 받으면 로그인 탭으로 안내
+      showMessage('regMessage', '가입은 완료되었습니다. 로그인 탭에서 로그인해주세요.', 'success');
+      setTimeout(function () {
+        if (typeof window.switchTab === 'function') window.switchTab(null, 'login');
+        var emailEl = byId('loginEmail');
+        if (emailEl) emailEl.value = email;
+      }, 1200);
     } catch (err) {
       var msg = (err && err.message) || '회원가입에 실패했습니다.';
       if (err && err.code === 'NETWORK_ERROR') {
@@ -147,6 +148,20 @@
     var registerForm = byId('registerForm');
     if (registerForm) {
       registerForm.addEventListener('submit', function (e) { e.preventDefault(); doRegister(); });
+    }
+
+    // 비밀번호 찾기 — 현재는 안내 메시지만 노출 (백엔드 미구현)
+    var forgot = byId('forgotPasswordLink');
+    if (forgot) {
+      forgot.addEventListener('click', function (e) {
+        e.preventDefault();
+        var email = byId('loginEmail') ? byId('loginEmail').value.trim() : '';
+        if (email && isValidEmail(email)) {
+          showMessage('loginMessage', email + ' 으로 재설정 안내를 보낼 예정입니다. (현재 준비중)', 'success');
+        } else {
+          showMessage('loginMessage', '비밀번호 재설정 기능은 준비중입니다. 관리자에게 문의해주세요.', 'error');
+        }
+      });
     }
 
     // 이미 로그인된 사용자는 세션 검증 후 dashboard로
