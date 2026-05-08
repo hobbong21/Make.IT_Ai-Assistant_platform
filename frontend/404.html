@@ -13,9 +13,8 @@
         body {
             min-height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: var(--mk-space-6, 24px);
+            flex-direction: column;
+            padding: 0;
             background:
                 radial-gradient(circle at 20% 10%, rgba(201, 100, 66, 0.10) 0%, transparent 55%),
                 radial-gradient(circle at 85% 95%, rgba(217, 138, 108, 0.08) 0%, transparent 55%),
@@ -24,6 +23,7 @@
         .err-card {
             max-width: 560px;
             width: 100%;
+            margin: auto;
             padding: var(--mk-space-12, 48px) var(--mk-space-8, 32px);
             background: var(--mk-color-bg, #ffffff);
             border: 1px solid var(--mk-color-border, #e6e6e6);
@@ -101,6 +101,18 @@
 </head>
 <body>
     <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
+
+    <nav class="top-nav" aria-label="페이지 네비게이션">
+          <div class="top-nav-container">
+              <div class="nav-logo"><div class="logo-text">MaKIT</div></div>
+              <div class="nav-links">
+                  <a href="intro.html" class="nav-link">제품 소개</a>
+                  <a href="all-services.html" class="nav-link">서비스 체험</a>
+                  <a href="index.html" class="nav-link">플랫폼</a>
+                  <a href="login.html" class="nav-link nav-link-cta">로그인</a>
+              </div>
+          </div>
+      </nav>
     <main id="main-content" class="err-card" role="main">
         <svg class="err-illustration" viewBox="0 0 200 120" role="img" aria-labelledby="errIllustTitle">
             <title id="errIllustTitle">길 잃은 데이터 노드</title>

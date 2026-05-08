@@ -1277,3 +1277,18 @@
   .nav-links .nav-link:not(.nav-link-cta) { display: none; }
   .nav-link-cta { padding: 0.4375rem 0.75rem; font-size: 0.875rem; }
 }
+
+/* Base .top-nav (sourced into app-shell so all pages can use the unified nav) */
+.top-nav {
+  background: var(--mk-color-bg);
+  border-bottom: 1px solid var(--mk-color-border);
+  padding: 0.75rem 0;
+}
+.top-nav .top-nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+@media (max-width: 767px) {
+  .top-nav .top-nav-container { padding: 0 1rem; }
+}
