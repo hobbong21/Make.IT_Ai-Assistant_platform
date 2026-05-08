@@ -186,7 +186,7 @@
   var PAGES = [
     { url: 'index.html', name: '대시보드', icon: '🏠' },
     { url: 'marketing-hub.html', name: '마케팅 허브', icon: '🎯' },
-    { url: 'all-services.html', name: '모든 서비스', icon: '📦' },
+    { url: 'all-services.html', name: '서비스 체험', icon: '📦' },
     { url: 'history.html', name: '활동 이력', icon: '🕐' },
     { url: 'settings.html', name: '설정', icon: '⚙️' },
     { url: 'intro.html', name: '제품 소개', icon: '📘' }

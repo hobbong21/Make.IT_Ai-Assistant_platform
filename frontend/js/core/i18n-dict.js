@@ -7,7 +7,7 @@ window.makitI18nDict = {
     // 네비게이션
     'nav.home': '홈',
     'nav.overview': '개요',
-    'nav.services': '모든 서비스',
+    'nav.services': '서비스 체험',
     'nav.marketing-hub': '마케팅 허브',
     'nav.history': '활동 이력',
     'nav.settings': '설정',
