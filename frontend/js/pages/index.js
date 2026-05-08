@@ -1,11 +1,9 @@
 // Index (overview) page wiring.
-// - Requires login
+// - PUBLIC page (login NOT required); user-specific data only loaded when logged in
 // - Fetches /auth/me and renders user name in sidebar if a slot exists
 // - Handles sidebar dropdown toggles
 (function () {
   function init() {
-    if (!auth.requireLogin()) return;
-
     // Wire dropdown toggles (present in some sidebars)
     document.querySelectorAll('.nav-dropdown-header').forEach(function (h) {
       h.addEventListener('click', function () {
@@ -13,6 +11,9 @@
         if (d) d.classList.toggle('expanded');
       });
     });
+
+    // 비로그인 사용자도 페이지를 볼 수 있음. 사용자/대시보드 API는 로그인 시에만 호출.
+    if (!auth.isLoggedIn()) return;
 
     var cachedUser = auth.getUser();
     renderUser(cachedUser);
