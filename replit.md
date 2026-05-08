@@ -20,11 +20,17 @@ The frontend is served as a static site using a simple Node.js HTTP server (`ser
 ### Workflow
 - **Start application**: `node serve.js` → serves `frontend/` on port 5000
 
-### Entry flow (2026-05-07)
+### Entry flow (2026-05-08)
 - Root `/` → `intro.html` (public landing)
-- `index.html`(플랫폼 홈) requires login — `js/pages/index.js` calls `auth.requireLogin()`, which redirects to `login.html` if no token
-- `login.html` 성공 후 `index.html`로 이동
-- 알 수 없는 경로(404 fallback)도 `intro.html`로 (퍼블릭)
+- `intro.html`, `index.html`(플랫폼 홈)은 비로그인 자유 접근. `js/pages/index.js`는
+  `if (!auth.isLoggedIn()) return;` 가드로 사용자/대시보드 API만 스킵.
+- `all-services.html` 및 그 하위 서비스(service-detail, marketing-*, history,
+  settings, admin)는 `auth.requireLogin()`으로 로그인 필수.
+- `login.html` 성공 후 `index.html`로 이동.
+- 알 수 없는 경로(404 fallback)도 `intro.html`로 (퍼블릭).
+- 통일 상단 nav: 비로그인 시 우측 "로그인" CTA 표시. 로그인 시
+  `js/widgets/user-menu.js`가 같은 자리에 사용자 메뉴(아바타+드롭다운)를
+  인라인 마운트.
 
 ### API Configuration
 The frontend (`frontend/js/config.js`) auto-detects the environment:
