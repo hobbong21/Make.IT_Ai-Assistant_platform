@@ -3,31 +3,35 @@
 .page-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: var(--mk-space-6);
+  padding: 2rem 2rem 4rem;
 }
 
 @media (max-width: 767px) {
   .page-container { padding: var(--mk-space-4); }
 }
 
-/* Header */
-.page-header { margin-bottom: var(--mk-space-8); }
+/* Header — all-services와 동일 패턴 (image + h1 + p) */
+.page-header { margin-bottom: 2rem; }
+
+.page-header-image {
+  display: block;
+  width: clamp(120px, 20vw, 180px);
+  height: auto;
+  margin-bottom: 1rem;
+}
 
 .page-title {
-  font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2rem);
-  font-weight: var(--mk-font-weight-semibold);
+  font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
+  font-weight: 700;
   color: var(--mk-color-text);
-  margin-bottom: var(--mk-space-2);
-  display: flex;
-  align-items: center;
-  gap: var(--mk-space-3);
-  letter-spacing: var(--mk-letter-spacing-tight);
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.02em;
 }
 
 .page-subtitle {
+  font-size: 1.0625rem;
   color: var(--mk-color-text-muted);
-  font-size: var(--mk-font-size-sm);
-  margin-bottom: var(--mk-space-6);
+  margin: 0 0 var(--mk-space-6);
   line-height: var(--mk-line-height-normal);
 }
 

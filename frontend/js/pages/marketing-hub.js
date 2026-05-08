@@ -385,12 +385,30 @@
     return num.toString();
   }
 
+  // ========== 액션 버튼 이벤트 위임 (인라인 onclick 대체) ==========
+  function bindActions() {
+    document.addEventListener('click', function (ev) {
+      var btn = ev.target.closest('[data-action]');
+      if (!btn) return;
+      var action = btn.getAttribute('data-action');
+      if (action === 'new-campaign') {
+        window.location.href = 'service-detail.html?service=feed-generate';
+      } else if (action === 'more-contents') {
+        window.location.href = 'all-services.html';
+      } else if (action === 'refresh-insights') {
+        refreshInsights();
+      }
+    });
+  }
+
   // ========== 초기화 ==========
   async function init() {
     if (!auth || !auth.isLoggedIn()) {
       window.location.href = 'login.html';
       return;
     }
+
+    bindActions();
 
     // 모든 섹션에 skeleton 표시
     showAllSkeletons();

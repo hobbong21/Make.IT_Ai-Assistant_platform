@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>마케팅 허브 - MaKIT</title>
+    <title>MaKIT - 마케팅 허브 | Human.Ai.D</title>
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#c96442">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -99,6 +99,47 @@
                         </svg>
                     </a>
                 </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">카테고리별 서비스</div>
+                    <div class="nav-dropdown">
+                        <div class="nav-dropdown-header"><span>AX Data Intelligence</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></div>
+                        <div class="nav-dropdown-items">
+                            <a href="service-detail.html?service=nlp-analyze" class="nav-dropdown-item">자연어 분석</a>
+                            <a href="service-detail.html?service=youtube-comments" class="nav-dropdown-item">유튜브 댓글 분석</a>
+                            <a href="service-detail.html?service=youtube-influence" class="nav-dropdown-item">유튜브 영향력 분석</a>
+                            <a href="service-detail.html?service=url-analyze" class="nav-dropdown-item">URL 분석</a>
+                            <a href="service-detail.html?service=youtube-keyword-search" class="nav-dropdown-item">유튜브 키워드 채널검색</a>
+                        </div>
+                    </div>
+
+                    <div class="nav-dropdown">
+                        <div class="nav-dropdown-header"><span>AX Marketing Intelligence</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></div>
+                        <div class="nav-dropdown-items">
+                            <a href="service-detail.html?service=feed-generate" class="nav-dropdown-item">인스타그램 피드 생성</a>
+                            <a href="service-detail.html?service=remove-bg" class="nav-dropdown-item">배경 제거</a>
+                            <a href="service-detail.html?service=modelshot" class="nav-dropdown-item">모델컷 생성</a>
+                            <a href="marketing-playbooks.html" class="nav-dropdown-item">마케팅 플레이북</a>
+                        </div>
+                    </div>
+
+                    <div class="nav-dropdown">
+                        <div class="nav-dropdown-header"><span>AX Commerce Brain</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></div>
+                        <div class="nav-dropdown-items">
+                            <a href="service-detail.html?service=chatbot" class="nav-dropdown-item">고객 응대 AI 챗봇</a>
+                            <a href="service-detail.html?service=review-analysis" class="nav-dropdown-item">상품 리뷰 분석</a>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="intro.html" class="nav-item go-to-web">
+                    <span>웹사이트</span>
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14 21 3"></path>
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    </svg>
+                </a>
             </nav>
         </aside>
 
@@ -107,34 +148,32 @@
             <div class="page-container">
                 <!-- 페이지 헤더 -->
                 <div class="page-header">
-                    <div class="page-title">
-                        <span>🎯</span>
-                        <span data-i18n="hub.title">마케팅 허브</span>
-                    </div>
-                    <div class="page-subtitle">마케팅 캠페인, 콘텐츠, 일정을 한 화면에서 관리하세요</div>
+                    <img loading="lazy" decoding="async" src="img/illustrations/ax-marketing.svg" alt="" class="page-header-image">
+                    <h1 class="page-title" data-i18n="hub.title">마케팅 허브</h1>
+                    <p class="page-subtitle" data-i18n="hub.subtitle">마케팅 캠페인, 콘텐츠, 일정을 한 화면에서 관리하세요</p>
                 </div>
 
                 <!-- 요약 카드 -->
                 <div class="summary-grid" id="summaryGrid">
                     <div class="summary-card">
-                        <div class="summary-card-label">진행 중인 캠페인</div>
+                        <div class="summary-card-label" data-i18n="hub.summary.active-campaigns">진행 중인 캠페인</div>
                         <div class="summary-card-value">-</div>
-                        <div class="summary-card-meta">이번 주 시작</div>
+                        <div class="summary-card-meta" data-i18n="hub.summary.active-campaigns-meta">이번 주 시작</div>
                     </div>
                     <div class="summary-card">
-                        <div class="summary-card-label">콘텐츠 자산</div>
+                        <div class="summary-card-label" data-i18n="hub.summary.contents">콘텐츠 자산</div>
                         <div class="summary-card-value">-</div>
-                        <div class="summary-card-meta">전체 보유</div>
+                        <div class="summary-card-meta" data-i18n="hub.summary.contents-meta">전체 보유</div>
                     </div>
                     <div class="summary-card">
-                        <div class="summary-card-label">이번 주 발행</div>
+                        <div class="summary-card-label" data-i18n="hub.summary.published">이번 주 발행</div>
                         <div class="summary-card-value">-</div>
-                        <div class="summary-card-meta">예정 중</div>
+                        <div class="summary-card-meta" data-i18n="hub.summary.published-meta">예정 중</div>
                     </div>
                     <div class="summary-card">
-                        <div class="summary-card-label">평균 성과</div>
+                        <div class="summary-card-label" data-i18n="hub.summary.performance">평균 성과</div>
                         <div class="summary-card-value">-</div>
-                        <div class="summary-card-meta">지난 30일 기준</div>
+                        <div class="summary-card-meta" data-i18n="hub.summary.performance-meta">지난 30일 기준</div>
                     </div>
                 </div>
 
@@ -142,10 +181,10 @@
                 <div class="section">
                     <div class="section-header">
                         <div class="section-title">
-                            <span>📋</span>
-                            <span>캠페인 보드</span>
+                            <span aria-hidden="true">📋</span>
+                            <span data-i18n="hub.section.campaigns">캠페인 보드</span>
                         </div>
-                        <button class="section-action" onclick="window.location.href='service-detail.html?service=feed-generate'">새 캠페인</button>
+                        <button type="button" class="section-action" data-action="new-campaign" data-i18n="hub.new-campaign">새 캠페인</button>
                     </div>
                     <div class="campaign-board" id="campaignBoard">
                         <!-- 동적으로 렌더됨 -->
@@ -156,10 +195,10 @@
                 <div class="section">
                     <div class="section-header">
                         <div class="section-title">
-                            <span>🎨</span>
-                            <span>콘텐츠 라이브러리</span>
+                            <span aria-hidden="true">🎨</span>
+                            <span data-i18n="hub.section.contents">콘텐츠 라이브러리</span>
                         </div>
-                        <button class="section-action" onclick="window.location.href='all-services.html'">더보기</button>
+                        <button type="button" class="section-action" data-action="more-contents" data-i18n="common.more">더보기</button>
                     </div>
                     <div class="content-grid" id="contentLibrary">
                         <!-- 동적으로 렌더됨 -->
@@ -170,8 +209,8 @@
                 <div class="section">
                     <div class="section-header">
                         <div class="section-title">
-                            <span>📅</span>
-                            <span>이번 주 일정</span>
+                            <span aria-hidden="true">📅</span>
+                            <span data-i18n="hub.section.calendar">이번 주 일정</span>
                         </div>
                     </div>
                     <div class="calendar-week" id="calendarWeek">
@@ -186,10 +225,10 @@
                 <div class="section">
                     <div class="section-header">
                         <div class="section-title">
-                            <span>💡</span>
-                            <span>주간 AI 인사이트</span>
+                            <span aria-hidden="true">💡</span>
+                            <span data-i18n="hub.section.insights">주간 AI 인사이트</span>
                         </div>
-                        <button class="insights-refresh-btn" id="insightsRefreshBtn" onclick="window.marketingHub.refreshInsights()">새로고침</button>
+                        <button type="button" class="insights-refresh-btn" id="insightsRefreshBtn" data-action="refresh-insights" data-i18n="common.refresh">새로고침</button>
                     </div>
                     <div class="insights-card" id="insightsCard">
                         <!-- 동적으로 렌더됨 -->
@@ -200,8 +239,8 @@
                 <div class="section">
                     <div class="section-header">
                         <div class="section-title">
-                            <span>📊</span>
-                            <span>채널별 성과</span>
+                            <span aria-hidden="true">📊</span>
+                            <span data-i18n="hub.section.channels">채널별 성과</span>
                         </div>
                     </div>
                     <div class="channel-tabs" id="channelTabs">
@@ -239,4 +278,4 @@
     <script src="js/widgets/skeleton.js"></script>
 </body>
 
-</html></html>
+</html>
