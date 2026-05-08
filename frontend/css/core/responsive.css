@@ -1,0 +1,273 @@
+/* ========================================================================
+   MaKIT Responsive — 모바일 우선 반응형 레이어
+   tokens.css, common.css, app-shell.css 이후에 로드.
+   전체 페이지 공통 반응형 패턴을 여기서 정의하여 통일성을 유지합니다.
+   ======================================================================== */
+
+/* =============================================================
+   1. Intro 페이지 모바일 네비게이션 (hamburger)
+   ============================================================= */
+
+/* 모바일 메뉴 토글 버튼 — 768px 미만에서만 표시 */
+.mk-mobile-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: 1px solid var(--mk-color-border);
+  border-radius: var(--mk-radius-sm);
+  color: var(--mk-color-text-muted);
+  cursor: pointer;
+  transition: background var(--mk-motion-duration-fast) var(--mk-motion-ease-standard),
+              color var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
+  flex-shrink: 0;
+}
+.mk-mobile-menu-btn:hover {
+  background: var(--mk-color-bg-muted);
+  color: var(--mk-color-text);
+}
+.mk-mobile-menu-btn:focus-visible {
+  outline: 2px solid var(--mk-color-brand-500);
+  outline-offset: 2px;
+}
+
+/* 모바일 드로어 (intro 페이지 nav-links 를 오버레이로 표시) */
+.mk-mobile-nav {
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  position: fixed;
+  top: 56px; /* navbar 높이 */
+  left: 0;
+  right: 0;
+  background: var(--mk-color-bg);
+  border-bottom: 1px solid var(--mk-color-border);
+  box-shadow: var(--mk-shadow-md);
+  z-index: calc(var(--mk-z-sticky) - 1);
+  padding: var(--mk-space-3) 0;
+}
+.mk-mobile-nav.is-open { display: flex; }
+.mk-mobile-nav .nav-link {
+  display: block;
+  padding: var(--mk-space-4) var(--mk-space-6);
+  font-size: var(--mk-font-size-base);
+  border-bottom: 1px solid var(--mk-color-border);
+  text-decoration: none;
+  color: var(--mk-color-text);
+  font-weight: 500;
+}
+.mk-mobile-nav .nav-link:last-child { border-bottom: none; }
+.mk-mobile-nav .nav-link:hover,
+.mk-mobile-nav .nav-link.active {
+  color: var(--mk-color-brand-500);
+  background: var(--mk-color-bg-subtle);
+}
+
+@media (max-width: 767px) {
+  /* 데스크톱 nav-links 숨기기 */
+  .navbar .nav-links { display: none; }
+  /* 햄버거 버튼 보이기 */
+  .mk-mobile-menu-btn { display: inline-flex; }
+  /* 네비 컨테이너: 로고 + 버튼 */
+  .nav-container {
+    flex-wrap: nowrap;
+    gap: var(--mk-space-3);
+  }
+}
+
+/* =============================================================
+   2. 앱 셸 (사이드바 페이지) 모바일 사이드바 오픈 버튼
+   ============================================================= */
+
+/* top-nav 에서 사이드바를 열기 위한 버튼 */
+.mk-sidebar-open-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  color: var(--mk-color-text-muted);
+  cursor: pointer;
+  border-radius: var(--mk-radius-sm);
+  transition: background var(--mk-motion-duration-fast) var(--mk-motion-ease-standard),
+              color var(--mk-motion-duration-fast) var(--mk-motion-ease-standard);
+  flex-shrink: 0;
+}
+.mk-sidebar-open-btn:hover {
+  background: var(--mk-color-bg-muted);
+  color: var(--mk-color-text);
+}
+.mk-sidebar-open-btn:focus-visible {
+  outline: 2px solid var(--mk-color-brand-500);
+  outline-offset: 2px;
+}
+
+/* top-nav 컨테이너 — 모바일에서 버튼 + 백링크 나란히 배치 */
+.top-nav-container {
+  display: flex;
+  align-items: center;
+  gap: var(--mk-space-3);
+}
+
+@media (max-width: 767px) {
+  .mk-sidebar-open-btn { display: inline-flex; }
+  /* 상단 nav-back 폰트 축소 */
+  .nav-back { font-size: var(--mk-font-size-xs); }
+}
+
+/* =============================================================
+   3. App shell — main content 반응형
+   ============================================================= */
+@media (max-width: 767px) {
+  /* 사이드바 숨기고 main이 전체 너비 차지 */
+  .app-container {
+    flex-direction: column;
+  }
+  .main-content,
+  .main-area,
+  .content-area {
+    min-width: 0;
+    width: 100%;
+  }
+  /* content-wrapper 패딩 축소 */
+  .content-wrapper {
+    padding: 1.5rem 1rem 4rem;
+  }
+}
+
+/* =============================================================
+   4. Intro 페이지 — Hero / Section 반응형
+   ============================================================= */
+@media (max-width: 767px) {
+  /* hero 컨테이너: 세로 스택 */
+  .hero-container {
+    grid-template-columns: 1fr !important;
+    gap: 2rem;
+    text-align: center;
+  }
+  .hero-subtitle { margin-left: auto; margin-right: auto; }
+  .hero-buttons { justify-content: center; }
+
+  /* 히어로 이미지 크기 제한 */
+  .hero-illustration { max-width: 280px; width: 100%; }
+  .hero-visual { justify-content: center; }
+
+  /* 섹션 컨테이너 패딩 축소 */
+  .container { padding: 0 1rem; }
+  .hero-container { padding: 0 1rem; }
+
+  /* features grid — 1컬럼 */
+  .features-grid { grid-template-columns: 1fr !important; }
+
+  /* footer 세로 스택 */
+  .footer-content { flex-direction: column; gap: 1.25rem; }
+  .footer-links { flex-direction: column; gap: 0.75rem; }
+
+  /* navbar 패딩 축소 */
+  .nav-container { padding: 0.75rem 1rem; }
+  .nav-logo .logo-text { font-size: 1.125rem; }
+}
+
+/* =============================================================
+   5. 카드 그리드 공통 반응형
+   ============================================================= */
+@media (max-width: 639px) {
+  /* auto-fit 그리드가 모바일에서 1컬럼이 되도록 최소 너비 재정의 */
+  .problems-grid,
+  .results-grid,
+  .admin-stats-grid,
+  .summary-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Kanban 보드: 가로 스크롤 허용 */
+  .campaign-board {
+    grid-template-columns: 280px !important;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 1rem;
+  }
+  .campaign-column { scroll-snap-align: start; }
+
+  /* calendar 주간 뷰: 3열로 축소 */
+  .calendar-week {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+/* =============================================================
+   6. admin.css 보완 — 테이블 반응형
+   ============================================================= */
+@media (max-width: 767px) {
+  /* admin 2컬럼 그리드 → 1컬럼 */
+  .admin-notif-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 테이블 가로 스크롤 */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .admin-user-table { min-width: 600px; }
+
+  /* settings 패딩 축소 */
+  .settings-wrap {
+    padding: var(--mk-space-6, 24px) var(--mk-space-4, 16px);
+  }
+  .settings-wrap h1 { font-size: var(--mk-font-size-2xl); }
+}
+
+/* =============================================================
+   7. 로그인 페이지 반응형
+   ============================================================= */
+@media (max-width: 479px) {
+  .login-container {
+    padding: 1.75rem 1.25rem !important;
+    border-radius: var(--mk-radius-lg) !important;
+  }
+}
+
+/* =============================================================
+   8. 서비스/마케팅 상세 페이지 반응형
+   ============================================================= */
+@media (max-width: 767px) {
+  .service-content,
+  .playbook-content {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+  }
+
+  /* marketing-hub page-container 패딩 축소 */
+  .page-container {
+    padding: var(--mk-space-4) var(--mk-space-3) !important;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--mk-space-3);
+  }
+
+  /* content grid 2열 → 1열 */
+  .content-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 479px) {
+  .content-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* =============================================================
+   9. Toast 위치 — 이미 common.css에 있지만 보강
+   ============================================================= */
+@media (max-width: 479px) {
+  .toast {
+    font-size: var(--mk-font-size-xs);
+    padding: var(--mk-space-2) var(--mk-space-4);
+  }
+}
