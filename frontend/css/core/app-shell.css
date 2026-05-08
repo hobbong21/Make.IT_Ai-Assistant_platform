@@ -1292,3 +1292,17 @@
 @media (max-width: 767px) {
   .top-nav .top-nav-container { padding: 0 1rem; }
 }
+
+/* User menu — 인라인 모드 (nav-links 내부) */
+.mk-user-menu.mk-user-menu--inline {
+  position: static;
+  top: auto;
+  right: auto;
+  z-index: auto;
+}
+.mk-user-menu.mk-user-menu--inline .mk-user-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+}
+.mk-user-menu.mk-user-menu--inline { position: relative; }

@@ -1,9 +1,10 @@
-// MaKIT User Menu — 우상단 프로필 드롭다운 (avatar + 이름 + 로그아웃)
+// MaKIT User Menu — 프로필 드롭다운 (avatar + 이름 + 로그아웃)
 //
 // 자동 inject:
-//   - DOMContentLoaded 시 #makit-user-menu가 없으면 body에 fixed-position으로 inject
+//   - DOMContentLoaded 시 페이지 상단 nav(.nav-links)가 있으면 그 안의 "로그인" CTA를 사용자 메뉴로 교체
+//   - .nav-links가 없으면 fixed-position으로 body에 inject (fallback)
 //   - login 페이지는 비활성화
-//   - 미로그인 상태에서는 마운트하지 않음
+//   - 미로그인 상태: 그대로 둠 ("로그인" CTA 유지)
 //
 // 동작:
 //   - avatar 클릭 → 드롭다운 토글
@@ -13,8 +14,8 @@
   if (window.__makitUserMenuMounted) return;
   window.__makitUserMenuMounted = true;
 
-  // 공개 랜딩(intro) 및 로그인 페이지에서는 floating 사용자 메뉴를 띄우지 않음 (nav와 겹침 방지)
-  if (/(^|\/)(login|intro)\.html$/i.test(location.pathname)) return;
+  // 로그인 페이지에서는 사용자 메뉴 비활성 (방금 로그인하러 온 페이지)
+  if (/(^|\/)login\.html$/i.test(location.pathname)) return;
   if (!window.auth || !window.auth.isLoggedIn || !window.auth.isLoggedIn()) return;
 
   function escapeHtml(s) {
@@ -125,7 +126,17 @@
   function mount() {
     var user = (window.auth && auth.getUser && auth.getUser()) || null;
     var root = build(user);
-    document.body.appendChild(root);
+
+    // 우선 페이지 상단 nav(.nav-links) 안의 "로그인" CTA 자리를 차지 (인라인)
+    var navLinks = document.querySelector('.top-nav .nav-links, .navbar .nav-links');
+    var loginCta = navLinks && navLinks.querySelector('.nav-link-cta');
+    if (navLinks) {
+      root.classList.add('mk-user-menu--inline');
+      if (loginCta) loginCta.replaceWith(root); else navLinks.appendChild(root);
+    } else {
+      // fallback: floating fixed-position
+      document.body.appendChild(root);
+    }
     bind(root);
 
     // 백그라운드로 /me 호출하여 최신 사용자 정보로 갱신
