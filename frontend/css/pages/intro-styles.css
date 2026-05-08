@@ -562,10 +562,28 @@ body {
     border-top: 1px solid var(--mk-color-sidebar-border);
     padding-top: 1.25rem;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+}
+.footer-logo-link {
+    display: inline-block;
+    line-height: 0;
+    transition: opacity var(--mk-motion-duration-base) var(--mk-motion-ease-standard);
+}
+.footer-logo-link:hover { opacity: 0.8; }
+.footer-logo {
+    height: 32px;
+    width: auto;
+    background: #fff;
+    padding: 6px 10px;
+    border-radius: var(--mk-radius-sm, 6px);
 }
 .footer-bottom p {
     color: var(--mk-color-sidebar-text-muted);
     font-size: 0.8125rem;
+    margin: 0;
 }
 
 /* ---------- Partners ---------- */
