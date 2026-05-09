@@ -561,6 +561,32 @@ button.aiq-slow-badge--btn:focus-visible {
   .aiq-slow-badge--up   { color: #86efac; }
 }
 
+/* 정렬 드롭다운 바 — 가장 느린 순 / 도움 안 됨 우선 / 최신순 */
+.aiq-slow-sort {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.4rem;
+  font-size: 0.82rem;
+  color: var(--mk-color-text, #1f1f1f);
+}
+.aiq-slow-sort-label {
+  color: var(--mk-color-text-muted, #6b7280);
+}
+.aiq-slow-sort-input {
+  font: inherit;
+  padding: 0.15rem 0.4rem;
+  border: 1px solid var(--mk-color-border, #e5e7eb);
+  border-radius: var(--mk-radius-sm, 8px);
+  background: var(--mk-color-bg, #ffffff);
+  color: inherit;
+  cursor: pointer;
+}
+.aiq-slow-sort-input:focus-visible {
+  outline: none;
+  border-color: var(--mk-color-accent, #c96442);
+}
+
 /* "도움 안 됨만 보기" 필터 바 */
 .aiq-slow-filter {
   display: flex;

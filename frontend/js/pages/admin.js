@@ -678,15 +678,56 @@
         console.warn('Failed to load slow feedback batch:', e);
         feedbackById = {};
       }
+      // 정렬 드롭다운이 재렌더할 때 다시 쓸 수 있도록 원본 샘플/피드백/메타를 보관.
+      bodyEl.__aiqSlowData = { samples: samples || [], fb: feedbackById, kind: kind, rowStat: rowStat };
       bodyEl.innerHTML = renderSlowSamples(samples, rowStat, kind, feedbackById);
       bindSlowDetailHandler(bodyEl);
       bindSlowFilterHandler(bodyEl);
+      bindSlowSortHandler(bodyEl);
     } catch (err) {
       console.error('Failed to load slow samples:', err);
       if (bodyEl) {
         bodyEl.innerHTML = '<div class="aiq-slow-empty">최근 호출 샘플을 불러오지 못했습니다.</div>';
       }
     }
+  }
+
+  // 정렬 옵션 — 운영자가 "어떤 기준으로 시급한 호출부터 볼지" 직접 고른다.
+  // 선택값은 sessionStorage에 보존돼 모달을 다시 열거나 다른 태그를 열어도 유지.
+  const SLOW_SORT_KEY = 'aiq.slowSamples.sort';
+  const SLOW_SORT_OPTIONS = [
+    { value: 'latency',    label: '가장 느린 순' },
+    { value: 'notHelpful', label: '도움 안 됨 우선' },
+    { value: 'recent',     label: '최신순' }
+  ];
+  function getSlowSort() {
+    try {
+      const v = sessionStorage.getItem(SLOW_SORT_KEY);
+      if (v && SLOW_SORT_OPTIONS.some((o) => o.value === v)) return v;
+    } catch (_) {}
+    return 'latency';
+  }
+  function setSlowSort(v) {
+    try { sessionStorage.setItem(SLOW_SORT_KEY, v); } catch (_) {}
+  }
+  function sortSlowSamples(samples, fb, sortKey) {
+    const arr = (samples || []).slice();
+    if (sortKey === 'notHelpful') {
+      // notHelpful>0 행을 위로, 그 안에서 latency 내림차순 (동률은 ts 최신 우선)
+      arr.sort((a, b) => {
+        const an = a && a.contextId && fb[a.contextId] && Number(fb[a.contextId].notHelpful) > 0 ? 1 : 0;
+        const bn = b && b.contextId && fb[b.contextId] && Number(fb[b.contextId].notHelpful) > 0 ? 1 : 0;
+        if (an !== bn) return bn - an;
+        const dl = (b.latencyMs || 0) - (a.latencyMs || 0);
+        if (dl !== 0) return dl;
+        return (b.ts || 0) - (a.ts || 0);
+      });
+    } else if (sortKey === 'recent') {
+      arr.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    } else {
+      arr.sort((a, b) => (b.latencyMs || 0) - (a.latencyMs || 0));
+    }
+    return arr;
   }
 
   function renderSlowSamples(samples, rowStat, kind, feedbackById) {
@@ -705,9 +746,19 @@
     if (!samples || samples.length === 0) {
       return header + '<div class="aiq-slow-empty">아직 기록된 호출 샘플이 없습니다. (서버 재시작 후 첫 호출이 들어오면 채워집니다)</div>';
     }
+    const sortKey = getSlowSort();
+    const sorted = sortSlowSamples(samples, fb, sortKey);
+    const sortOptionsHtml = SLOW_SORT_OPTIONS.map((o) =>
+      `<option value="${o.value}"${o.value === sortKey ? ' selected' : ''}>${escapeHtml(o.label)}</option>`
+    ).join('');
+    const sortBar = `
+      <div class="aiq-slow-sort">
+        <label class="aiq-slow-sort-label" for="aiqSlowSortSel">정렬</label>
+        <select id="aiqSlowSortSel" class="aiq-slow-sort-input">${sortOptionsHtml}</select>
+      </div>`;
     // "도움 안 됨" 행만 보기 토글. 상태는 체크박스 자체가 들고 있고, 필터 적용은
     // bindSlowFilterHandler가 li[data-not-helpful="0"]에 hidden 속성을 토글해 처리.
-    const negativeCount = samples.reduce(function (acc, s) {
+    const negativeCount = sorted.reduce(function (acc, s) {
       const c = s && s.contextId && fb[s.contextId];
       return acc + (c && Number(c.notHelpful) > 0 ? 1 : 0);
     }, 0);
@@ -719,7 +770,7 @@
         </label>
         <span class="aiq-slow-filter-count">(${negativeCount}건)</span>
       </div>`;
-    const items = samples.map((s) => {
+    const items = sorted.map((s) => {
       const when = s.ts ? new Date(s.ts).toLocaleString('ko-KR') : '-';
       const qLabel = kind === 'action' ? '대상 문서' : '질문';
       const q = s.question && s.question.length ? escapeHtml(s.question) : '<em class="aiq-slow-muted">(빈 문자열)</em>';
@@ -762,7 +813,35 @@
           <div class="aiq-slow-detail" hidden></div>
         </li>`;
     }).join('');
-    return header + filterBar + `<ol class="aiq-slow-list">${items}</ol>`;
+    return header + sortBar + filterBar + `<ol class="aiq-slow-list">${items}</ol>`;
+  }
+
+  // 정렬 드롭다운 핸들러. 선택값을 sessionStorage에 저장한 뒤, 모달에 들고 있던
+  // 원본 samples/fb/kind/rowStat로 본문만 다시 그린다 (필터 체크박스 상태도 보존).
+  function bindSlowSortHandler(bodyEl) {
+    if (!bodyEl || bodyEl.__aiqSortBound) return;
+    bodyEl.__aiqSortBound = true;
+    bodyEl.addEventListener('change', (ev) => {
+      const sel = ev.target.closest('.aiq-slow-sort-input');
+      if (!sel || !bodyEl.contains(sel)) return;
+      setSlowSort(sel.value);
+      const data = bodyEl.__aiqSlowData;
+      if (!data) return;
+      // 필터 체크박스 상태(도움 안 됨만 보기)를 재렌더 후에도 유지.
+      const filterEl = bodyEl.querySelector('.aiq-slow-filter-input');
+      const filterOn = !!(filterEl && filterEl.checked);
+      bodyEl.innerHTML = renderSlowSamples(data.samples, data.rowStat, data.kind, data.fb);
+      if (filterOn) {
+        const newFilter = bodyEl.querySelector('.aiq-slow-filter-input');
+        if (newFilter) {
+          newFilter.checked = true;
+          bodyEl.querySelectorAll('.aiq-slow-item').forEach((li) => {
+            const has = li.getAttribute('data-not-helpful') === '1';
+            if (!has) li.hidden = true;
+          });
+        }
+      }
+    });
   }
 
   // "도움 안 됨 피드백이 달린 호출만 보기" 체크박스 핸들러.
