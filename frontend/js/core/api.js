@@ -351,10 +351,19 @@
 
     meetingNotes: {
       // POST /api/meeting-notes/summarize
-      // body: { title, meetingAt, attendees: [], transcript }
-      // returns: { title, meetingAt, attendees, summary, decisions: [], actionItems: [{owner,task,due}], generatedBy }
+      // body: { title, meetingAt, attendees: [], transcript, tone }
       summarize: function (payload) {
         return request('/meeting-notes/summarize', { method: 'POST', body: payload });
+      },
+      // POST /api/meeting-notes/transcribe (multipart/form-data)
+      // form fields: file (audio Blob), languageCode (ko-KR | en-US | ja-JP)
+      // returns: { transcript, languageCode, durationSec, provider }
+      transcribe: function (audioBlob, languageCode, filename) {
+        var fd = new FormData();
+        fd.append('file', audioBlob, filename || 'meeting.webm');
+        if (languageCode) fd.append('languageCode', languageCode);
+        // form:true → request()가 Content-Type을 비워 브라우저가 multipart boundary를 자동 설정
+        return request('/meeting-notes/transcribe', { method: 'POST', body: fd, form: true });
       }
     },
 

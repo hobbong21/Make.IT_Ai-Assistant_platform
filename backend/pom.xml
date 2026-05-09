@@ -140,6 +140,12 @@
             <artifactId>s3</artifactId>
             <version>${aws.sdk.version}</version>
         </dependency>
+        <!-- AWS Transcribe (batch STT) for meeting-notes server-side transcription -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>transcribe</artifactId>
+            <version>${aws.sdk.version}</version>
+        </dependency>
 
         <!-- Resilience4j -->
         <dependency>

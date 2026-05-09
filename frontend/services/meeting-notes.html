@@ -136,10 +136,29 @@
                         </div>
 
                         <h2 style="margin-top:1.25rem;">2. 회의 내용 받아쓰기</h2>
-                        <p class="mn-hint">마이크 버튼으로 한국어 실시간 받아쓰기를 시작하거나, 아래 영역에 직접 입력/붙여넣기 할 수 있습니다.</p>
+                        <p class="mn-hint">마이크 버튼으로 실시간 받아쓰기를 시작하거나, 아래 영역에 직접 입력/붙여넣기 할 수 있습니다.</p>
                         <div id="mnSpeechWarn" class="mn-warn" style="display:none;">
                             이 브라우저는 음성 받아쓰기를 지원하지 않습니다(Chrome/Edge 권장). 텍스트 입력만 사용 가능합니다.
                         </div>
+
+                        <div class="mn-recorder-controls" style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:end; margin-bottom:0.75rem;">
+                            <div style="min-width:120px;">
+                                <div style="font-size:0.7rem; font-weight:600; color:var(--mk-color-text-muted); margin-bottom:0.25rem;">언어</div>
+                                <div class="an-presets" id="mnLangPresets" role="radiogroup" aria-label="받아쓰기 언어">
+                                    <button type="button" class="an-chip is-active" data-lang="ko-KR" role="radio" aria-checked="true">한국어</button>
+                                    <button type="button" class="an-chip" data-lang="en-US" role="radio" aria-checked="false">English</button>
+                                    <button type="button" class="an-chip" data-lang="ja-JP" role="radio" aria-checked="false">日本語</button>
+                                </div>
+                            </div>
+                            <div style="flex:1; min-width:180px;">
+                                <label for="mnMicSelect" style="display:block; font-size:0.7rem; font-weight:600; color:var(--mk-color-text-muted); margin-bottom:0.25rem;">마이크</label>
+                                <select id="mnMicSelect" class="an-select" style="font-size:0.8125rem;">
+                                    <option value="">기본 마이크</option>
+                                </select>
+                            </div>
+                            <button type="button" id="mnMicRefreshBtn" class="mn-btn" style="padding:0.4rem 0.7rem; font-size:0.75rem;" title="마이크 목록 새로고침 (권한 허용 후)">↻</button>
+                        </div>
+
                         <div class="mn-recorder" id="mnRecorder">
                             <button type="button" id="mnStartBtn" class="mn-btn is-primary">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line></svg>

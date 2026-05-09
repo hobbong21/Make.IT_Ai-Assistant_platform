@@ -11,6 +11,8 @@
   var HISTORY_KEY = 'makit_meeting_notes_history_v1';
   var HISTORY_MAX = 10;
 
+  var SUPPORTED_LANGS = ['ko-KR', 'en-US', 'ja-JP'];
+
   var state = {
     recognition: null,
     isRecording: false,
@@ -18,6 +20,9 @@
     interimText: '',   // 임시(미확정) 받아쓰기 텍스트
     summary: null,     // 백엔드에서 받은 정리 결과
     tone: 'standard',  // 요약 톤 프리셋: brief | standard | detailed | action
+    lang: 'ko-KR',     // 받아쓰기 언어
+    micDeviceId: '',   // 선택된 마이크 deviceId (빈 문자열이면 기본)
+    isTranscribing: false, // 서버 정밀 받아쓰기 진행 중
     // --- 원본 오디오 녹음 (MediaRecorder) ---
     mediaRecorder: null,
     audioStream: null,
@@ -49,7 +54,7 @@
     var Ctor = getSpeechRecognitionCtor();
     if (!Ctor) return null;
     var r = new Ctor();
-    r.lang = 'ko-KR';
+    r.lang = SUPPORTED_LANGS.indexOf(state.lang) >= 0 ? state.lang : 'ko-KR';
     r.continuous = true;
     r.interimResults = true;
     // 후보를 3개까지 받아 가장 신뢰도 높은 alternative 선택 → 인식 정확도 소폭 상승
@@ -117,16 +122,35 @@
         sampleRate: 16000,
         sampleSize: 16
       };
+      // 사용자가 마이크를 선택했으면 해당 device 사용
+      if (state.micDeviceId) {
+        audioConstraints.deviceId = { exact: state.micDeviceId };
+      }
       var stream;
       try {
         stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
       } catch (constraintErr) {
-        // 일부 브라우저는 sampleRate 등 제약을 거부 — 안전한 fallback
+        // 일부 브라우저는 sampleRate 등 제약을 거부 — 안전한 fallback (deviceId는 유지)
         console.warn('[meeting-notes] strict audio constraints rejected, falling back', constraintErr);
-        stream = await navigator.mediaDevices.getUserMedia({
-          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
-        });
+        var fallback = { echoCancellation: true, noiseSuppression: true, autoGainControl: true };
+        if (state.micDeviceId) fallback.deviceId = { exact: state.micDeviceId };
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ audio: fallback });
+        } catch (deviceErr) {
+          // 선택된 deviceId가 stale/unplugged인 경우 — deviceId 제거하고 기본 마이크로 최종 fallback
+          console.warn('[meeting-notes] selected device unavailable, using default mic', deviceErr);
+          if (state.micDeviceId) {
+            toast('선택된 마이크를 사용할 수 없어 기본 마이크로 전환합니다.', 'info');
+            state.micDeviceId = '';
+            var sel = $('mnMicSelect'); if (sel) sel.value = '';
+          }
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+          });
+        }
       }
+      // 마이크 권한이 처음 허용된 시점에 enumerateDevices를 다시 호출해 라벨 채움
+      populateMicList(true).catch(function () { /* ignore */ });
       var mime = pickAudioMime();
       var opts = mime ? { mimeType: mime } : undefined;
       var rec = new MediaRecorder(stream, opts);
@@ -227,6 +251,73 @@
     renderAudioOutput();
   }
 
+  // ---------- 서버 정밀 받아쓰기 (AWS Transcribe) ----------
+  async function transcribeWithServer() {
+    if (state.isTranscribing) return;
+    if (!state.audioBlob) {
+      toast('먼저 회의를 녹음해주세요.', 'error');
+      return;
+    }
+    if (!window.api || !api.meetingNotes || !api.meetingNotes.transcribe) {
+      toast('정밀 받아쓰기 API가 준비되지 않았습니다.', 'error');
+      return;
+    }
+    state.isTranscribing = true;
+    renderAudioOutput();
+    toast('AI 정밀 받아쓰기를 시작합니다 (보통 30초~2분 소요)...', 'info');
+    try {
+      var ext = (state.audioMime || '').indexOf('mp4') !== -1 ? 'mp4'
+              : (state.audioMime || '').indexOf('ogg') !== -1 ? 'ogg' : 'webm';
+      var res = await api.meetingNotes.transcribe(state.audioBlob, state.lang, 'meeting.' + ext);
+      var newText = (res && res.transcript) ? String(res.transcript).trim() : '';
+      if (!newText) {
+        toast('정밀 받아쓰기 결과가 비어 있습니다. 음성이 너무 작거나 인식 불가능했을 수 있습니다.', 'error');
+        return;
+      }
+      // 기존 텍스트는 백업하고 교체 (사용자가 원하면 textarea에서 복원/병합 가능)
+      state.finalText = newText;
+      state.interimText = '';
+      renderTranscript();
+      toast('정밀 받아쓰기 완료 — 텍스트가 교체되었습니다.', 'success');
+    } catch (err) {
+      console.error('[meeting-notes] transcribe failed', err);
+      var msg = (err && err.message) || '알 수 없는 오류';
+      toast('정밀 받아쓰기 실패: ' + msg, 'error');
+    } finally {
+      state.isTranscribing = false;
+      renderAudioOutput();
+    }
+  }
+
+  // ---------- 마이크 목록 ----------
+  async function populateMicList(silent) {
+    var sel = $('mnMicSelect');
+    if (!sel) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+      sel.disabled = true;
+      return;
+    }
+    try {
+      var devices = await navigator.mediaDevices.enumerateDevices();
+      var mics = devices.filter(function (d) { return d.kind === 'audioinput'; });
+      var prevValue = sel.value || state.micDeviceId || '';
+      var html = '<option value="">기본 마이크</option>';
+      mics.forEach(function (d, idx) {
+        // 권한 미허용 상태에서는 label이 비어있을 수 있음
+        var label = d.label || ('마이크 ' + (idx + 1));
+        html += '<option value="' + escapeHtml(d.deviceId) + '"' +
+                (d.deviceId === prevValue ? ' selected' : '') + '>' +
+                escapeHtml(label) + '</option>';
+      });
+      sel.innerHTML = html;
+      sel.disabled = false;
+      if (!silent && mics.length === 0) toast('마이크를 찾을 수 없습니다.', 'error');
+    } catch (err) {
+      console.warn('[meeting-notes] enumerateDevices failed', err);
+      if (!silent) toast('마이크 목록 조회 실패: ' + (err && err.message || ''), 'error');
+    }
+  }
+
   function downloadAudio() {
     if (!state.audioBlob || !state.audioUrl) return;
     var a = document.createElement('a');
@@ -247,16 +338,21 @@
       return;
     }
     var sizeKb = Math.round(state.audioBlob.size / 1024);
+    var transcribingLabel = state.isTranscribing ? '정밀 받아쓰는 중...' : 'AI 정밀 받아쓰기';
+    var disabledAttr = state.isTranscribing ? ' disabled' : '';
     box.style.display = 'block';
     box.innerHTML =
       '<div class="mn-audio-row">' +
       '  <audio controls src="' + state.audioUrl + '" preload="metadata"></audio>' +
       '  <div class="mn-audio-meta">원본 오디오 · ' + sizeKb + ' KB · ' + escapeHtml(state.audioMime) + '</div>' +
       '  <div class="mn-audio-actions">' +
+      '    <button type="button" id="mnTranscribeBtn" class="mn-btn is-primary"' + disabledAttr + ' title="원본 오디오를 서버로 보내 AWS Transcribe로 다시 받아쓰기 (Web Speech 결과보다 정확)">' + escapeHtml(transcribingLabel) + '</button>' +
       '    <button type="button" id="mnAudioDownloadBtn" class="mn-btn">오디오 다운로드</button>' +
       '    <button type="button" id="mnAudioClearBtn" class="mn-btn">삭제</button>' +
       '  </div>' +
       '</div>';
+    var trBtn = $('mnTranscribeBtn');
+    if (trBtn) trBtn.addEventListener('click', transcribeWithServer);
     $('mnAudioDownloadBtn').addEventListener('click', downloadAudio);
     $('mnAudioClearBtn').addEventListener('click', clearAudio);
   }
@@ -793,6 +889,48 @@
     }
     var clearBtn = document.getElementById('mnHistoryClearBtn');
     if (clearBtn) clearBtn.addEventListener('click', clearAllHistory);
+
+    // 언어 칩
+    var langPresets = document.getElementById('mnLangPresets');
+    if (langPresets) {
+      langPresets.addEventListener('click', function (ev) {
+        var chip = ev.target.closest('.an-chip[data-lang]');
+        if (!chip) return;
+        var lang = chip.getAttribute('data-lang');
+        if (SUPPORTED_LANGS.indexOf(lang) < 0) return;
+        state.lang = lang;
+        langPresets.querySelectorAll('.an-chip').forEach(function (c) {
+          var active = c === chip;
+          c.classList.toggle('is-active', active);
+          c.setAttribute('aria-checked', active ? 'true' : 'false');
+        });
+        // recognition은 lang 변경 시 재생성 필요
+        if (state.recognition && !state.isRecording) {
+          state.recognition = null;
+        } else if (state.isRecording) {
+          toast('언어 변경은 다음 녹음부터 적용됩니다.', 'info');
+        }
+      });
+    }
+
+    // 마이크 선택
+    var micSel = document.getElementById('mnMicSelect');
+    if (micSel) {
+      micSel.addEventListener('change', function (ev) {
+        state.micDeviceId = ev.target.value || '';
+        if (state.isRecording) {
+          toast('마이크 변경은 다음 녹음부터 적용됩니다.', 'info');
+        }
+      });
+    }
+    var micRefresh = document.getElementById('mnMicRefreshBtn');
+    if (micRefresh) {
+      micRefresh.addEventListener('click', function () {
+        populateMicList(false);
+      });
+    }
+    // 초기 마이크 목록 로드 (권한 허용 전엔 라벨이 비어있을 수 있음)
+    populateMicList(true);
 
     updateRecorderUi();
     renderPreview();
