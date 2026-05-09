@@ -6,7 +6,7 @@
  *  - HTML: network-first with fallback to cache
  */
 
-const CACHE_VERSION = 'makit-v24';
+const CACHE_VERSION = 'makit-v25';
 const SHELL_ASSETS = [
   '/index.html',
   '/services/nlp-analyze.html',
