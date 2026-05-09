@@ -66,29 +66,23 @@
   // 이하 알림종/Cmd+K/언어 선택기는 로그인 사용자 전용
   if (!window.auth || !auth.isLoggedIn()) return;
 
-  // ============ 알림 종 ============
-  function buildBell() {
-    var wrap = document.createElement('div');
-    wrap.id = 'mk-notif-bell';
-    wrap.className = 'mk-notif-bell';
-    wrap.innerHTML =
-      '<button type="button" class="mk-notif-trigger" id="mkNotifTrigger" aria-label="알림 열기">' +
-      '  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-      '    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>' +
-      '    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>' +
-      '  </svg>' +
-      '  <span class="mk-notif-badge" id="mkNotifBadge" hidden>0</span>' +
-      '</button>' +
-      '<div class="mk-notif-panel" role="dialog" aria-label="알림" aria-hidden="true">' +
-      '  <header class="mk-notif-header">' +
-      '    <strong>알림</strong>' +
-      '    <button type="button" class="mk-link-btn" id="mkNotifReadAll">모두 읽음</button>' +
-      '  </header>' +
-      '  <div class="mk-notif-list" id="mkNotifList">' +
-      '    <p class="mk-notif-empty">불러오는 중...</p>' +
-      '  </div>' +
+  // ============ 알림 종 (nav의 #navAlertBtn 재사용 — floating bell 제거) ============
+  function buildNotifPanel() {
+    var panel = document.createElement('div');
+    panel.id = 'mkNotifPanel';
+    panel.className = 'mk-notif-panel mk-notif-panel--floating';
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-label', '알림');
+    panel.setAttribute('aria-hidden', 'true');
+    panel.innerHTML =
+      '<header class="mk-notif-header">' +
+      '  <strong>알림</strong>' +
+      '  <button type="button" class="mk-link-btn" id="mkNotifReadAll">모두 읽음</button>' +
+      '</header>' +
+      '<div class="mk-notif-list" id="mkNotifList">' +
+      '  <p class="mk-notif-empty">불러오는 중...</p>' +
       '</div>';
-    return wrap;
+    return panel;
   }
 
   function escapeHtml(s) {
@@ -146,28 +140,40 @@
     });
   }
 
-  function bindBell(root) {
-    var trigger = root.querySelector('#mkNotifTrigger');
-    var panel = root.querySelector('.mk-notif-panel');
-    var readAll = root.querySelector('#mkNotifReadAll');
+  function bindNavBell(trigger, panel) {
+    var readAll = panel.querySelector('#mkNotifReadAll');
+    function position() {
+      var rect = trigger.getBoundingClientRect();
+      panel.style.top = (rect.bottom + 8) + 'px';
+      panel.style.right = Math.max(8, window.innerWidth - rect.right) + 'px';
+    }
     function open() {
+      position();
       panel.classList.add('mk-notif-panel--open');
       panel.setAttribute('aria-hidden', 'false');
+      trigger.setAttribute('aria-expanded', 'true');
       loadNotifications();
     }
     function close() {
       panel.classList.remove('mk-notif-panel--open');
       panel.setAttribute('aria-hidden', 'true');
+      trigger.setAttribute('aria-expanded', 'false');
     }
     trigger.addEventListener('click', function (e) {
       e.stopPropagation();
       panel.classList.contains('mk-notif-panel--open') ? close() : open();
     });
     document.addEventListener('click', function (e) {
-      if (!root.contains(e.target)) close();
+      if (e.target !== trigger && !trigger.contains(e.target) && !panel.contains(e.target)) close();
     });
-    readAll.addEventListener('click', function () {
-      api.notifications.readAll().then(function () { loadNotifications(); }).catch(function () {});
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') close();
+    });
+    window.addEventListener('resize', function () {
+      if (panel.classList.contains('mk-notif-panel--open')) position();
+    });
+    if (readAll) readAll.addEventListener('click', function () {
+      if (api.notifications) api.notifications.readAll().then(function () { loadNotifications(); }).catch(function () {});
     });
   }
 
@@ -389,9 +395,24 @@
 
   // ============ 마운트 ============
   function mount() {
-    var bell = buildBell();
-    document.body.appendChild(bell);
-    bindBell(bell);
+    // 알림 종: nav의 #navAlertBtn을 트리거로 재사용 (없으면 스킵)
+    var navAlert = document.getElementById('navAlertBtn');
+    if (navAlert) {
+      // settings-menu.js의 placeholder 핸들러 차단
+      navAlert.__mkAlertBound = true;
+      navAlert.setAttribute('aria-haspopup', 'true');
+      navAlert.setAttribute('aria-expanded', 'false');
+      // 뱃지 inject (배지가 버튼 우상단에 표시되도록 nav-alert-btn { position: relative; })
+      var badge = document.createElement('span');
+      badge.id = 'mkNotifBadge';
+      badge.className = 'mk-notif-badge';
+      badge.hidden = true;
+      badge.textContent = '0';
+      navAlert.appendChild(badge);
+      var panel = buildNotifPanel();
+      document.body.appendChild(panel);
+      bindNavBell(navAlert, panel);
+    }
     var palette = buildPalette();
     document.body.appendChild(palette);
     bindPalette(palette);

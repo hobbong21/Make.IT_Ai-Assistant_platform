@@ -629,9 +629,12 @@
    6. Notification Bell (우상단, user menu 옆)
    ============================================================= */
 .mk-notif-bell {
-    position: fixed;
-    top: var(--mk-space-4, 16px);
-    right: calc(var(--mk-space-4, 16px) + 220px);
+    /* deprecated — floating bell 제거. 호환을 위해 룰만 남김. */
+    display: none !important;
+}
+.mk-notif-panel--floating {
+    position: fixed !important;
+    top: 56px; right: 16px;
     z-index: var(--mk-z-sticky, 1100);
 }
 .mk-notif-trigger {
@@ -1275,6 +1278,7 @@
 /* ===== Settings menu in top nav (⚙️ 설정 버튼) ===== */
 .nav-settings-wrap { position: relative; display: inline-flex; }
 .nav-alert-btn {
+    position: relative;
     display: inline-flex; align-items: center; justify-content: center;
     width: 36px; height: 36px; padding: 0;
     background: transparent;
@@ -1285,6 +1289,9 @@
     transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
     font: inherit;
     margin-right: 4px;
+}
+.nav-alert-btn .mk-notif-badge {
+    top: -4px; right: -4px;
 }
 .nav-alert-btn:hover {
     color: var(--mk-color-brand-500);
