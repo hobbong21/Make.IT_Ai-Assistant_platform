@@ -244,6 +244,52 @@ public class SlowCallSampler {
     }
 
     /**
+     * 지정 (kind, tag) 짝의 샘플 ring buffer와 그에 속하는 contextId Detail을
+     * 모두 비운다. 운영자가 잘못된/오래된 호출 표본을 즉시 정리할 수 있도록
+     * 관리자 화면의 "비우기" 동작이 호출한다.
+     *
+     * <p>Redis-backed 모드에서는 List 키({@code makit:ai:slow:{kind}:{tag}})를
+     * {@code DEL}로 제거한다. in-memory fallback 버퍼도 함께 비워, 두 모드를
+     * 혼용한 환경(Redis 일시 장애 후 fallback 누적)에서도 잔존 표본이 없도록 한다.
+     * Detail LRU에서는 비워진 (kind, tag)에 매칭되는 항목만 골라 제거한다.
+     *
+     * @return 제거된 항목 수(샘플 + Detail 합계, 보고/감사 로그용 근사치).
+     */
+    public int clear(String kind, String tag) {
+        String safeTag = (tag == null || tag.isBlank()) ? "all" : tag;
+        int removed = 0;
+
+        if (redis != null) {
+            String key = redisKey(kind, safeTag);
+            try {
+                Long len = redis.opsForList().size(key);
+                Boolean del = redis.delete(key);
+                if (Boolean.TRUE.equals(del) && len != null) removed += len.intValue();
+            } catch (Exception e) {
+                log.warn("SlowCallSampler redis clear failed, continuing with in-memory clear: {}",
+                        e.toString());
+            }
+        }
+
+        Deque<Sample> q = buffers.remove(memKey(kind, safeTag));
+        if (q != null) removed += q.size();
+
+        // Detail은 contextId 키 LRU라 (kind, tag)로 직접 인덱싱돼 있지 않다.
+        // 같은 태그의 항목을 골라 제거 — DETAIL_CAPACITY가 작아 선형 스캔 비용은 무시 가능.
+        synchronized (details) {
+            int before = details.size();
+            details.entrySet().removeIf(e -> {
+                Detail d = e.getValue();
+                return d != null
+                        && java.util.Objects.equals(d.kind(), kind)
+                        && java.util.Objects.equals(d.tag(), safeTag);
+            });
+            removed += before - details.size();
+        }
+        return removed;
+    }
+
+    /**
      * 가장 최근 호출부터 latencyMs 내림차순으로 정렬해 상위 {@code limit}건 반환.
      * "느린 호출"이 위로 오도록 정렬해 진단 흐름을 단축한다.
      */

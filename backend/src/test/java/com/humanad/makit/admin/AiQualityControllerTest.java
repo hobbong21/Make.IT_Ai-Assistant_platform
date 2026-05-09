@@ -1,5 +1,6 @@
 package com.humanad.makit.admin;
 
+import com.humanad.makit.audit.AuditLogRepository;
 import com.humanad.makit.knowledge.ai.OfficeHubFeedback;
 import com.humanad.makit.knowledge.ai.OfficeHubFeedbackRepository;
 import com.humanad.makit.knowledge.ai.SlowCallSampler;
@@ -27,6 +28,8 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.mockito.ArgumentCaptor;
+import com.humanad.makit.audit.AuditLog;
 
 /**
  * 단위 테스트: {@link AiQualityController#quality}.
@@ -43,6 +46,7 @@ class AiQualityControllerTest {
     @Mock OfficeHubFeedbackRepository feedbackRepo;
     @Mock AiQualityThresholdsService thresholdsService;
     @Mock SlowCallSampler slowSampler;
+    @Mock AuditLogRepository auditRepo;
 
     private MeterRegistry meters;
     private AiQualityProperties props;
@@ -52,7 +56,7 @@ class AiQualityControllerTest {
     void setUp() {
         meters = new SimpleMeterRegistry();
         props = new AiQualityProperties();
-        controller = new AiQualityController(feedbackRepo, meters, thresholdsService, slowSampler, props);
+        controller = new AiQualityController(feedbackRepo, meters, thresholdsService, slowSampler, auditRepo, props);
 
         // 기본 유효 임계치: AiQualityProperties yml 기본값 그대로 노출.
         // lenient() — slowDetailFeedback 테스트는 thresholdsService를 호출하지
@@ -203,6 +207,39 @@ class AiQualityControllerTest {
         assertThat(dto.detailLookup().misses()).isEqualTo(0L);
         // 분모 0 보호: hitRate=0으로 두고 프런트가 "데이터 없음" 표시.
         assertThat(dto.detailLookup().hitRate()).isEqualTo(0.0);
+    }
+
+    @Test
+    void clearSlow_invokesSampler_andWritesAuditLog() {
+        when(slowSampler.clear("ask", "col1")).thenReturn(7);
+
+        Map<String, Object> result = controller.clearSlow("col1", "ask");
+
+        assertThat(result).containsEntry("kind", "ask")
+                .containsEntry("tag", "col1")
+                .containsEntry("removed", 7);
+        verify(slowSampler).clear("ask", "col1");
+
+        ArgumentCaptor<AuditLog> cap = ArgumentCaptor.forClass(AuditLog.class);
+        verify(auditRepo).save(cap.capture());
+        AuditLog logged = cap.getValue();
+        assertThat(logged.getAction()).isEqualTo("SLOW_SAMPLES_CLEAR");
+        assertThat(logged.getResource()).isEqualTo("ask:col1");
+        assertThat(logged.getMetadata())
+                .containsEntry("kind", "ask")
+                .containsEntry("tag", "col1")
+                .containsEntry("removed", 7);
+    }
+
+    @Test
+    void clearSlow_rejectsUnknownKind_andSkipsSamplerAndAudit() {
+        org.springframework.web.server.ResponseStatusException ex =
+                org.junit.jupiter.api.Assertions.assertThrows(
+                        org.springframework.web.server.ResponseStatusException.class,
+                        () -> controller.clearSlow("col1", "garbage"));
+        assertThat(ex.getStatusCode().value()).isEqualTo(400);
+        verify(slowSampler, never()).clear(any(), any());
+        verify(auditRepo, never()).save(any());
     }
 
     @Test

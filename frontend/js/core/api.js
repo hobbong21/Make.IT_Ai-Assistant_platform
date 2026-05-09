@@ -524,6 +524,14 @@
         if (ids.length === 0) return Promise.resolve({});
         const qs = ids.map(function (c) { return 'contextIds=' + encodeURIComponent(c); }).join('&');
         return request('/admin/ai/slow/feedback-batch?' + qs);
+      },
+      // DELETE /api/admin/ai/slow?tag=...&kind=ask|action
+      // 운영자가 잘못된/오래된 표본을 즉시 정리하기 위한 비우기. 감사 로그에 SLOW_SAMPLES_CLEAR로 기록됨.
+      // → {kind, tag, removed}
+      aiSlowClear: function (tag, kind) {
+        const k = kind || 'ask';
+        return request('/admin/ai/slow?tag=' + encodeURIComponent(tag)
+          + '&kind=' + encodeURIComponent(k), { method: 'DELETE' });
       }
     }
   };

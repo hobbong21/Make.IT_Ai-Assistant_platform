@@ -1,5 +1,7 @@
 package com.humanad.makit.admin;
 
+import com.humanad.makit.audit.AuditLog;
+import com.humanad.makit.audit.AuditLogRepository;
 import com.humanad.makit.knowledge.CurrentUser;
 import com.humanad.makit.knowledge.ai.OfficeHubFeedbackRepository;
 import com.humanad.makit.knowledge.ai.SlowCallSampler;
@@ -9,8 +11,10 @@ import io.micrometer.core.instrument.Timer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,6 +44,7 @@ import java.util.function.ToDoubleFunction;
  * 메트릭을 합쳐 최근 N일의 추세를 한 번의 호출로 돌려준다. 차트/배너 렌더링은
  * 프런트({@code frontend/js/pages/admin.js})에서 담당.
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/admin/ai")
 @RequiredArgsConstructor
@@ -58,6 +63,7 @@ public class AiQualityController {
     private final MeterRegistry meters;
     private final AiQualityThresholdsService thresholdsService;
     private final SlowCallSampler slowSampler;
+    private final AuditLogRepository auditRepo;
     /**
      * yml/env에 선언된 컬렉션·액션별 p95 오버라이드 표를 읽기 위한 정적 설정.
      * 전역 helpful/mean/p95 기본값은 {@link AiQualityThresholdsService}가 DB
@@ -327,6 +333,42 @@ public class AiQualityController {
                 String action,
                 String comment,
                 OffsetDateTime createdAt) {}
+    }
+
+    /**
+     * 운영자가 잘못된/오래된 (kind, tag) 표본을 즉시 정리하기 위한 엔드포인트.
+     * Redis 보관·in-memory fallback·contextId Detail LRU에서 해당 태그 항목을 모두 비우고,
+     * 누가 무엇을 비웠는지 {@code audit_logs}에 {@code SLOW_SAMPLES_CLEAR}로 기록한다.
+     * 감사 로그는 best-effort: 실패해도 비우기 결과는 그대로 응답한다.
+     */
+    @Operation(summary = "특정 컬렉션·액션 태그의 느린 호출 샘플 비우기 (감사 로그 기록)")
+    @DeleteMapping("/slow")
+    @PreAuthorize("hasRole('ADMIN')")
+    public java.util.Map<String, Object> clearSlow(
+            @RequestParam(name = "tag") String tag,
+            @RequestParam(name = "kind", defaultValue = "ask") String kind) {
+        if (!"ask".equals(kind) && !"action".equals(kind)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "kind는 ask 또는 action 이어야 합니다.");
+        }
+        int removed = slowSampler.clear(kind, tag);
+
+        UUID actor;
+        try { actor = CurrentUser.id(); } catch (RuntimeException ex) { actor = null; }
+        try {
+            AuditLog l = new AuditLog();
+            l.setAction("SLOW_SAMPLES_CLEAR");
+            l.setResource(kind + ":" + (tag == null || tag.isBlank() ? "all" : tag));
+            l.setUserId(actor);
+            l.setMetadata(java.util.Map.of(
+                    "kind", kind,
+                    "tag", tag == null ? "" : tag,
+                    "removed", removed));
+            auditRepo.save(l);
+        } catch (Exception ex) {
+            log.warn("Audit write for SLOW_SAMPLES_CLEAR failed: {}", ex.getMessage());
+        }
+        return java.util.Map.of("kind", kind, "tag", tag, "removed", removed);
     }
 
     // -------------------------------------------------------------------- helpers

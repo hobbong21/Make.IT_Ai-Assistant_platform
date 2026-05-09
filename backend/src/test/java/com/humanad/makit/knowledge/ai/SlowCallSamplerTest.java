@@ -22,6 +22,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -84,6 +85,16 @@ class SlowCallSamplerTest {
             });
 
             when(redis.expire(anyString(), any(Duration.class))).thenReturn(true);
+
+            when(ops.size(anyString())).thenAnswer(inv -> {
+                String key = inv.getArgument(0);
+                List<String> l = store.get(key);
+                return l == null ? 0L : (long) l.size();
+            });
+            when(redis.delete(anyString())).thenAnswer(inv -> {
+                String key = inv.getArgument(0);
+                return store.remove(key) != null;
+            });
         }
 
         @Test
@@ -129,6 +140,38 @@ class SlowCallSamplerTest {
                     .singleElement().extracting(SlowCallSampler.Sample::latencyMs).isEqualTo(999L);
             assertThat(s.recent("action", "summarize", 10))
                     .singleElement().extracting(SlowCallSampler.Sample::kind).isEqualTo("action");
+        }
+
+        @Test
+        void clear_removesRedisKey_andReturnsCount() {
+            SlowCallSampler s = new SlowCallSampler(redis, mapper);
+            s.record("ask", "col1", 100, "c1", "q1", "m");
+            s.record("ask", "col1", 200, "c2", "q2", "m");
+            s.record("ask", "col2", 300, "c3", "q3", "m"); // 다른 태그는 영향 없어야 함
+
+            int removed = s.clear("ask", "col1");
+
+            assertThat(removed).isEqualTo(2);
+            assertThat(s.recent("ask", "col1", 10)).isEmpty();
+            // 다른 태그는 보존된다.
+            assertThat(s.recent("ask", "col2", 10)).hasSize(1);
+            verify(redis).delete("makit:ai:slow:ask:col1");
+        }
+
+        @Test
+        void clear_alsoEvictsContextIdDetailsForSameTag() {
+            SlowCallSampler s = new SlowCallSampler(redis, mapper);
+            s.recordDetail("ask", "col1", 100, "ctx-keep", "q", "a", List.of(), 0, 0, "m");
+            s.recordDetail("ask", "col1", 200, "ctx-keep-2", "q", "a", List.of(), 0, 0, "m");
+            s.recordDetail("ask", "col2", 100, "ctx-other", "q", "a", List.of(), 0, 0, "m");
+
+            int removed = s.clear("ask", "col1");
+
+            assertThat(removed).isEqualTo(2); // 두 detail (Redis는 비어 있어 0)
+            assertThat(s.findDetail("ctx-keep")).isEmpty();
+            assertThat(s.findDetail("ctx-keep-2")).isEmpty();
+            // 다른 태그의 detail은 보존된다.
+            assertThat(s.findDetail("ctx-other")).isPresent();
         }
 
         @Test

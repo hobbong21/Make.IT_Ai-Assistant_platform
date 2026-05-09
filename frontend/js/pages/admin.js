@@ -623,10 +623,45 @@
     const kindLabel = kind === 'action' ? '액션' : '컬렉션';
     const title = `${kindLabel} "${tag}" 최근 느린 호출`;
     const placeholder = '<div class="aiq-slow-empty">최근 호출 샘플을 불러오는 중...</div>';
+
+    // "비우기" 액션은 모달의 footer 버튼으로 노출. 잘못 눌리지 않도록 다시 한 번 확인을
+    // 받고 (danger 스타일), 성공 시 모달 본문을 빈 상태로 갱신한다. 감사 로그 기록은
+    // 백엔드가 담당한다 (SLOW_SAMPLES_CLEAR).
+    const clearAction = {
+      label: '비우기',
+      type: 'danger',
+      onClick: async () => {
+        const ok = await window.makitModal.confirm({
+          title: '느린 호출 샘플 비우기',
+          message: `${kindLabel} "${tag}" 의 최근 호출 표본과 contextId 상세를 모두 비웁니다. 이 동작은 되돌릴 수 없습니다.`,
+          confirmLabel: '비우기',
+          danger: true
+        });
+        if (!ok) {
+          // confirm 모달을 닫으면 부모 슬로우 모달도 닫혔다 — 다시 열어준다.
+          openSlowSamplesModal(kind, tag, rowStat);
+          return;
+        }
+        try {
+          const res = await window.api.admin.aiSlowClear(tag, kind);
+          const removed = (res && typeof res.removed === 'number') ? res.removed : 0;
+          window.ui.toast(`표본 ${removed.toLocaleString()}건을 비웠습니다.`, 'success');
+        } catch (err) {
+          console.error('Failed to clear slow samples:', err);
+          window.ui.toast('표본 비우기에 실패했습니다.', 'error');
+        }
+        // 비운 직후 결과를 다시 그려 새 상태(빈 목록)를 즉시 보여준다.
+        openSlowSamplesModal(kind, tag, rowStat);
+      }
+    };
+
     window.makitModal.open({
       title: title,
       body: placeholder,
-      actions: [{ label: '닫기', type: 'secondary', onClick: () => window.makitModal.close() }]
+      actions: [
+        clearAction,
+        { label: '닫기', type: 'secondary', onClick: () => window.makitModal.close() }
+      ]
     });
     const bodyEl = document.getElementById('mkModalBody');
     try {
