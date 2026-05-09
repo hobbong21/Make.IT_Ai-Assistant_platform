@@ -148,6 +148,20 @@ makit:
       latencyMeanAlertMs:      ${MAKIT_AI_QUALITY_LATENCY_MEAN_ALERT_MS:6000}
       latencyP95AlertMs:       ${MAKIT_AI_QUALITY_LATENCY_P95_ALERT_MS:10000}
       minSamplesForRateAlert:  ${MAKIT_AI_QUALITY_MIN_SAMPLES_FOR_RATE_ALERT:5}
+      # 컬렉션·액션마다 데이터 크기/복잡도가 달라 합당한 p95도 다르다. 코드 수정 없이
+      # 노이즈 없는 경보만 받도록 태그별 오버라이드를 둔다. 키가 없으면 위의
+      # latencyP95AlertMs(전역 기본값)가 그대로 적용된다.
+      # YAML 예:
+      #   askP95AlertMsByCollection:
+      #     office_hub: 15000
+      #     small_faq:   4000
+      #   actionP95AlertMsByAction:
+      #     summarize:   8000
+      # 환경변수 예 (Spring relaxed binding, 점/대시 없는 키만):
+      #   MAKIT_AI_QUALITY_ASK_P95_ALERT_MS_BY_COLLECTION_OFFICE_HUB=15000
+      #   MAKIT_AI_QUALITY_ACTION_P95_ALERT_MS_BY_ACTION_SUMMARIZE=8000
+      askP95AlertMsByCollection: {}
+      actionP95AlertMsByAction:  {}
 
 management:
   endpoints:

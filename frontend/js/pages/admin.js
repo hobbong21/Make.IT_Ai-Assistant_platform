@@ -494,7 +494,7 @@
     }
   }
 
-  function renderTagLatencyRows(tbody, rows, p95Threshold, fmtMs, kind) {
+  function renderTagLatencyRows(tbody, rows, defaultP95Threshold, fmtMs, kind) {
     if (!tbody) return;
     tbody.innerHTML = '';
     if (!rows || rows.length === 0) {
@@ -503,7 +503,10 @@
     }
     rows.forEach((r) => {
       const tr = document.createElement('tr');
-      const over = typeof r.p95Ms === 'number' && r.p95Ms > p95Threshold;
+      // 행마다 자기 임계치(태그 오버라이드 또는 전역 기본값)를 사용한다.
+      const rowThreshold = (typeof r.p95ThresholdMs === 'number') ? r.p95ThresholdMs : defaultP95Threshold;
+      const over = typeof r.p95Ms === 'number' && r.p95Ms > rowThreshold;
+      const flagTitle = `p95 임계 ${fmtMs(rowThreshold)} ms 초과`;
       if (over) {
         tr.classList.add('aiq-tag-row--over');
         // 클릭으로 최근 호출 샘플 모달을 열 수 있다는 점을 안내한다.
@@ -521,7 +524,7 @@
         <td><code>${escapeHtml(r.tag || '')}</code></td>
         <td class="num">${fmtMs(r.meanMs || 0)}</td>
         <td class="num">${fmtMs(r.p50Ms || 0)}</td>
-        <td class="num">${fmtMs(r.p95Ms || 0)}${over ? ' <span class="aiq-tag-flag" title="p95 임계 초과">⚠</span>' : ''}</td>
+        <td class="num">${fmtMs(r.p95Ms || 0)} <span class="aiq-tag-threshold" title="이 태그에 적용된 p95 임계치">/ ${fmtMs(rowThreshold)}</span>${over ? ` <span class="aiq-tag-flag" title="${flagTitle}">⚠</span>` : ''}</td>
         <td class="num">${(r.count || 0).toLocaleString()}</td>
       `;
       tbody.appendChild(tr);
@@ -873,14 +876,22 @@
         }
       });
 
-      // Tag-level latency tables (collection for ask, action for action)
+      // Tag-level latency tables (collection for ask, action for action).
+      // 임계치는 컬렉션·액션마다 다를 수 있으므로 행별 p95ThresholdMs를 적용한다.
       const p95Threshold = (data.latency && typeof data.latency.p95ThresholdMs === 'number')
         ? data.latency.p95ThresholdMs : 10000;
+      const askOverrides = (data.thresholds && data.thresholds.askP95AlertMsByCollection) || {};
+      const actionOverrides = (data.thresholds && data.thresholds.actionP95AlertMsByAction) || {};
+      const overrideCount = (m) => Object.keys(m || {}).length;
       const askHint = document.getElementById('aiq-ask-tag-hint');
       const actionHint = document.getElementById('aiq-action-tag-hint');
-      const thresholdLabel = `p95 ${fmtMs(p95Threshold)} ms 초과 시 강조`;
-      if (askHint) askHint.textContent = thresholdLabel;
-      if (actionHint) actionHint.textContent = thresholdLabel;
+      const labelFor = (overrides) => {
+        const n = overrideCount(overrides);
+        const base = `p95 기본 ${fmtMs(p95Threshold)} ms 초과 시 강조`;
+        return n > 0 ? `${base} · 오버라이드 ${n}건` : base;
+      };
+      if (askHint) askHint.textContent = labelFor(askOverrides);
+      if (actionHint) actionHint.textContent = labelFor(actionOverrides);
       renderTagLatencyRows(
         document.getElementById('aiq-ask-tag-tbody'),
         (data.latency && data.latency.askByCollection) || [],

@@ -1,6 +1,7 @@
 package com.humanad.makit.admin;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * AI 답변 품질 대시보드 응답 DTO. {@link AiQualityController#quality} 가 반환.
@@ -37,16 +38,25 @@ public record AiQualityDto(
             List<TagLatency> askByCollection,
             List<TagLatency> actionByAction) {}
 
-    /** 태그(컬렉션 또는 액션) 한 건의 응답 시간 통계. */
-    public record TagLatency(String tag, double meanMs, double p50Ms, double p95Ms, long count) {}
+    /**
+     * 태그(컬렉션 또는 액션) 한 건의 응답 시간 통계.
+     * {@code p95ThresholdMs}는 이 태그에 적용되는 유효 p95 임계치(오버라이드 우선,
+     * 없으면 전역 기본값). 프런트는 이 값으로 행 강조 여부를 결정한다.
+     */
+    public record TagLatency(String tag, double meanMs, double p50Ms, double p95Ms, long count,
+                             double p95ThresholdMs) {}
 
     /**
      * 현재 적용 중인 운영 임계치. 프런트는 이 값으로 경고 배너/배지를 동기화한다.
      * {@code makit.ai.quality.*}로 외부화돼 있어 재배포 없이 조정 가능.
+     * {@code askP95AlertMsByCollection}/{@code actionP95AlertMsByAction}는 태그별
+     * 오버라이드 표(없는 키는 {@code latencyP95AlertMs}).
      */
     public record Thresholds(
             double helpfulRateThreshold,
             double latencyMeanAlertMs,
             double latencyP95AlertMs,
-            long minSamplesForRateAlert) {}
+            long minSamplesForRateAlert,
+            Map<String, Double> askP95AlertMsByCollection,
+            Map<String, Double> actionP95AlertMsByAction) {}
 }

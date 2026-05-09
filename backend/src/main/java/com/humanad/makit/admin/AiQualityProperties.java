@@ -3,6 +3,9 @@ package com.humanad.makit.admin;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * Operator-tunable thresholds for the AI quality dashboard alert banners.
  *
@@ -11,6 +14,14 @@ import org.springframework.stereotype.Component;
  * {@code MAKIT_AI_QUALITY_LATENCY_P95_ALERT_MS=12000}, so traffic-pattern
  * shifts can be absorbed without a redeploy. See {@code application.yml} for
  * the full set of {@code MAKIT_AI_QUALITY_*} env-var names.
+ *
+ * <p>Per-tag overrides ({@code askP95AlertMsByCollection},
+ * {@code actionP95AlertMsByAction}) let operators raise/lower the p95 threshold
+ * for a specific collection or action without touching the global default —
+ * useful when a particular collection legitimately runs slower (large corpus)
+ * or faster (small lookups). Map keys are matched against the Micrometer tag
+ * value (collection / action name). Missing keys fall back to
+ * {@link #getLatencyP95AlertMs()}.
  *
  * <p>Defaults mirror the previously hard-coded constants in
  * {@link AiQualityController}.
@@ -25,11 +36,23 @@ public class AiQualityProperties {
     /** ask 평균 응답시간(ms)이 이 값을 넘으면 경고 배너를 띄운다. */
     private double latencyMeanAlertMs = 6_000.0;
 
-    /** ask p95 응답시간(ms)이 이 값을 넘으면 경고 배너를 띄운다. (꼬리 지연 감지용) */
+    /** ask p95 응답시간(ms)이 이 값을 넘으면 경고 배너를 띄운다. (꼬리 지연 감지용, 전역 기본값) */
     private double latencyP95AlertMs = 10_000.0;
 
     /** 표본이 너무 적으면 helpful-rate 경고는 잠재운다. */
     private long minSamplesForRateAlert = 5;
+
+    /**
+     * 컬렉션별 ask p95 임계치(ms) 오버라이드. 키가 없으면 {@link #latencyP95AlertMs}.
+     * 예: {@code makit.ai.quality.askP95AlertMsByCollection.office_hub: 15000}
+     */
+    private Map<String, Double> askP95AlertMsByCollection = new LinkedHashMap<>();
+
+    /**
+     * 액션별 p95 임계치(ms) 오버라이드. 키가 없으면 {@link #latencyP95AlertMs}.
+     * 예: {@code makit.ai.quality.actionP95AlertMsByAction.summarize: 8000}
+     */
+    private Map<String, Double> actionP95AlertMsByAction = new LinkedHashMap<>();
 
     public double getHelpfulRateThreshold() { return helpfulRateThreshold; }
     public void setHelpfulRateThreshold(double v) { this.helpfulRateThreshold = v; }
@@ -42,4 +65,14 @@ public class AiQualityProperties {
 
     public long getMinSamplesForRateAlert() { return minSamplesForRateAlert; }
     public void setMinSamplesForRateAlert(long v) { this.minSamplesForRateAlert = v; }
+
+    public Map<String, Double> getAskP95AlertMsByCollection() { return askP95AlertMsByCollection; }
+    public void setAskP95AlertMsByCollection(Map<String, Double> v) {
+        this.askP95AlertMsByCollection = v == null ? new LinkedHashMap<>() : v;
+    }
+
+    public Map<String, Double> getActionP95AlertMsByAction() { return actionP95AlertMsByAction; }
+    public void setActionP95AlertMsByAction(Map<String, Double> v) {
+        this.actionP95AlertMsByAction = v == null ? new LinkedHashMap<>() : v;
+    }
 }

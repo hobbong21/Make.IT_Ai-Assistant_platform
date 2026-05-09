@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.ToDoubleFunction;
 
 /**
  * 관리자 전용 AI 답변 품질 대시보드.
@@ -46,6 +47,12 @@ public class AiQualityController {
     private final MeterRegistry meters;
     private final AiQualityThresholdsService thresholdsService;
     private final SlowCallSampler slowSampler;
+    /**
+     * yml/env에 선언된 컬렉션·액션별 p95 오버라이드 표를 읽기 위한 정적 설정.
+     * 전역 helpful/mean/p95 기본값은 {@link AiQualityThresholdsService}가 DB
+     * 오버라이드를 포함해 노출하므로 그쪽을 사용한다.
+     */
+    private final AiQualityProperties properties;
 
     @Operation(summary = "AI 답변 품질 대시보드 데이터 (최근 N일)")
     @GetMapping("/quality")
@@ -107,10 +114,24 @@ public class AiQualityController {
         // ---- 응답 시간 (마이크로미터에서 누적) -------------------------------
         // 전역 p50/p95는 모든 태그 인스턴스 중 최댓값(=가장 느린 태그)을 채택해 꼬리 지연을
         // 보수적으로 노출한다. 어느 태그가 원인인지 식별할 수 있도록 askByCollection /
-        // actionByAction 으로 태그별 분포도 함께 돌려준다. p95ThresholdMs는 프런트의
-        // 행 강조와 백엔드 경고가 같은 값을 쓰도록 외부화 임계와 동일하게 노출.
-        List<AiQualityDto.TagLatency> askByCollection = tagLatencies("knowledge.ai.ask.latency", "collection");
-        List<AiQualityDto.TagLatency> actionByAction  = tagLatencies("knowledge.ai.action.latency", "action");
+        // actionByAction 으로 태그별 분포도 함께 돌려준다. 각 태그 행의 p95ThresholdMs는
+        // 컬렉션·액션 단위 오버라이드(yml/env)가 있으면 그 값, 없으면 현재 유효한
+        // 전역 기본값(`latencyP95Alert`, DB 오버라이드 반영)을 채워 프런트 강조와
+        // 백엔드 경고가 같은 임계치를 공유하게 한다.
+        Map<String, Double> askOverrides    = properties.getAskP95AlertMsByCollection();
+        Map<String, Double> actionOverrides = properties.getActionP95AlertMsByAction();
+        ToDoubleFunction<String> askResolver = tag -> {
+            Double v = tag == null ? null : askOverrides.get(tag);
+            return v == null ? latencyP95Alert : v;
+        };
+        ToDoubleFunction<String> actionResolver = tag -> {
+            Double v = tag == null ? null : actionOverrides.get(tag);
+            return v == null ? latencyP95Alert : v;
+        };
+        List<AiQualityDto.TagLatency> askByCollection = tagLatencies(
+                "knowledge.ai.ask.latency", "collection", askResolver);
+        List<AiQualityDto.TagLatency> actionByAction  = tagLatencies(
+                "knowledge.ai.action.latency", "action", actionResolver);
 
         AiQualityDto.Latency latency = new AiQualityDto.Latency(
                 meanMs("knowledge.ai.ask.latency"),
@@ -136,14 +157,27 @@ public class AiQualityController {
                     "ask 평균 응답 시간이 %.0fms로 %.0fms 임계치를 초과했습니다.",
                     latency.askMeanMs(), latencyMeanAlert));
         }
-        if (latency.askP95Ms() > latencyP95Alert) {
-            alerts.add(String.format(Locale.ROOT,
-                    "ask p95 응답 시간이 %.0fms로 %.0fms 임계치를 초과했습니다. 일부 사용자가 느린 응답을 겪고 있을 수 있습니다.",
-                    latency.askP95Ms(), latencyP95Alert));
+        // 태그(컬렉션·액션)별로 자기 임계치를 넘으면 개별 경고를 추가한다. 전역 단일
+        // "ask p95 초과" 경고는 태그별 임계치를 도입한 시점부터 의미가 모호해지므로
+        // (어느 컬렉션이 원인인지 알 수 없음) 태그 단위 메시지로 대체한다.
+        for (AiQualityDto.TagLatency r : askByCollection) {
+            if (r.p95Ms() > r.p95ThresholdMs()) {
+                alerts.add(String.format(Locale.ROOT,
+                        "ask 컬렉션 '%s' p95 응답 시간이 %.0fms로 임계치(%.0fms)를 초과했습니다.",
+                        r.tag(), r.p95Ms(), r.p95ThresholdMs()));
+            }
+        }
+        for (AiQualityDto.TagLatency r : actionByAction) {
+            if (r.p95Ms() > r.p95ThresholdMs()) {
+                alerts.add(String.format(Locale.ROOT,
+                        "액션 '%s' p95 응답 시간이 %.0fms로 임계치(%.0fms)를 초과했습니다.",
+                        r.tag(), r.p95Ms(), r.p95ThresholdMs()));
+            }
         }
 
         AiQualityDto.Thresholds thresholdsDto = new AiQualityDto.Thresholds(
-                helpfulRateAlert, latencyMeanAlert, latencyP95Alert, minSamples);
+                helpfulRateAlert, latencyMeanAlert, latencyP95Alert, minSamples,
+                askOverrides, actionOverrides);
         return new AiQualityDto(windowDays, totalFeedback, helpfulRate, helpfulRateAlert,
                 daily, byAction, topDocs, latency, alerts, thresholdsDto);
     }
@@ -225,10 +259,12 @@ public class AiQualityController {
     }
 
     /**
-     * 지정한 태그 키별로 Timer 인스턴스를 모아 mean/p50/p95/count를 반환한다.
+     * 지정한 태그 키별로 Timer 인스턴스를 모아 mean/p50/p95/count와 해당 태그에
+     * 적용되는 p95 임계치(오버라이드 또는 전역 기본값)를 반환한다.
      * p95 내림차순으로 정렬해 가장 느린 태그가 위로 오도록 한다.
      */
-    private List<AiQualityDto.TagLatency> tagLatencies(String name, String tagKey) {
+    private List<AiQualityDto.TagLatency> tagLatencies(
+            String name, String tagKey, ToDoubleFunction<String> p95ThresholdResolver) {
         List<AiQualityDto.TagLatency> out = new ArrayList<>();
         for (Timer t : meters.find(name).timers()) {
             String tag = t.getId().getTag(tagKey);
@@ -242,7 +278,8 @@ public class AiQualityController {
                 if (Math.abs(v.percentile() - 0.5) < 1e-6) p50 = ms;
                 else if (Math.abs(v.percentile() - 0.95) < 1e-6) p95 = ms;
             }
-            out.add(new AiQualityDto.TagLatency(tag, mean, p50, p95, c));
+            out.add(new AiQualityDto.TagLatency(
+                    tag, mean, p50, p95, c, p95ThresholdResolver.applyAsDouble(tag)));
         }
         out.sort(Comparator.comparingDouble(AiQualityDto.TagLatency::p95Ms).reversed());
         return out;

@@ -404,6 +404,12 @@
   margin-left: 0.25rem;
   color: #b91c1c;
 }
+.aiq-tag-threshold {
+  margin-left: 0.125rem;
+  color: var(--mk-color-text-muted, #6b7280);
+  font-weight: 400;
+  font-size: 0.8125em;
+}
 @media (prefers-color-scheme: dark) {
   .aiq-tag-table tbody tr.aiq-tag-row--over {
     background: rgba(239, 68, 68, 0.18);
