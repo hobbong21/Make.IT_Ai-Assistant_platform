@@ -13,6 +13,8 @@
   // ---------- 상수/유틸 ----------
   var STORAGE_KEY = 'makit_nlp_history_v1';
   var HISTORY_MAX = 10;
+  var HISTORY_TEXT_CAP = 500;     // 항목당 입력 텍스트 저장 상한 (문자 수)
+  var HISTORY_SUMMARY_CAP = 400;  // 항목당 요약 저장 상한 (문자 수)
 
   var TEMPLATES = [
     { label: '고객 피드백 분석', text: '아래는 고객들로부터 받은 피드백입니다. 주요 불만 사항과 만족 포인트, 그리고 개선 제안을 추출해주세요.\n\n[여기에 고객 피드백 텍스트를 붙여넣기]' },
@@ -51,14 +53,46 @@
       if (!raw) return [];
       var arr = JSON.parse(raw);
       return Array.isArray(arr) ? arr : [];
-    } catch (_) { return []; }
+    } catch (err) {
+      // 손상된 저장본은 제거 + 콘솔로 명시 (silent fallback 금지)
+      console.warn('[nlp-analyze] history load failed, resetting:', err);
+      try { localStorage.removeItem(STORAGE_KEY); } catch (_) { /* noop */ }
+      return [];
+    }
   }
+  // QuotaExceeded 시 가장 오래된 항목부터 떨어뜨려 재시도. 끝까지 실패하면 사용자에게 안내.
   function saveHistory() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.history.slice(0, HISTORY_MAX))); }
-    catch (_) { /* quota exceeded 등 무시 */ }
+    var snapshot = state.history.slice(0, HISTORY_MAX);
+    while (snapshot.length > 0) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+        if (snapshot.length < state.history.length) {
+          state.history = snapshot;
+          toast('저장 공간이 부족하여 오래된 이력을 일부 정리했습니다.', 'info');
+        }
+        return true;
+      } catch (err) {
+        snapshot.pop(); // 가장 오래된 항목 제거 후 재시도
+      }
+    }
+    toast('이력 저장에 실패했습니다(브라우저 저장 공간 부족).', 'error');
+    return false;
+  }
+  // 저장 직전 데이터 다이어트 — 긴 입력 텍스트/요약을 잘라서 quota 부담 완화
+  function trimEntryForStorage(entry) {
+    if (!entry || !entry.package || !Array.isArray(entry.package.items)) return entry;
+    entry.package.items.forEach(function (item) {
+      if (typeof item.text === 'string' && item.text.length > HISTORY_TEXT_CAP) {
+        item.text = item.text.slice(0, HISTORY_TEXT_CAP) + '… [원문 일부, 저장 시 자동 축약]';
+      }
+      if (typeof item.summary === 'string' && item.summary.length > HISTORY_SUMMARY_CAP) {
+        item.summary = item.summary.slice(0, HISTORY_SUMMARY_CAP) + '…';
+      }
+    });
+    return entry;
   }
   function addHistory(entry) {
-    state.history.unshift(entry);
+    state.history.unshift(trimEntryForStorage(entry));
     state.history = state.history.slice(0, HISTORY_MAX);
     saveHistory();
     renderHistory();
@@ -201,11 +235,12 @@
       };
       state.lastResult = pkg;
       renderResult();
+      // 이력 저장은 패키지 deep copy를 축약해서 사용 (현재 결과 표시는 원본 유지)
       addHistory({
         id: pkg.id,
         timestamp: pkg.timestamp,
         title: makeHistoryTitle(pkg),
-        package: pkg,
+        package: JSON.parse(JSON.stringify(pkg)),
       });
       toast('분석을 완료했습니다.', 'success');
     } catch (err) {
