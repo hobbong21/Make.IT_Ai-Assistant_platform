@@ -43,6 +43,20 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      # Testcontainers 기반 통합 테스트(SlowCallSamplerRedisIntegrationTest 등)가
+      # 실제로 실행되도록, Docker 데몬이 살아있는지 명시적으로 확인한다.
+      # ubuntu-latest 러너는 Docker가 사전 설치되어 있지만, 사라지면 즉시 실패하도록
+      # 가드를 둔다.
+      - name: Verify Docker daemon is available (required for Testcontainers)
+        run: |
+          set -euo pipefail
+          if ! docker info >/dev/null 2>&1; then
+            echo "::error::Docker daemon is not available on this runner — Testcontainers tests cannot run."
+            exit 1
+          fi
+          docker version
+          docker info | head -20
+
       - name: Maven verify
         working-directory: backend
         env:
@@ -53,7 +67,35 @@ jobs:
           SPRING_REDIS_PORT: "6379"
           JWT_SECRET: test-secret-at-least-32-characters-long-for-hs256
           AWS_REGION: ap-northeast-2
+          # TestcontainersSupport 가 Docker 미가용 시 skip 대신 실패하도록 강제.
+          # 새 Testcontainers 테스트도 같은 헬퍼를 쓰면 자동으로 동일 정책이 적용된다.
+          REQUIRE_DOCKER_TESTS: "true"
         run: mvn -B verify
+
+      # Testcontainers 통합 테스트가 "조용히 skip" 되는 회귀를 막기 위해 surefire
+      # 리포트를 직접 검사한다. tests>0 이고 skipped==0 이어야 한다.
+      - name: Assert Testcontainers ITs actually ran
+        if: always()
+        run: |
+          set -euo pipefail
+          report="backend/target/surefire-reports/TEST-com.humanad.makit.knowledge.ai.SlowCallSamplerRedisIntegrationTest.xml"
+          if [ ! -f "$report" ]; then
+            echo "::error::Surefire report not found: $report (test class did not run at all)"
+            exit 1
+          fi
+          tests=$(sed -n 's/.*<testsuite[^>]* tests="\([0-9]\+\)".*/\1/p' "$report" | head -1)
+          skipped=$(sed -n 's/.*<testsuite[^>]* skipped="\([0-9]\+\)".*/\1/p' "$report" | head -1)
+          failures=$(sed -n 's/.*<testsuite[^>]* failures="\([0-9]\+\)".*/\1/p' "$report" | head -1)
+          errors=$(sed -n 's/.*<testsuite[^>]* errors="\([0-9]\+\)".*/\1/p' "$report" | head -1)
+          echo "SlowCallSamplerRedisIntegrationTest: tests=$tests skipped=$skipped failures=$failures errors=$errors"
+          if [ "${tests:-0}" -le 0 ]; then
+            echo "::error::SlowCallSamplerRedisIntegrationTest reported 0 tests"
+            exit 1
+          fi
+          if [ "${skipped:-0}" -ne 0 ]; then
+            echo "::error::SlowCallSamplerRedisIntegrationTest had $skipped skipped tests — Docker likely unavailable in CI"
+            exit 1
+          fi
 
       - name: Upload surefire reports
         if: always()

@@ -10,15 +10,15 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
+
+import com.humanad.makit.testsupport.TestcontainersSupport;
 
 import java.time.Duration;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  * 실제 Redis(Testcontainers)에 붙여서 {@link SlowCallSampler}의 LPUSH/LTRIM/EXPIRE
@@ -26,8 +26,9 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * 영역(Jackson 직렬화 라운드트립, Redis 명령 정확도, 인스턴스 간 표본 공유)을
  * 회귀 보호한다.
  *
- * <p>Docker 데몬이 없는 환경에서는 {@link Assumptions#assumeTrue}로 graceful skip
- * 한다 — 로컬/CI 양쪽에서 안전하게 동작.
+ * <p>Docker 데몬이 없는 환경에서는 graceful skip 한다 — 로컬에서 안전하게 동작.
+ * 단, CI에서는 {@code REQUIRE_DOCKER_TESTS=true} 환경 변수로 skip 대신
+ * 빌드 실패를 강제한다 ({@link TestcontainersSupport} 참고).
  */
 class SlowCallSamplerRedisIntegrationTest {
 
@@ -38,8 +39,8 @@ class SlowCallSamplerRedisIntegrationTest {
 
     @BeforeAll
     static void startRedis() {
-        assumeTrue(DockerClientFactory.instance().isDockerAvailable(),
-                "Docker not available — skipping Redis Testcontainers IT");
+        TestcontainersSupport.requireDockerOrSkip(
+                "SlowCallSamplerRedisIntegrationTest needs a Docker daemon to spin up redis:7-alpine");
 
         redisContainer = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
                 .withExposedPorts(6379);
