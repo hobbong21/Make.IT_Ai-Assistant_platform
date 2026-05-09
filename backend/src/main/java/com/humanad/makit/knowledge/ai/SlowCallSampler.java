@@ -1,7 +1,14 @@
 package com.humanad.makit.knowledge.ai;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,20 +22,29 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * 최근 ask/action 호출 메타를 (kind, tag) 별 ring buffer로 보관해
- * "이 컬렉션·액션이 왜 느린가?"를 진단할 수 있도록 한다. JVM 메모리에만 저장하며,
- * 재시작 시 사라진다. 정확한 추적이 필요하면 별도 로그/스팬을 사용해야 한다.
+ * "이 컬렉션·액션이 왜 느린가?"를 진단할 수 있도록 한다.
+ *
+ * <p>샘플 메타 저장 백엔드는 Redis List ({@code makit:ai:slow:{kind}:{tag}}) —
+ * 인스턴스를 가로질러 같은 표본을 보고, 백엔드 재시작·스케일아웃 후에도 최근 호출을
+ * 잃지 않는다. 키마다 {@link #CAPACITY}건만 유지되도록 매 기록 후 {@code LTRIM}
+ * 하고, {@link #TTL} 동안만 보관해 무한 누적을 막는다. Redis 가용성에 따라 동작:
+ * <ul>
+ *   <li>Redis 사용 가능: List에 LPUSH → LTRIM → EXPIRE. 읽기는 LRANGE.</li>
+ *   <li>Redis 미설정/오류: JVM 인메모리 fallback (ConcurrentLinkedDeque).
+ *       단위 테스트 및 Redis 없이 부팅된 환경에서 회귀를 피하기 위함.</li>
+ * </ul>
  *
  * <p>관리자 대시보드의 {@code aiq-tag-row--over} 행 클릭 시
  * {@link com.humanad.makit.admin.AiQualityController#slow}가 이 버퍼를 조회한다.
  *
- * <p>버퍼 크기는 태그당 {@link #CAPACITY}건. 한 태그가 과도하게 호출되더라도 다른 태그
- * 샘플을 잃지 않도록 태그별로 분리해 보관한다.
- *
  * <p>샘플 모달에서 contextId를 클릭하면 해당 호출의 답변/인용/토큰까지 한 화면에서
  * 확인할 수 있도록, 메타와 별도로 contextId 키 LRU 맵에 응답 본문을
  * {@link Detail}로 보관한다 ({@link #DETAIL_CAPACITY}건). 메모리 보호를 위해
- * 답변/인용 발췌도 길이 상한을 둔다.
+ * 답변/인용 발췌도 길이 상한을 둔다. Detail 저장은 현재 인스턴스 로컬(JVM 메모리)
+ * 이며, 다중 인스턴스/재시작 후 일치는 보장하지 않는다 — Sample 메타와는 별도로
+ * 트레이드오프(빠른 조회 vs. 영속성)를 둔 것.
  */
+@Slf4j
 @Component
 public class SlowCallSampler {
 
@@ -44,6 +60,10 @@ public class SlowCallSampler {
     static final int MAX_SNIPPET = 400;
     /** 보관할 인용 최대 개수. */
     static final int MAX_CITATIONS = 20;
+    /** Redis 키 보관 기간. 운영 회고는 며칠 단위면 충분, 무한 누적 방지. */
+    static final Duration TTL = Duration.ofDays(7);
+
+    private static final String KEY_PREFIX = "makit:ai:slow:";
 
     public record Sample(
             String kind,
@@ -75,6 +95,9 @@ public class SlowCallSampler {
             double score,
             String snippet) {}
 
+    private final StringRedisTemplate redis; // null이면 인메모리 모드
+    private final ObjectMapper mapper;
+    /** Redis 미사용/오류 시 fallback 버퍼 — 기존 동작과 호환. */
     private final Map<String, Deque<Sample>> buffers = new ConcurrentHashMap<>();
 
     /**
@@ -89,6 +112,27 @@ public class SlowCallSampler {
                 }
             });
 
+    /**
+     * 운영용 생성자. Redis가 없는 환경(예: 단위 테스트 컨텍스트)에서도 안전하도록
+     * 두 의존성을 모두 {@link ObjectProvider}로 받아 missing 시 null로 떨어진다.
+     */
+    @Autowired
+    public SlowCallSampler(ObjectProvider<StringRedisTemplate> redisProvider,
+                           ObjectProvider<ObjectMapper> mapperProvider) {
+        this(redisProvider.getIfAvailable(), mapperProvider.getIfAvailable());
+    }
+
+    /** 테스트/주입 직접 제어용. */
+    public SlowCallSampler(StringRedisTemplate redis, ObjectMapper mapper) {
+        this.redis = redis;
+        this.mapper = mapper != null ? mapper : defaultMapper();
+    }
+
+    /** Redis 없이 동작하는 in-memory 전용 생성자 (기존 호출자/테스트 호환). */
+    public SlowCallSampler() {
+        this(null, null);
+    }
+
     public void record(String kind,
                        String tag,
                        long latencyMs,
@@ -101,7 +145,23 @@ public class SlowCallSampler {
                 truncate(question, MAX_QUESTION),
                 modelId == null ? "" : modelId,
                 Instant.now());
-        Deque<Sample> q = buffers.computeIfAbsent(key(kind, safeTag),
+
+        if (redis != null) {
+            String key = redisKey(kind, safeTag);
+            try {
+                String json = mapper.writeValueAsString(s);
+                redis.opsForList().leftPush(key, json);
+                // CAPACITY 초과 분 절단. LTRIM start..end는 inclusive.
+                redis.opsForList().trim(key, 0, CAPACITY - 1);
+                redis.expire(key, TTL);
+                return;
+            } catch (Exception e) {
+                log.warn("SlowCallSampler redis write failed, falling back to in-memory: {}",
+                        e.toString());
+            }
+        }
+
+        Deque<Sample> q = buffers.computeIfAbsent(memKey(kind, safeTag),
                 k -> new ConcurrentLinkedDeque<>());
         q.addFirst(s);
         // 헤드에 누적되므로 꼬리에서 잘라내 가장 오래된 샘플을 제거한다.
@@ -151,15 +211,47 @@ public class SlowCallSampler {
      */
     public List<Sample> recent(String kind, String tag, int limit) {
         String safeTag = (tag == null || tag.isBlank()) ? "all" : tag;
-        Deque<Sample> q = buffers.get(key(kind, safeTag));
-        if (q == null || q.isEmpty()) return List.of();
-        List<Sample> all = new ArrayList<>(q);
+        List<Sample> all = new ArrayList<>();
+        boolean redisOk = false;
+
+        if (redis != null) {
+            String key = redisKey(kind, safeTag);
+            try {
+                List<String> raw = redis.opsForList().range(key, 0, -1);
+                redisOk = true;
+                if (raw != null) {
+                    for (String j : raw) {
+                        try {
+                            all.add(mapper.readValue(j, Sample.class));
+                        } catch (Exception ignore) {
+                            // 한 항목이 깨져도 나머지는 살린다.
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("SlowCallSampler redis read failed, falling back to in-memory: {}",
+                        e.toString());
+            }
+        }
+
+        // Redis가 정상 응답했다면 그 결과(빈 결과 포함)를 신뢰한다. 그렇지 않을 때만
+        // in-memory fallback을 합쳐 진단을 끊기지 않게 한다.
+        if (!redisOk) {
+            Deque<Sample> q = buffers.get(memKey(kind, safeTag));
+            if (q != null) all.addAll(q);
+        }
+
+        if (all.isEmpty()) return List.of();
         all.sort((a, b) -> Long.compare(b.latencyMs(), a.latencyMs()));
         int n = Math.min(Math.max(1, limit), all.size());
         return all.subList(0, n);
     }
 
-    private static String key(String kind, String tag) {
+    private static String redisKey(String kind, String tag) {
+        return KEY_PREFIX + memKey(kind, tag);
+    }
+
+    private static String memKey(String kind, String tag) {
         return (kind == null ? "" : kind) + ":" + tag;
     }
 
@@ -184,5 +276,11 @@ public class SlowCallSampler {
                     truncate(c.snippet(), MAX_SNIPPET)));
         }
         return out;
+    }
+
+    private static ObjectMapper defaultMapper() {
+        ObjectMapper m = new ObjectMapper();
+        m.registerModule(new JavaTimeModule());
+        return m;
     }
 }
