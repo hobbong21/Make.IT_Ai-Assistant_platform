@@ -79,14 +79,27 @@
     if (html != null) n.innerHTML = html;
     return n;
   }
+  // [XSS 정책]
+  // 사용자(또는 향후 사용자) 제공 콘텐츠는 두 경로 중 하나로만 DOM에 들어간다.
+  //   1) 평문/스니펫/제목/태그/메타  → escapeHtml() 로 HTML escape
+  //   2) Markdown 본문(md()) 렌더 결과 → DOMPurify.sanitize() 로 살균
+  // 검색 결과의 본문 스니펫은 plain text 발췌이므로 (1) escapeHtml 경로를 사용한다.
+  // 새 코드를 추가할 때도 이 두 경로 외의 raw HTML 주입을 금지한다.
   function escapeHtml(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
     });
   }
+  function sanitize(html) {
+    if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
+      return window.DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
+    }
+    // DOMPurify 미로드 시 안전 폴백: 원문을 escape하여 평문 처리
+    return '<pre>' + escapeHtml(html) + '</pre>';
+  }
   function md(text) {
     if (window.marked && typeof window.marked.parse === 'function') {
-      try { return window.marked.parse(text); } catch (_) { /* fall through */ }
+      try { return sanitize(window.marked.parse(text)); } catch (_) { /* fall through */ }
     }
     return '<pre>' + escapeHtml(text) + '</pre>';
   }
