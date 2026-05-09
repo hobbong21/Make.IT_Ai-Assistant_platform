@@ -91,6 +91,49 @@
       });
     });
 
+    // AI 답변 신뢰도 임계치 (Task #23)
+    var CONF_KEY = 'mk:axhub:confThreshold';
+    var DEFAULT_CONF = 0.5;
+    function readConf() {
+      try {
+        var raw = localStorage.getItem(CONF_KEY);
+        if (raw == null) return DEFAULT_CONF;
+        var v = parseFloat(raw);
+        if (!isFinite(v)) return DEFAULT_CONF;
+        return Math.max(0, Math.min(1, v));
+      } catch (_) { return DEFAULT_CONF; }
+    }
+    function writeConf(v) {
+      try { localStorage.setItem(CONF_KEY, String(v)); } catch (_) {}
+    }
+    var confInput = byId('confThreshold');
+    var confValue = byId('confThresholdValue');
+    var confReset = byId('confResetBtn');
+    if (confInput && confValue) {
+      var initial = Math.round(readConf() * 100);
+      confInput.value = String(initial);
+      confValue.textContent = initial + '%';
+      var applyConf = function (pct, persist) {
+        confValue.textContent = pct + '%';
+        if (persist) {
+          writeConf(pct / 100);
+          showMsg('confMessage', '저장되었습니다. AX Office Hub에 즉시 반영됩니다.', true);
+        }
+      };
+      confInput.addEventListener('input', function () {
+        applyConf(parseInt(confInput.value, 10) || 0, false);
+      });
+      confInput.addEventListener('change', function () {
+        applyConf(parseInt(confInput.value, 10) || 0, true);
+      });
+      if (confReset) {
+        confReset.addEventListener('click', function () {
+          confInput.value = String(Math.round(DEFAULT_CONF * 100));
+          applyConf(Math.round(DEFAULT_CONF * 100), true);
+        });
+      }
+    }
+
     // 애니메이션 줄이기 체크박스
     var reduceMotionCheck = byId('reduceMotionCheck');
     if (reduceMotionCheck) {

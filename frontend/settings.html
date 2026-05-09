@@ -151,9 +151,41 @@
             <h2 data-i18n="settings.theme">화면 테마</h2>
             <div class="theme-options" role="radiogroup" aria-label="테마 선택">
                 <button type="button" class="theme-opt" data-theme="auto" role="radio" data-i18n="settings.theme-auto">시스템 자동</button>
-                <button type="button" class="theme-opt" data-theme="light" role="radio" data-i18n="settings.theme-light"
+                <button type="button" class="theme-opt" data-theme="light" role="radio" data-i18n="settings.theme-light">라이트</button>
+                <button type="button" class="theme-opt" data-theme="dark" role="radio" data-i18n="settings.theme-dark">다크</button>
+            </div>
+        </section>
+
+        <section class="set-card">
+            <h2 data-i18n="settings.ai-confidence">AI 답변 신뢰도</h2>
+            <p style="color: var(--mk-color-text-muted); font-size: var(--mk-font-size-sm); margin: 0 0 var(--mk-space-3);" data-i18n="settings.ai-confidence-desc">
+                AX Office Hub 답변의 인용 평균 점수가 이 값보다 낮으면 “근거가 약합니다” 배지를 표시합니다.
+            </p>
+            <label for="confThreshold" style="display:flex; justify-content:space-between; align-items:center;">
+                <span data-i18n="settings.ai-confidence-label">약한 근거 임계치</span>
+                <span id="confThresholdValue" style="font-variant-numeric: tabular-nums; color: var(--mk-color-text-muted);">50%</span>
+            </label>
+            <input type="range" id="confThreshold" name="confThreshold" min="0" max="100" step="1" value="50"
+                   style="width:100%; margin-top: var(--mk-space-2);">
+            <div style="display:flex; justify-content:space-between; font-size: var(--mk-font-size-xs); color: var(--mk-color-text-muted); margin-top:4px;">
+                <span>0% (배지 숨김)</span>
+                <span>100% (항상 표시)</span>
+            </div>
+            <div class="set-actions">
+                <button type="button" class="btn-primary" id="confResetBtn" data-i18n="settings.ai-confidence-reset">기본값(50%)으로 복원</button>
+            </div>
+            <div id="confMessage" role="status" aria-live="polite" style="margin-top: var(--mk-space-3);"></div>
+        </section>
+    </main>
 
     <script src="js/core/config.js"></script>
     <script src="js/core/auth.js"></script>
+    <script src="js/core/api.js"></script>
+    <script src="js/core/i18n-dict.js"></script>
+    <script src="js/core/i18n.js"></script>
+    <script src="js/core/ui.js"></script>
     <script src="js/widgets/settings-menu.js"></script>
     <script src="js/widgets/user-menu.js"></script>
+    <script src="js/pages/settings.js"></script>
+</body>
+</html>

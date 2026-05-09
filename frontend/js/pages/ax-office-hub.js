@@ -41,6 +41,27 @@
   var STATIC_NOTICE = { tag: '공지사항', title: 'AX Office Hub 베타 오픈 안내', date: '2026.05.09' };
 
   var RECENT_KEY = 'mk:axhub:recent';
+  var CONF_THRESHOLD_KEY = 'mk:axhub:confThreshold';
+  var DEFAULT_CONF_THRESHOLD = 0.5;
+  function getConfThreshold() {
+    try {
+      var raw = localStorage.getItem(CONF_THRESHOLD_KEY);
+      if (raw == null) return DEFAULT_CONF_THRESHOLD;
+      var v = parseFloat(raw);
+      if (!isFinite(v)) return DEFAULT_CONF_THRESHOLD;
+      return Math.max(0, Math.min(1, v));
+    } catch (_) { return DEFAULT_CONF_THRESHOLD; }
+  }
+  // 다른 탭(설정 화면)에서 임계치를 바꾸면 즉시 반영
+  window.addEventListener('storage', function (e) {
+    if (e && e.key === CONF_THRESHOLD_KEY) {
+      document.querySelectorAll('.hub-ai-confidence').forEach(function (host) {
+        var raw = host.getAttribute('data-citations');
+        if (raw == null) return;
+        try { renderConfidence(host, JSON.parse(raw)); } catch (_) {}
+      });
+    }
+  });
 
   // -------------------------------------------------------------------------
   // In-memory caches (refreshed on writes)
@@ -391,6 +412,8 @@
    */
   function renderConfidence(host, citations, context) {
     if (!host) return;
+    // 추후 임계치 변경 시 재렌더할 수 있도록 citations 스냅샷 보관
+    try { host.setAttribute('data-citations', JSON.stringify(citations || [])); } catch (_) {}
     if (!citations || !citations.length) {
       host.hidden = false;
       host.className = 'hub-ai-confidence hub-ai-confidence--none';
@@ -413,12 +436,14 @@
     var scored = citations.filter(function (c) { return typeof c.score === 'number'; });
     if (scored.length) {
       var avg = scored.reduce(function (s, c) { return s + c.score; }, 0) / scored.length;
-      if (avg < 0.5) {
+      var threshold = getConfThreshold();
+      if (avg < threshold) {
         host.hidden = false;
         host.className = 'hub-ai-confidence hub-ai-confidence--weak';
         host.innerHTML =
           '<span class="hub-conf-icon" aria-hidden="true">⚠️</span>' +
-          '<span class="hub-conf-text">근거가 약합니다 (평균 ' + Math.round(avg * 100) + '%)</span>';
+          '<span class="hub-conf-text">근거가 약합니다 (평균 ' + Math.round(avg * 100) +
+          '%, 임계치 ' + Math.round(threshold * 100) + '%)</span>';
         return;
       }
     }
