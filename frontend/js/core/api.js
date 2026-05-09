@@ -60,11 +60,13 @@
 
     // 401 handling: clear session and redirect to login.
     // /auth/login, /auth/register는 사용자가 직접 인증 시도 중이므로 redirect 제외 (페이지 내 에러 메시지로 처리).
+    // 비로그인 사용자(애초에 토큰 없음)는 redirect하지 않음 — intro/index 등 공개 페이지가 login으로 튕기는 회귀 방지.
     if (resp.status === 401) {
       var isAuthAttempt = path === '/auth/login' || path === '/auth/register';
+      var hadSession = !!(window.auth && window.auth.isLoggedIn && window.auth.isLoggedIn());
       if (!isAuthAttempt) {
         clearStoredSession();
-        if (!/login\.html$/.test(location.pathname)) {
+        if (hadSession && !/login\.html$/.test(location.pathname)) {
           location.href = 'login.html';
         }
       }
