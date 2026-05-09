@@ -320,8 +320,10 @@
    * - `kind`: 'ask' | 'action'
    * - `action`: only used when kind === 'action'
    * - `documentId`: for the feedback payload (optional)
+   * - `context`: { question, collectionId } used by the "문서 추가" CTA when
+   *   the answer ends up with zero citations. Both fields optional.
    */
-  function renderAIStream(host, kind, action, payload, documentId) {
+  function renderAIStream(host, kind, action, payload, documentId, context) {
     if (!host) return;
     host.innerHTML =
       '<div class="hub-ai-confidence" hidden></div>' +
@@ -356,7 +358,7 @@
       onDone: function (info) {
         contextId = info && info.contextId;
         if (firstDelta) { answerEl.textContent = '(빈 응답)'; }
-        renderConfidence(confEl, citations);
+        renderConfidence(confEl, citations, context);
         fbEl.hidden = false;
       },
       onError: function (msg) {
@@ -387,14 +389,25 @@
    * - avg(score) < 0.5 → "근거가 약합니다" (yellow/weak)
    * - otherwise hidden
    */
-  function renderConfidence(host, citations) {
+  function renderConfidence(host, citations, context) {
     if (!host) return;
     if (!citations || !citations.length) {
       host.hidden = false;
       host.className = 'hub-ai-confidence hub-ai-confidence--none';
+      var ctx = context || {};
+      var question = (ctx.question || '').trim();
       host.innerHTML =
         '<span class="hub-conf-icon" aria-hidden="true">⚠️</span>' +
-        '<span class="hub-conf-text">근거 문서 없음 — 일반 지식 기반 답변</span>';
+        '<span class="hub-conf-text">근거 문서 없음 — 일반 지식 기반 답변</span>' +
+        '<button type="button" class="hub-conf-cta" data-add-doc>' +
+          '<span aria-hidden="true">＋</span> 문서 추가' +
+        '</button>';
+      var cta = host.querySelector('[data-add-doc]');
+      if (cta) {
+        cta.addEventListener('click', function () {
+          openAddDocFromQuestionModal(question, ctx.collectionId || null);
+        });
+      }
       return;
     }
     var scored = citations.filter(function (c) { return typeof c.score === 'number'; });
@@ -537,7 +550,7 @@
           var ans = $('#hubAIAnswer');
           if (ans) {
             ans.hidden = false;
-            renderAIStream(ans, 'ask', null, { question: q }, null);
+            renderAIStream(ans, 'ask', null, { question: q }, null, { question: q });
           }
         });
       }
@@ -833,7 +846,10 @@
       tags: doc.tags || [],
       collectionId: doc.collectionId
     };
-    renderAIStream(out, 'action', act, payload, doc.id);
+    renderAIStream(out, 'action', act, payload, doc.id, {
+      question: doc.title,
+      collectionId: doc.collectionId
+    });
   }
 
   function viewSearch(q) {
@@ -1023,6 +1039,71 @@
         refreshCollections();
         location.hash = '#home';
       }).catch(function (err) { notifyError((err && err.message) || '컬렉션 삭제 실패'); });
+    });
+  }
+
+  /**
+   * Open a "문서 추가" modal pre-filled with the user's question as the title.
+   * Used as the CTA shown next to the "근거 문서 없음" badge so users can
+   * quickly seed the knowledge base on topics the AI couldn't answer.
+   *
+   * @param {string} question  The user's question (used as the doc title).
+   * @param {string|null} preferredCollectionId  Pre-selects this collection
+   *   in the dropdown when present (e.g. when the AI ran from a doc page).
+   */
+  function openAddDocFromQuestionModal(question, preferredCollectionId) {
+    ensureCollections().then(function () {
+      var editable = COLLECTIONS.filter(function (c) { return c.canEdit; });
+      if (!editable.length) {
+        notifyError('문서를 추가할 수 있는 컬렉션이 없습니다. 먼저 컬렉션을 만들거나 편집 권한을 받아주세요.');
+        return;
+      }
+      var titleVal = (question || '').trim() || '제목 없음';
+      var preferred = preferredCollectionId && editable.some(function (c) { return c.id === preferredCollectionId; })
+        ? preferredCollectionId
+        : editable[0].id;
+
+      var optionsHtml = editable.map(function (c) {
+        var sel = (c.id === preferred) ? ' selected' : '';
+        return '<option value="' + escapeHtml(c.id) + '"' + sel + '>' +
+          escapeHtml(colEmoji(c) + ' ' + c.name) + '</option>';
+      }).join('');
+
+      window.makitModal.open({
+        title: '문서 추가',
+        body:
+          '<p style="margin-bottom:0.75rem; color: var(--mk-color-text-muted); font-size:0.875rem;">' +
+            '이 주제로 새 문서를 만들어 지식 베이스에 추가합니다. 본문은 다음 화면에서 작성할 수 있어요.' +
+          '</p>' +
+          '<label class="mk-modal-label" style="display:block; font-size:0.8125rem; margin-bottom:0.25rem;">제목</label>' +
+          '<input type="text" id="hubAddDocTitle" class="mk-modal-input" maxlength="255" value="' + escapeHtml(titleVal) + '">' +
+          '<label class="mk-modal-label" style="display:block; font-size:0.8125rem; margin:0.75rem 0 0.25rem;">컬렉션</label>' +
+          '<select id="hubAddDocCol" class="mk-modal-input">' + optionsHtml + '</select>',
+        actions: [
+          { label: '취소', type: 'secondary' },
+          { label: '문서 만들기', type: 'primary', onClick: function (ctx) {
+              var t = (document.getElementById('hubAddDocTitle').value || '').trim();
+              var cid = document.getElementById('hubAddDocCol').value;
+              if (!t) { notifyError('제목을 입력하세요.'); return false; }
+              if (!cid) { notifyError('컬렉션을 선택하세요.'); return false; }
+              window.api.knowledge.createDocument({
+                collectionId: cid, title: t, bodyMd: '', tags: [], status: 'PUBLISHED'
+              }).then(function (doc) {
+                DOCS_CACHE[doc.id] = doc;
+                refreshCollections();
+                window.makitModal.close();
+                location.hash = '#doc/' + doc.id;
+                setTimeout(function () { renderDoc(doc, true); }, 0);
+              }).catch(function (err) {
+                notifyError((err && err.message) || '문서 생성 실패');
+              });
+              return false; // keep modal open until request resolves/closes it
+            }
+          }
+        ]
+      });
+    }).catch(function (err) {
+      notifyError((err && err.message) || '컬렉션 정보를 불러오지 못했습니다.');
     });
   }
 
