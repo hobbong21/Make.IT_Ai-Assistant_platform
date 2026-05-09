@@ -52,14 +52,20 @@
     r.lang = 'ko-KR';
     r.continuous = true;
     r.interimResults = true;
-    r.maxAlternatives = 1;
+    // 후보를 3개까지 받아 가장 신뢰도 높은 alternative 선택 → 인식 정확도 소폭 상승
+    r.maxAlternatives = 3;
 
     r.onresult = function (e) {
       var interim = '';
       for (var i = e.resultIndex; i < e.results.length; i++) {
         var res = e.results[i];
         if (res.isFinal) {
-          state.finalText += (state.finalText ? ' ' : '') + res[0].transcript.trim();
+          // 가장 confidence 높은 alternative 채택 (없으면 0번)
+          var best = res[0];
+          for (var j = 1; j < res.length; j++) {
+            if ((res[j].confidence || 0) > (best.confidence || 0)) best = res[j];
+          }
+          state.finalText += (state.finalText ? ' ' : '') + (best.transcript || '').trim();
         } else {
           interim += res[0].transcript;
         }
@@ -102,7 +108,25 @@
       return false;
     }
     try {
-      var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // STT 친화 입력: 노이즈 억제·에코 제거·자동 볼륨, 모노 16kHz (음성인식률 향상)
+      var audioConstraints = {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        channelCount: 1,
+        sampleRate: 16000,
+        sampleSize: 16
+      };
+      var stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+      } catch (constraintErr) {
+        // 일부 브라우저는 sampleRate 등 제약을 거부 — 안전한 fallback
+        console.warn('[meeting-notes] strict audio constraints rejected, falling back', constraintErr);
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+        });
+      }
       var mime = pickAudioMime();
       var opts = mime ? { mimeType: mime } : undefined;
       var rec = new MediaRecorder(stream, opts);
