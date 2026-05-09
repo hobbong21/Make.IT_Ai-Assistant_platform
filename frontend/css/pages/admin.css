@@ -50,6 +50,13 @@
   color: var(--mk-color-text, #1a1a1a);
 }
 
+.stat-sub {
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  color: var(--mk-color-text-muted, #6b7280);
+  font-variant-numeric: tabular-nums;
+}
+
 /* CHART WRAP */
 .chart-wrap {
   background: var(--mk-color-bg, #fff);

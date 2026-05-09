@@ -21,5 +21,7 @@ public record AiQualityDto(
     public record DailyPoint(String date, long helpful, long notHelpful) {}
     public record ActionStat(String action, long helpful, long notHelpful, double helpfulRate) {}
     public record DocStat(String documentId, long count) {}
-    public record Latency(double askMeanMs, long askCount, double actionMeanMs, long actionCount) {}
+    public record Latency(
+            double askMeanMs, double askP50Ms, double askP95Ms, long askCount,
+            double actionMeanMs, double actionP50Ms, double actionP95Ms, long actionCount) {}
 }

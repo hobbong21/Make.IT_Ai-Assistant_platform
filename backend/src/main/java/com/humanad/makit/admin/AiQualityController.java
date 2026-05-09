@@ -40,6 +40,8 @@ public class AiQualityController {
     static final double HELPFUL_RATE_ALERT = 0.70;
     /** ask 평균 응답시간(ms)이 이 값을 넘으면 경고 배너를 띄운다. */
     static final double LATENCY_ALERT_MS = 6000.0;
+    /** ask p95 응답시간(ms)이 이 값을 넘으면 경고 배너를 띄운다. (꼬리 지연 감지용) */
+    static final double LATENCY_P95_ALERT_MS = 10_000.0;
     /** 표본이 너무 적으면 helpful-rate 경고는 잠재운다. */
     static final long MIN_SAMPLES_FOR_RATE_ALERT = 5;
 
@@ -97,10 +99,17 @@ public class AiQualityController {
         double helpfulRate = totalFeedback == 0 ? 0.0 : (double) totalHelpful / totalFeedback;
 
         // ---- 응답 시간 (마이크로미터에서 누적) -------------------------------
+        // 태그별로 분리된 Timer들 사이에서 percentile은 단순 평균이 어렵기 때문에
+        // p50/p95는 태그 중 "최악(max)" 값을 채택한다 — 꼬리 지연 감지가 목적이라
+        // 가장 보수적인 값을 노출하는 편이 안전하다.
         AiQualityDto.Latency latency = new AiQualityDto.Latency(
                 meanMs("knowledge.ai.ask.latency"),
+                percentileMs("knowledge.ai.ask.latency", 0.5),
+                percentileMs("knowledge.ai.ask.latency", 0.95),
                 count("knowledge.ai.ask.latency"),
                 meanMs("knowledge.ai.action.latency"),
+                percentileMs("knowledge.ai.action.latency", 0.5),
+                percentileMs("knowledge.ai.action.latency", 0.95),
                 count("knowledge.ai.action.latency"));
 
         // ---- 경고 -----------------------------------------------------------
@@ -114,6 +123,11 @@ public class AiQualityController {
             alerts.add(String.format(Locale.ROOT,
                     "ask 평균 응답 시간이 %.0fms로 %.0fms 임계치를 초과했습니다.",
                     latency.askMeanMs(), LATENCY_ALERT_MS));
+        }
+        if (latency.askP95Ms() > LATENCY_P95_ALERT_MS) {
+            alerts.add(String.format(Locale.ROOT,
+                    "ask p95 응답 시간이 %.0fms로 %.0fms 임계치를 초과했습니다. 일부 사용자가 느린 응답을 겪고 있을 수 있습니다.",
+                    latency.askP95Ms(), LATENCY_P95_ALERT_MS));
         }
 
         return new AiQualityDto(windowDays, totalFeedback, helpfulRate, HELPFUL_RATE_ALERT,
@@ -136,5 +150,23 @@ public class AiQualityController {
         long c = 0;
         for (Timer t : meters.find(name).timers()) c += t.count();
         return c;
+    }
+
+    /**
+     * 같은 이름의 Timer들이 태그별로 여러 개 등록돼 있으므로(collection/action 등)
+     * 모든 인스턴스의 스냅샷을 훑어 해당 percentile의 최댓값(=가장 느린 태그)을 돌려준다.
+     * Timer.builder 단계에서 publishPercentiles(0.5, 0.95)가 켜져 있어야 값이 나온다.
+     */
+    private double percentileMs(String name, double percentile) {
+        double max = 0.0;
+        for (Timer t : meters.find(name).timers()) {
+            for (var v : t.takeSnapshot().percentileValues()) {
+                if (Math.abs(v.percentile() - percentile) < 1e-6) {
+                    double ms = v.value(TimeUnit.MILLISECONDS);
+                    if (ms > max) max = ms;
+                }
+            }
+        }
+        return max;
     }
 }

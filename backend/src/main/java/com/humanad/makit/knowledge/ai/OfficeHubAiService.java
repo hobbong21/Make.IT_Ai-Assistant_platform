@@ -101,6 +101,7 @@ public class OfficeHubAiService {
 
         sample.stop(Timer.builder("knowledge.ai.ask.latency")
                 .tag("collection", req.collectionId() == null ? "all" : req.collectionId())
+                .publishPercentiles(0.5, 0.95)
                 .register(meters));
         meters.counter("knowledge.ai.ask.calls").increment();
 
@@ -187,7 +188,9 @@ public class OfficeHubAiService {
         BedrockInvocation inv = invoke(prompts.loadVersioned(promptKey, vars).text());
 
         sample.stop(Timer.builder("knowledge.ai.action.latency")
-                .tag("action", action).register(meters));
+                .tag("action", action)
+                .publishPercentiles(0.5, 0.95)
+                .register(meters));
         meters.counter("knowledge.ai.action.calls", "action", action).increment();
 
         return new AskResponse(

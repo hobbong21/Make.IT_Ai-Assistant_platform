@@ -603,10 +603,24 @@
       document.getElementById('aiq-helpful-rate').textContent =
         data.totalFeedback === 0 ? '데이터 없음' : fmtPct(data.helpfulRate);
       document.getElementById('aiq-total-feedback').textContent = data.totalFeedback.toLocaleString();
-      document.getElementById('aiq-ask-mean').textContent =
-        (data.latency.askCount === 0) ? '--' : fmtMs(data.latency.askMeanMs);
-      document.getElementById('aiq-action-mean').textContent =
-        (data.latency.actionCount === 0) ? '--' : fmtMs(data.latency.actionMeanMs);
+      const askP95El = document.getElementById('aiq-ask-p95');
+      const actionP95El = document.getElementById('aiq-action-p95');
+      const askMeanEl = document.getElementById('aiq-ask-mean');
+      const actionMeanEl = document.getElementById('aiq-action-mean');
+      if (data.latency.askCount === 0) {
+        askMeanEl.textContent = '--';
+        if (askP95El) askP95El.textContent = 'p95 --';
+      } else {
+        askMeanEl.textContent = `평균 ${fmtMs(data.latency.askMeanMs)}`;
+        if (askP95El) askP95El.textContent = `p50 ${fmtMs(data.latency.askP50Ms)} · p95 ${fmtMs(data.latency.askP95Ms)}`;
+      }
+      if (data.latency.actionCount === 0) {
+        actionMeanEl.textContent = '--';
+        if (actionP95El) actionP95El.textContent = 'p95 --';
+      } else {
+        actionMeanEl.textContent = `평균 ${fmtMs(data.latency.actionMeanMs)}`;
+        if (actionP95El) actionP95El.textContent = `p50 ${fmtMs(data.latency.actionP50Ms)} · p95 ${fmtMs(data.latency.actionP95Ms)}`;
+      }
 
       // Alerts banner
       if (alertsEl) {
