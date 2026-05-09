@@ -16,7 +16,8 @@ public record AiQualityDto(
         List<ActionStat> byAction,
         List<DocStat> topDocuments,
         Latency latency,
-        List<String> alerts
+        List<String> alerts,
+        Thresholds thresholds
 ) {
     public record DailyPoint(String date, long helpful, long notHelpful) {}
     public record ActionStat(String action, long helpful, long notHelpful, double helpfulRate) {}
@@ -24,4 +25,14 @@ public record AiQualityDto(
     public record Latency(
             double askMeanMs, double askP50Ms, double askP95Ms, long askCount,
             double actionMeanMs, double actionP50Ms, double actionP95Ms, long actionCount) {}
+
+    /**
+     * 현재 적용 중인 운영 임계치. 프런트는 이 값으로 경고 배너/배지를 동기화한다.
+     * {@code makit.ai.quality.*}로 외부화돼 있어 재배포 없이 조정 가능.
+     */
+    public record Thresholds(
+            double helpfulRateThreshold,
+            double latencyMeanAlertMs,
+            double latencyP95AlertMs,
+            long minSamplesForRateAlert) {}
 }

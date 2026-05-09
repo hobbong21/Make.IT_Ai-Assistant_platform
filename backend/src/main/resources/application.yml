@@ -140,6 +140,14 @@ resilience4j:
 makit:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost,http://localhost:80,http://localhost:3000,http://localhost:5173}
+  ai:
+    # AI 답변 품질 대시보드(/api/admin/ai/quality) 경고 배너 임계치.
+    # 운영 중 트래픽 패턴이 바뀌면 환경변수(MAKIT_AI_QUALITY_*) 로 재배포 없이 조정한다.
+    quality:
+      helpfulRateThreshold:    ${MAKIT_AI_QUALITY_HELPFUL_RATE_THRESHOLD:0.70}
+      latencyMeanAlertMs:      ${MAKIT_AI_QUALITY_LATENCY_MEAN_ALERT_MS:6000}
+      latencyP95AlertMs:       ${MAKIT_AI_QUALITY_LATENCY_P95_ALERT_MS:10000}
+      minSamplesForRateAlert:  ${MAKIT_AI_QUALITY_MIN_SAMPLES_FOR_RATE_ALERT:5}
 
 management:
   endpoints:

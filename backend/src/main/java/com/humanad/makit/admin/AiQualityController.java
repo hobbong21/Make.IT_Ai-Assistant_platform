@@ -36,17 +36,9 @@ import java.util.concurrent.TimeUnit;
 @Tag(name = "admin")
 public class AiQualityController {
 
-    /** helpful 비율이 이 값 미만이면 경고 배너를 띄운다. */
-    static final double HELPFUL_RATE_ALERT = 0.70;
-    /** ask 평균 응답시간(ms)이 이 값을 넘으면 경고 배너를 띄운다. */
-    static final double LATENCY_ALERT_MS = 6000.0;
-    /** ask p95 응답시간(ms)이 이 값을 넘으면 경고 배너를 띄운다. (꼬리 지연 감지용) */
-    static final double LATENCY_P95_ALERT_MS = 10_000.0;
-    /** 표본이 너무 적으면 helpful-rate 경고는 잠재운다. */
-    static final long MIN_SAMPLES_FOR_RATE_ALERT = 5;
-
     private final OfficeHubFeedbackRepository feedbackRepo;
     private final MeterRegistry meters;
+    private final AiQualityProperties thresholds;
 
     @Operation(summary = "AI 답변 품질 대시보드 데이터 (최근 N일)")
     @GetMapping("/quality")
@@ -112,26 +104,33 @@ public class AiQualityController {
                 percentileMs("knowledge.ai.action.latency", 0.95),
                 count("knowledge.ai.action.latency"));
 
-        // ---- 경고 -----------------------------------------------------------
+        // ---- 경고 (임계치는 makit.ai.quality.* 프로퍼티로 외부화) -----------
+        double helpfulRateAlert = thresholds.getHelpfulRateThreshold();
+        double latencyMeanAlert = thresholds.getLatencyMeanAlertMs();
+        double latencyP95Alert  = thresholds.getLatencyP95AlertMs();
+        long   minSamples       = thresholds.getMinSamplesForRateAlert();
+
         List<String> alerts = new ArrayList<>();
-        if (totalFeedback >= MIN_SAMPLES_FOR_RATE_ALERT && helpfulRate < HELPFUL_RATE_ALERT) {
+        if (totalFeedback >= minSamples && helpfulRate < helpfulRateAlert) {
             alerts.add(String.format(Locale.ROOT,
                     "최근 %d일 도움됨 비율이 %.0f%%로 임계치(%.0f%%) 미만입니다.",
-                    windowDays, helpfulRate * 100, HELPFUL_RATE_ALERT * 100));
+                    windowDays, helpfulRate * 100, helpfulRateAlert * 100));
         }
-        if (latency.askMeanMs() > LATENCY_ALERT_MS) {
+        if (latency.askMeanMs() > latencyMeanAlert) {
             alerts.add(String.format(Locale.ROOT,
                     "ask 평균 응답 시간이 %.0fms로 %.0fms 임계치를 초과했습니다.",
-                    latency.askMeanMs(), LATENCY_ALERT_MS));
+                    latency.askMeanMs(), latencyMeanAlert));
         }
-        if (latency.askP95Ms() > LATENCY_P95_ALERT_MS) {
+        if (latency.askP95Ms() > latencyP95Alert) {
             alerts.add(String.format(Locale.ROOT,
                     "ask p95 응답 시간이 %.0fms로 %.0fms 임계치를 초과했습니다. 일부 사용자가 느린 응답을 겪고 있을 수 있습니다.",
-                    latency.askP95Ms(), LATENCY_P95_ALERT_MS));
+                    latency.askP95Ms(), latencyP95Alert));
         }
 
-        return new AiQualityDto(windowDays, totalFeedback, helpfulRate, HELPFUL_RATE_ALERT,
-                daily, byAction, topDocs, latency, alerts);
+        AiQualityDto.Thresholds thresholdsDto = new AiQualityDto.Thresholds(
+                helpfulRateAlert, latencyMeanAlert, latencyP95Alert, minSamples);
+        return new AiQualityDto(windowDays, totalFeedback, helpfulRate, helpfulRateAlert,
+                daily, byAction, topDocs, latency, alerts, thresholdsDto);
     }
 
     // -------------------------------------------------------------------- helpers
