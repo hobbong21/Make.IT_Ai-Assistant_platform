@@ -674,6 +674,46 @@
         if (actionP95El) actionP95El.textContent = `p50 ${fmtMs(data.latency.actionP50Ms)} · p95 ${fmtMs(data.latency.actionP95Ms)}`;
       }
 
+      // Thresholds caption + breach highlights
+      const th = data.thresholds || null;
+      const thresholdsEl = document.getElementById('aiq-thresholds');
+      const helpfulCard = document.getElementById('aiq-card-helpful-rate');
+      const askCard = document.getElementById('aiq-card-ask');
+      const actionCard = document.getElementById('aiq-card-action');
+      [helpfulCard, askCard, actionCard].forEach(c => c && c.classList.remove('is-breach'));
+      if (askP95El) askP95El.classList.remove('is-breach');
+      if (actionP95El) actionP95El.classList.remove('is-breach');
+      if (askMeanEl) askMeanEl.classList.remove('is-breach');
+      if (actionMeanEl) actionMeanEl.classList.remove('is-breach');
+
+      if (th && thresholdsEl) {
+        thresholdsEl.textContent =
+          `현재 임계치 — 도움됨 < ${fmtPct(th.helpfulRateThreshold)} ` +
+          `(최소 표본 ${th.minSamplesForRateAlert.toLocaleString()}건), ` +
+          `평균 응답 > ${fmtMs(th.latencyMeanAlertMs)}ms, ` +
+          `p95 응답 > ${fmtMs(th.latencyP95AlertMs)}ms`;
+
+        const helpfulBreach =
+          data.totalFeedback >= th.minSamplesForRateAlert &&
+          data.helpfulRate < th.helpfulRateThreshold;
+        if (helpfulBreach && helpfulCard) helpfulCard.classList.add('is-breach');
+
+        if (data.latency.askCount > 0) {
+          const askMeanBreach = data.latency.askMeanMs > th.latencyMeanAlertMs;
+          const askP95Breach = data.latency.askP95Ms > th.latencyP95AlertMs;
+          if ((askMeanBreach || askP95Breach) && askCard) askCard.classList.add('is-breach');
+          if (askP95Breach && askP95El) askP95El.classList.add('is-breach');
+        }
+        if (data.latency.actionCount > 0) {
+          const actionMeanBreach = data.latency.actionMeanMs > th.latencyMeanAlertMs;
+          const actionP95Breach = data.latency.actionP95Ms > th.latencyP95AlertMs;
+          if ((actionMeanBreach || actionP95Breach) && actionCard) actionCard.classList.add('is-breach');
+          if (actionP95Breach && actionP95El) actionP95El.classList.add('is-breach');
+        }
+      } else if (thresholdsEl) {
+        thresholdsEl.textContent = '임계치 정보 없음';
+      }
+
       // Alerts banner
       if (alertsEl) {
         alertsEl.innerHTML = '';

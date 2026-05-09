@@ -147,8 +147,10 @@
 
                     <div id="aiq-alerts" class="aiq-alerts" role="alert" aria-live="polite" hidden></div>
 
+                    <p id="aiq-thresholds" class="aiq-thresholds" aria-label="현재 적용 중인 경고 임계치">임계치 로딩 중...</p>
+
                     <div class="admin-stats-grid" aria-label="AI 품질 요약">
-                        <div class="admin-stat-card">
+                        <div class="admin-stat-card" id="aiq-card-helpful-rate">
                             <div class="stat-icon">👍</div>
                             <div class="stat-content">
                                 <div class="stat-label">도움됨 비율</div>
@@ -162,7 +164,7 @@
                                 <div class="stat-value" id="aiq-total-feedback">--</div>
                             </div>
                         </div>
-                        <div class="admin-stat-card">
+                        <div class="admin-stat-card" id="aiq-card-ask">
                             <div class="stat-icon">⚡</div>
                             <div class="stat-content">
                                 <div class="stat-label">ask 응답 (ms)</div>
@@ -170,7 +172,7 @@
                                 <div class="stat-sub" id="aiq-ask-p95">p95 --</div>
                             </div>
                         </div>
-                        <div class="admin-stat-card">
+                        <div class="admin-stat-card" id="aiq-card-action">
                             <div class="stat-icon">⚙️</div>
                             <div class="stat-content">
                                 <div class="stat-label">action 응답 (ms)</div>
