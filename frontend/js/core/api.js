@@ -156,6 +156,8 @@
         var body = { text: text };
         if (opts && opts.tasks) body.tasks = opts.tasks;
         if (opts && opts.language) body.language = opts.language;
+        if (opts && opts.maxKeywords != null) body.maxKeywords = opts.maxKeywords;
+        if (opts && opts.summaryLength) body.summaryLength = opts.summaryLength;
         return request('/data/nlp/analyze', { method: 'POST', body: body });
       },
       youtubeComments: function (videoUrl, opts) {
