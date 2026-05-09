@@ -191,6 +191,53 @@
                         </div>
                     </div>
 
+                    <div class="aiq-tag-latency-grid" style="margin-top:1rem;">
+                        <div class="aiq-chart-card">
+                            <h3 class="aiq-chart-title">
+                                컬렉션별 ask 응답 시간
+                                <span class="aiq-tag-hint" id="aiq-ask-tag-hint">p95 임계 -- ms 초과 시 강조</span>
+                            </h3>
+                            <div class="table-wrap">
+                                <table class="admin-user-table aiq-tag-table" role="grid" aria-label="컬렉션별 ask 응답 시간">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">컬렉션</th>
+                                            <th scope="col" class="num">평균(ms)</th>
+                                            <th scope="col" class="num">p50(ms)</th>
+                                            <th scope="col" class="num">p95(ms)</th>
+                                            <th scope="col" class="num">호출 수</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="aiq-ask-tag-tbody">
+                                        <tr><td colspan="5" class="mk-loading-cell">로딩 중...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="aiq-chart-card">
+                            <h3 class="aiq-chart-title">
+                                액션별 응답 시간
+                                <span class="aiq-tag-hint" id="aiq-action-tag-hint">p95 임계 -- ms 초과 시 강조</span>
+                            </h3>
+                            <div class="table-wrap">
+                                <table class="admin-user-table aiq-tag-table" role="grid" aria-label="액션별 응답 시간">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">액션</th>
+                                            <th scope="col" class="num">평균(ms)</th>
+                                            <th scope="col" class="num">p50(ms)</th>
+                                            <th scope="col" class="num">p95(ms)</th>
+                                            <th scope="col" class="num">호출 수</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="aiq-action-tag-tbody">
+                                        <tr><td colspan="5" class="mk-loading-cell">로딩 중...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="table-wrap" style="margin-top:1rem;">
                         <h3 class="aiq-chart-title" id="aiq-top-docs-title">피드백 상위 문서</h3>
                         <table class="admin-user-table" role="grid" aria-label="피드백 상위 문서">

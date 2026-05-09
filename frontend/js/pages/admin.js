@@ -229,6 +229,36 @@
     });
     lines.push('');
 
+    // Section 4a: Tag-level latency (ask by collection)
+    if (data.latency) {
+      const fmtMsNum = (n) => (n == null ? '' : Math.round(n));
+      lines.push(['# Section', 'Ask Latency by Collection'].map(csvCell).join(','));
+      lines.push(['collection', 'meanMs', 'p50Ms', 'p95Ms', 'count'].map(csvCell).join(','));
+      (data.latency.askByCollection || []).forEach((r) => {
+        lines.push([
+          r.tag || '',
+          String(fmtMsNum(r.meanMs)),
+          String(fmtMsNum(r.p50Ms)),
+          String(fmtMsNum(r.p95Ms)),
+          String(r.count == null ? 0 : r.count)
+        ].map(csvCell).join(','));
+      });
+      lines.push('');
+
+      lines.push(['# Section', 'Action Latency by Action'].map(csvCell).join(','));
+      lines.push(['action', 'meanMs', 'p50Ms', 'p95Ms', 'count'].map(csvCell).join(','));
+      (data.latency.actionByAction || []).forEach((r) => {
+        lines.push([
+          r.tag || '',
+          String(fmtMsNum(r.meanMs)),
+          String(fmtMsNum(r.p50Ms)),
+          String(fmtMsNum(r.p95Ms)),
+          String(r.count == null ? 0 : r.count)
+        ].map(csvCell).join(','));
+      });
+      lines.push('');
+    }
+
     // Section 4: Top documents
     lines.push(['# Section', 'Top Feedback Documents'].map(csvCell).join(','));
     lines.push(['rank', 'documentId', 'feedbackCount'].map(csvCell).join(','));
@@ -455,6 +485,28 @@
       console.error('Failed to load users:', err);
       window.ui.toast('사용자 목록 로드 실패', 'error');
     }
+  }
+
+  function renderTagLatencyRows(tbody, rows, p95Threshold, fmtMs) {
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    if (!rows || rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:16px;">기간 내 측정값이 없습니다.</td></tr>';
+      return;
+    }
+    rows.forEach((r) => {
+      const tr = document.createElement('tr');
+      const over = typeof r.p95Ms === 'number' && r.p95Ms > p95Threshold;
+      if (over) tr.classList.add('aiq-tag-row--over');
+      tr.innerHTML = `
+        <td><code>${escapeHtml(r.tag || '')}</code></td>
+        <td class="num">${fmtMs(r.meanMs || 0)}</td>
+        <td class="num">${fmtMs(r.p50Ms || 0)}</td>
+        <td class="num">${fmtMs(r.p95Ms || 0)}${over ? ' <span class="aiq-tag-flag" title="p95 임계 초과">⚠</span>' : ''}</td>
+        <td class="num">${(r.count || 0).toLocaleString()}</td>
+      `;
+      tbody.appendChild(tr);
+    });
   }
 
   function formatDate(iso) {
@@ -700,6 +752,27 @@
           }
         }
       });
+
+      // Tag-level latency tables (collection for ask, action for action)
+      const p95Threshold = (data.latency && typeof data.latency.p95ThresholdMs === 'number')
+        ? data.latency.p95ThresholdMs : 10000;
+      const askHint = document.getElementById('aiq-ask-tag-hint');
+      const actionHint = document.getElementById('aiq-action-tag-hint');
+      const thresholdLabel = `p95 ${fmtMs(p95Threshold)} ms 초과 시 강조`;
+      if (askHint) askHint.textContent = thresholdLabel;
+      if (actionHint) actionHint.textContent = thresholdLabel;
+      renderTagLatencyRows(
+        document.getElementById('aiq-ask-tag-tbody'),
+        (data.latency && data.latency.askByCollection) || [],
+        p95Threshold,
+        fmtMs
+      );
+      renderTagLatencyRows(
+        document.getElementById('aiq-action-tag-tbody'),
+        (data.latency && data.latency.actionByAction) || [],
+        p95Threshold,
+        fmtMs
+      );
 
       // Top docs table
       const tbody = document.getElementById('aiq-top-docs');

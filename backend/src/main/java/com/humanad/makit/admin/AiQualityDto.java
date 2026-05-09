@@ -22,9 +22,23 @@ public record AiQualityDto(
     public record DailyPoint(String date, long helpful, long notHelpful) {}
     public record ActionStat(String action, long helpful, long notHelpful, double helpfulRate) {}
     public record DocStat(String documentId, long count) {}
+
+    /**
+     * 응답 시간 메트릭 요약. {@code askByCollection}/{@code actionByAction}는 태그별
+     * 분포를 그대로 노출해, 어느 컬렉션·액션이 꼬리 지연을 유발하는지 식별하기 위한 표 데이터.
+     * 전역 mean/p50/p95는 기존 호환을 위해 유지(태그 중 최댓값 = 가장 느린 태그).
+     * {@code p95ThresholdMs}는 프런트의 강조 임계와 백엔드 경고 임계가 어긋나지 않도록
+     * 운영 임계({@link Thresholds#latencyP95AlertMs})와 동일한 값을 그대로 노출한다.
+     */
     public record Latency(
             double askMeanMs, double askP50Ms, double askP95Ms, long askCount,
-            double actionMeanMs, double actionP50Ms, double actionP95Ms, long actionCount) {}
+            double actionMeanMs, double actionP50Ms, double actionP95Ms, long actionCount,
+            double p95ThresholdMs,
+            List<TagLatency> askByCollection,
+            List<TagLatency> actionByAction) {}
+
+    /** 태그(컬렉션 또는 액션) 한 건의 응답 시간 통계. */
+    public record TagLatency(String tag, double meanMs, double p50Ms, double p95Ms, long count) {}
 
     /**
      * 현재 적용 중인 운영 임계치. 프런트는 이 값으로 경고 배너/배지를 동기화한다.

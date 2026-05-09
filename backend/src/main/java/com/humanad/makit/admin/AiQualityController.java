@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -90,10 +91,20 @@ public class AiQualityController {
         long totalFeedback = totalHelpful + totalNot;
         double helpfulRate = totalFeedback == 0 ? 0.0 : (double) totalHelpful / totalFeedback;
 
+        // ---- 임계치 (makit.ai.quality.* 프로퍼티로 외부화) ------------------
+        double helpfulRateAlert = thresholds.getHelpfulRateThreshold();
+        double latencyMeanAlert = thresholds.getLatencyMeanAlertMs();
+        double latencyP95Alert  = thresholds.getLatencyP95AlertMs();
+        long   minSamples       = thresholds.getMinSamplesForRateAlert();
+
         // ---- 응답 시간 (마이크로미터에서 누적) -------------------------------
-        // 태그별로 분리된 Timer들 사이에서 percentile은 단순 평균이 어렵기 때문에
-        // p50/p95는 태그 중 "최악(max)" 값을 채택한다 — 꼬리 지연 감지가 목적이라
-        // 가장 보수적인 값을 노출하는 편이 안전하다.
+        // 전역 p50/p95는 모든 태그 인스턴스 중 최댓값(=가장 느린 태그)을 채택해 꼬리 지연을
+        // 보수적으로 노출한다. 어느 태그가 원인인지 식별할 수 있도록 askByCollection /
+        // actionByAction 으로 태그별 분포도 함께 돌려준다. p95ThresholdMs는 프런트의
+        // 행 강조와 백엔드 경고가 같은 값을 쓰도록 외부화 임계와 동일하게 노출.
+        List<AiQualityDto.TagLatency> askByCollection = tagLatencies("knowledge.ai.ask.latency", "collection");
+        List<AiQualityDto.TagLatency> actionByAction  = tagLatencies("knowledge.ai.action.latency", "action");
+
         AiQualityDto.Latency latency = new AiQualityDto.Latency(
                 meanMs("knowledge.ai.ask.latency"),
                 percentileMs("knowledge.ai.ask.latency", 0.5),
@@ -102,13 +113,10 @@ public class AiQualityController {
                 meanMs("knowledge.ai.action.latency"),
                 percentileMs("knowledge.ai.action.latency", 0.5),
                 percentileMs("knowledge.ai.action.latency", 0.95),
-                count("knowledge.ai.action.latency"));
-
-        // ---- 경고 (임계치는 makit.ai.quality.* 프로퍼티로 외부화) -----------
-        double helpfulRateAlert = thresholds.getHelpfulRateThreshold();
-        double latencyMeanAlert = thresholds.getLatencyMeanAlertMs();
-        double latencyP95Alert  = thresholds.getLatencyP95AlertMs();
-        long   minSamples       = thresholds.getMinSamplesForRateAlert();
+                count("knowledge.ai.action.latency"),
+                latencyP95Alert,
+                askByCollection,
+                actionByAction);
 
         List<String> alerts = new ArrayList<>();
         if (totalFeedback >= minSamples && helpfulRate < helpfulRateAlert) {
@@ -167,5 +175,29 @@ public class AiQualityController {
             }
         }
         return max;
+    }
+
+    /**
+     * 지정한 태그 키별로 Timer 인스턴스를 모아 mean/p50/p95/count를 반환한다.
+     * p95 내림차순으로 정렬해 가장 느린 태그가 위로 오도록 한다.
+     */
+    private List<AiQualityDto.TagLatency> tagLatencies(String name, String tagKey) {
+        List<AiQualityDto.TagLatency> out = new ArrayList<>();
+        for (Timer t : meters.find(name).timers()) {
+            String tag = t.getId().getTag(tagKey);
+            if (tag == null || tag.isBlank()) continue;
+            long c = t.count();
+            if (c == 0) continue;
+            double mean = t.totalTime(TimeUnit.MILLISECONDS) / (double) c;
+            double p50 = 0.0, p95 = 0.0;
+            for (var v : t.takeSnapshot().percentileValues()) {
+                double ms = v.value(TimeUnit.MILLISECONDS);
+                if (Math.abs(v.percentile() - 0.5) < 1e-6) p50 = ms;
+                else if (Math.abs(v.percentile() - 0.95) < 1e-6) p95 = ms;
+            }
+            out.add(new AiQualityDto.TagLatency(tag, mean, p50, p95, c));
+        }
+        out.sort(Comparator.comparingDouble(AiQualityDto.TagLatency::p95Ms).reversed());
+        return out;
     }
 }
