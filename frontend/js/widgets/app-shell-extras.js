@@ -47,9 +47,7 @@
     mountSidebarToggleEarly();
   }
 
-  if (!window.auth || !auth.isLoggedIn()) return;
-
-  // ============ 다크모드 토글 ============
+  // ============ 다크모드 토글 (비로그인 사용자에게도 적용) ============
   function getTheme() {
     return localStorage.getItem('makit_theme') || 'auto';
   }
@@ -64,6 +62,9 @@
   // 초기 적용
   applyTheme(getTheme());
   window.makitTheme = { get: getTheme, set: setTheme };
+
+  // 이하 알림종/Cmd+K/언어 선택기는 로그인 사용자 전용
+  if (!window.auth || !auth.isLoggedIn()) return;
 
   // ============ 알림 종 ============
   function buildBell() {
@@ -395,14 +396,9 @@
     document.body.appendChild(palette);
     bindPalette(palette);
 
-    // 언어 선택기 (i18n 준비 후 마운트)
-    setTimeout(function () {
-      var langPicker = buildLanguagePicker();
-      if (langPicker) {
-        document.body.appendChild(langPicker);
-        bindLanguagePicker(langPicker);
-      }
-    }, 100);
+    // 언어 선택기는 헤더 nav의 ⚙️ 설정 메뉴(settings-menu.js)로 이전됨.
+    // 기존 floating 언어 선택기는 비활성화 (중복 방지).
+    void buildLanguagePicker; void bindLanguagePicker;
   }
 
   if (document.readyState === 'loading') {
