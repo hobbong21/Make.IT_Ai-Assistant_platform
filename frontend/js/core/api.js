@@ -393,6 +393,56 @@
       // POST /api/knowledge/ai/feedback — { contextId, documentId?, action, helpful, comment? }
       feedback: function (payload) {
         return request('/knowledge/ai/feedback', { method: 'POST', body: payload });
+      },
+
+      // -------- collections --------
+      listCollections: function () { return request('/knowledge/collections'); },
+      createCollection: function (payload) {
+        return request('/knowledge/collections', { method: 'POST', body: payload });
+      },
+      updateCollection: function (id, payload) {
+        return request('/knowledge/collections/' + encodeURIComponent(id), { method: 'PATCH', body: payload });
+      },
+      deleteCollection: function (id) {
+        return request('/knowledge/collections/' + encodeURIComponent(id), { method: 'DELETE' });
+      },
+
+      // -------- documents --------
+      listDocuments: function (collectionId) {
+        return request('/knowledge/documents?collection=' + encodeURIComponent(collectionId));
+      },
+      searchDocuments: function (q) {
+        return request('/knowledge/documents?q=' + encodeURIComponent(q || ''));
+      },
+      getDocument: function (id) {
+        return request('/knowledge/documents/' + encodeURIComponent(id));
+      },
+      createDocument: function (payload) {
+        return request('/knowledge/documents', { method: 'POST', body: payload });
+      },
+      updateDocument: function (id, payload) {
+        return request('/knowledge/documents/' + encodeURIComponent(id), { method: 'PATCH', body: payload });
+      },
+      trashDocument: function (id) {
+        return request('/knowledge/documents/' + encodeURIComponent(id), { method: 'DELETE' });
+      },
+
+      // -------- favorites --------
+      listFavorites: function () { return request('/knowledge/favorites'); },
+      addFavorite: function (docId) {
+        return request('/knowledge/favorites/' + encodeURIComponent(docId), { method: 'POST' });
+      },
+      removeFavorite: function (docId) {
+        return request('/knowledge/favorites/' + encodeURIComponent(docId), { method: 'DELETE' });
+      },
+
+      // -------- trash --------
+      listTrash: function () { return request('/knowledge/trash'); },
+      restoreFromTrash: function (id) {
+        return request('/knowledge/trash/' + encodeURIComponent(id) + '/restore', { method: 'POST' });
+      },
+      purgeFromTrash: function (id) {
+        return request('/knowledge/trash/' + encodeURIComponent(id), { method: 'DELETE' });
       }
     },
 

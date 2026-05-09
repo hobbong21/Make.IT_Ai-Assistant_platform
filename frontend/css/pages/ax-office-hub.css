@@ -574,7 +574,7 @@ body[data-page="ax-office-hub"] {
     .nav-links { gap: 0.25rem; }
 }
 
-/* ====================================================================== */
+</* ====================================================================== */
 /* RAG AI bridge — citations, streaming answer, feedback (Task #14, P3)   */
 /* ====================================================================== */
 .hub-aibar-answer {
@@ -682,3 +682,128 @@ body[data-page="ax-office-hub"] {
     white-space: normal;
     word-break: break-word;
 }
+
+/* ---------- Phase 2: action buttons, edit form, trash, mine ---------- */
+.hub-page-actions {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    margin-top: 0.875rem;
+}
+.hub-btn-primary, .hub-btn-secondary, .hub-btn-danger, .hub-btn-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 0.375rem;
+    padding: 0.4375rem 0.875rem;
+    border-radius: var(--mk-radius-md, 12px);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.hub-btn-primary {
+    background: var(--mk-color-coral, #c96442);
+    color: #fff;
+}
+.hub-btn-primary:hover { filter: brightness(0.95); }
+.hub-btn-secondary {
+    background: var(--mk-color-surface, #fff);
+    color: var(--mk-color-text);
+    border-color: var(--mk-color-border, #e5e3dc);
+}
+.hub-btn-secondary:hover { background: var(--mk-color-bg-soft, #f3f1ea); }
+.hub-btn-danger {
+    background: transparent;
+    color: #c0392b;
+    border-color: rgba(192, 57, 43, 0.35);
+}
+.hub-btn-danger:hover { background: rgba(192, 57, 43, 0.08); }
+.hub-btn-icon {
+    width: 2rem; height: 2rem; padding: 0;
+    background: var(--mk-color-surface, #fff);
+    border-color: var(--mk-color-border, #e5e3dc);
+    font-size: 1rem;
+}
+.hub-btn-icon:hover { background: var(--mk-color-bg-soft, #f3f1ea); }
+
+.hub-side-empty {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.75rem;
+    color: var(--mk-color-text-faint);
+    text-align: center;
+    line-height: 1.4;
+}
+
+/* Edit form */
+.hub-doc-edit { display: flex; flex-direction: column; gap: 1rem; }
+.hub-field { display: flex; flex-direction: column; gap: 0.375rem; }
+.hub-field > span { font-size: 0.8125rem; color: var(--mk-color-text-muted); font-weight: 600; }
+.hub-field input,
+.hub-field textarea {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--mk-color-border, #e5e3dc);
+    border-radius: var(--mk-radius-md, 12px);
+    background: var(--mk-color-surface, #fff);
+    color: var(--mk-color-text);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+}
+.hub-field textarea {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 0.875rem;
+    resize: vertical;
+    min-height: 14rem;
+}
+.hub-field input:focus, .hub-field textarea:focus {
+    outline: 2px solid var(--mk-color-coral, #c96442);
+    outline-offset: 1px;
+    border-color: transparent;
+}
+.hub-field-row { display: flex; gap: 0.75rem; }
+.hub-field-emoji { width: 5.5rem; }
+.hub-field-grow { flex: 1 1 auto; }
+.hub-form-actions { display: flex; gap: 0.5rem; }
+
+/* Doc card favorite badge */
+.doc-fav { margin-left: 0.25rem; font-size: 0.875rem; }
+
+/* Trash list */
+.hub-trash-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+.hub-trash-row {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    background: var(--mk-color-surface, #fff);
+    border: 1px solid var(--mk-color-border, #e5e3dc);
+    border-radius: var(--mk-radius-md, 12px);
+}
+.hub-trash-info {
+    display: flex; align-items: center; gap: 0.625rem;
+    flex: 1 1 auto;
+    text-decoration: none; color: inherit;
+    min-width: 0;
+}
+.hub-trash-info .r-emoji { font-size: 1.125rem; }
+.hub-trash-info .r-title { font-weight: 600; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hub-trash-info .r-meta { font-size: 0.75rem; color: var(--mk-color-text-faint); margin-left: auto; }
+.hub-trash-actions { display: flex; gap: 0.375rem; }
+
+/* Mine grid */
+.hub-mine-grid {
+    display: grid; gap: 0.875rem;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    margin-top: 1rem;
+}
+.hub-mine-card {
+    display: flex; flex-direction: column; gap: 0.375rem;
+    padding: 1rem 1rem 0.875rem;
+    background: var(--mk-color-surface, #fff);
+    border: 1px solid var(--mk-color-border, #e5e3dc);
+    border-radius: var(--mk-radius-lg, 16px);
+    text-decoration: none; color: inherit;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.hub-mine-card:hover { box-shadow: var(--mk-shadow-sm, 0 1px 3px rgba(0,0,0,0.06)); transform: translateY(-1px); }
+.hub-mine-card .m-emoji { font-size: 1.5rem; }
+.hub-mine-card .m-name { font-weight: 600; font-size: 0.9375rem; }
+.hub-mine-card .m-meta { font-size: 0.75rem; color: var(--mk-color-text-faint); }
