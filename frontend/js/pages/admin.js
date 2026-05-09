@@ -739,7 +739,9 @@
       const notHelpful = counts ? Number(counts.notHelpful || 0) : 0;
       const badges = [];
       if (notHelpful > 0) {
-        badges.push(`<span class="aiq-slow-badge aiq-slow-badge--down" title="이 호출에 달린 도움 안 됨 피드백 ${notHelpful}건">👎 ${notHelpful}</span>`);
+        // 👎 뱃지는 버튼으로 노출 — 클릭 한 번에 같은 행의 contextId 상세를
+        // 펼치고 사용자 피드백 섹션까지 스크롤한다 (Enter/Space 동일 동작).
+        badges.push(`<button type="button" class="aiq-slow-badge aiq-slow-badge--down aiq-slow-badge--btn" data-down-ctx="${escapeHtml(ctx)}" title="이 호출에 달린 도움 안 됨 피드백 ${notHelpful}건 — 클릭 시 코멘트까지 펼쳐 보기">👎 ${notHelpful}</button>`);
       }
       if (helpful > 0) {
         badges.push(`<span class="aiq-slow-badge aiq-slow-badge--up" title="이 호출에 달린 도움됨 피드백 ${helpful}건">👍 ${helpful}</span>`);
@@ -786,47 +788,36 @@
   function bindSlowDetailHandler(bodyEl) {
     if (!bodyEl || bodyEl.__aiqDetailBound) return;
     bodyEl.__aiqDetailBound = true;
-    bodyEl.addEventListener('click', async (ev) => {
-      // 공유용 영구 링크 복사 — 상세 패널 안 어디서든 위임 처리.
-      const shareEl = ev.target.closest('.aiq-share-btn');
-      if (shareEl && bodyEl.contains(shareEl)) {
-        ev.preventDefault();
-        const ctx = shareEl.getAttribute('data-share-ctx');
-        if (ctx) await copyContextShareLink(ctx);
-        return;
-      }
-      const btn = ev.target.closest('.aiq-ctx-btn');
-      if (!btn || !bodyEl.contains(btn)) return;
-      ev.preventDefault();
+
+    // 공통: contextId 토글 버튼을 펼치고 (필요 시) 상세를 lazy load한다.
+    // forceOpen=true일 때는 이미 열려 있으면 그대로 두고, 닫혀 있으면 연다.
+    async function expandCtx(btn, forceOpen) {
       const item = btn.closest('.aiq-slow-item');
       const detailEl = item ? item.querySelector('.aiq-slow-detail') : null;
-      if (!detailEl) return;
+      if (!detailEl) return null;
       const expanded = btn.getAttribute('aria-expanded') === 'true';
-      // toggle close
       if (expanded) {
+        if (forceOpen) return detailEl; // 이미 열림 → 그대로
+        // toggle close
         btn.setAttribute('aria-expanded', 'false');
         const caret = btn.querySelector('.aiq-ctx-caret');
         if (caret) caret.textContent = '▸';
         detailEl.hidden = true;
-        return;
+        return null;
       }
       btn.setAttribute('aria-expanded', 'true');
       const caret = btn.querySelector('.aiq-ctx-caret');
       if (caret) caret.textContent = '▾';
       detailEl.hidden = false;
-      if (btn.getAttribute('data-loaded') === '1') return; // 이미 로드됨
+      if (btn.getAttribute('data-loaded') === '1') return detailEl;
       const ctxId = btn.getAttribute('data-ctx');
       detailEl.innerHTML = '<div class="aiq-slow-empty">상세를 불러오는 중...</div>';
-      // 응답 본문(LRU에서 만료될 수 있음)과 사용자 피드백(DB 영구 저장)을 병렬로 조회.
-      // 본문 로드가 실패해도 피드백은 보여줄 수 있도록 settled로 분리해 처리한다.
       const [detailRes, feedbackRes] = await Promise.allSettled([
         window.api.admin.aiSlowDetail(ctxId),
         window.api.admin.aiSlowDetailFeedback(ctxId)
       ]);
-
       let html = '';
       if (detailRes.status === 'fulfilled') {
-        // ctxId를 함께 넘겨야 상세 패널 안 "공유용 링크 복사" 버튼이 렌더된다.
         html += renderSlowDetail(detailRes.value, ctxId);
       } else {
         const err = detailRes.reason;
@@ -845,11 +836,41 @@
               + '<div class="aiq-slow-empty">피드백을 불러오지 못했습니다.</div></div>';
       }
       detailEl.innerHTML = html;
-      // 둘 다 실패한 경우엔 다시 펼쳤을 때 재시도할 수 있도록 loaded 마킹을 보류한다.
-      // (한쪽이라도 성공하면 캐시 이득이 있으므로 loaded 처리.)
       if (detailRes.status === 'fulfilled' || feedbackRes.status === 'fulfilled') {
         btn.setAttribute('data-loaded', '1');
       }
+      return detailEl;
+    }
+
+    bodyEl.addEventListener('click', async (ev) => {
+      // 공유용 영구 링크 복사 — 상세 패널 안 어디서든 위임 처리.
+      const shareEl = ev.target.closest('.aiq-share-btn');
+      if (shareEl && bodyEl.contains(shareEl)) {
+        ev.preventDefault();
+        const ctx = shareEl.getAttribute('data-share-ctx');
+        if (ctx) await copyContextShareLink(ctx);
+        return;
+      }
+      // 👎 뱃지 클릭 → 같은 행의 contextId 상세를 강제로 펼치고
+      // 사용자 피드백 섹션까지 스크롤한다.
+      const downBtn = ev.target.closest('.aiq-slow-badge--btn');
+      if (downBtn && bodyEl.contains(downBtn)) {
+        ev.preventDefault();
+        const item = downBtn.closest('.aiq-slow-item');
+        const ctxBtn = item ? item.querySelector('.aiq-ctx-btn') : null;
+        if (!ctxBtn) return;
+        const detailEl = await expandCtx(ctxBtn, true);
+        if (!detailEl) return;
+        const fb = detailEl.querySelector('.aiq-slow-feedback');
+        const target = fb || detailEl;
+        try { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        catch (_) { target.scrollIntoView(); }
+        return;
+      }
+      const btn = ev.target.closest('.aiq-ctx-btn');
+      if (!btn || !bodyEl.contains(btn)) return;
+      ev.preventDefault();
+      await expandCtx(btn, false);
     });
   }
 

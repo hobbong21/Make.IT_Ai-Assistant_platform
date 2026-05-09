@@ -535,6 +535,22 @@
   border-color: rgba(239, 68, 68, 0.45);
   color: #b91c1c;
 }
+/* 👎 뱃지가 버튼으로 렌더되는 경우: 클릭 가능함을 시각적으로 알리고
+   호버/포커스 상태를 강조한다 (Enter/Space는 <button> 기본 동작). */
+button.aiq-slow-badge--btn {
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+button.aiq-slow-badge--btn:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: rgba(239, 68, 68, 0.6);
+}
+button.aiq-slow-badge--btn:focus-visible {
+  outline: 2px solid rgba(239, 68, 68, 0.7);
+  outline-offset: 2px;
+}
 .aiq-slow-badge--up {
   background: rgba(34, 197, 94, 0.14);
   border-color: rgba(34, 197, 94, 0.4);
