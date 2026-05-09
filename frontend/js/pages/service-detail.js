@@ -7,7 +7,12 @@
 (function () {
   function getServiceKey() {
     var params = new URLSearchParams(location.search);
-    return (params.get('service') || 'nlp-analyze').trim();
+    var fromUrl = params.get('service');
+    if (fromUrl) return fromUrl.trim();
+    // 새 분리 구조: services/<key>.html 가 <body data-service="<key>"> 로 지정
+    var fromBody = document.body && document.body.dataset ? document.body.dataset.service : null;
+    if (fromBody) return fromBody.trim();
+    return 'nlp-analyze';
   }
 
   // 새 HTML v2: #chatMessages (camelCase) — 구 v1: #chat-messages (kebab) — 둘 다 호환
