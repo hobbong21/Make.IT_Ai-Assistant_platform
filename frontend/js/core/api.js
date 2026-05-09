@@ -483,6 +483,18 @@
         const d = days || 7;
         const n = topDocsLimit || 10;
         return request('/admin/ai/quality?days=' + d + '&topDocsLimit=' + n);
+      },
+      // GET /api/admin/ai/thresholds — 현재 적용 중인 경고 임계치
+      aiThresholds: function () {
+        return request('/admin/ai/thresholds');
+      },
+      // PUT /api/admin/ai/thresholds — 임계치 갱신 (즉시 반영, 변경 이력 기록)
+      updateAiThresholds: function (payload) {
+        return request('/admin/ai/thresholds', { method: 'PUT', body: payload });
+      },
+      // GET /api/admin/ai/thresholds/history?limit=20 — 변경 이력
+      aiThresholdsHistory: function (limit) {
+        return request('/admin/ai/thresholds/history?limit=' + (limit || 20));
       }
     }
   };

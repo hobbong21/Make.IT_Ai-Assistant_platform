@@ -1,5 +1,6 @@
 package com.humanad.makit.admin;
 
+import com.humanad.makit.knowledge.CurrentUser;
 import com.humanad.makit.knowledge.ai.OfficeHubFeedbackRepository;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -9,9 +10,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.UUID;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -39,7 +43,7 @@ public class AiQualityController {
 
     private final OfficeHubFeedbackRepository feedbackRepo;
     private final MeterRegistry meters;
-    private final AiQualityProperties thresholds;
+    private final AiQualityThresholdsService thresholdsService;
 
     @Operation(summary = "AI 답변 품질 대시보드 데이터 (최근 N일)")
     @GetMapping("/quality")
@@ -91,11 +95,12 @@ public class AiQualityController {
         long totalFeedback = totalHelpful + totalNot;
         double helpfulRate = totalFeedback == 0 ? 0.0 : (double) totalHelpful / totalFeedback;
 
-        // ---- 임계치 (makit.ai.quality.* 프로퍼티로 외부화) ------------------
-        double helpfulRateAlert = thresholds.getHelpfulRateThreshold();
-        double latencyMeanAlert = thresholds.getLatencyMeanAlertMs();
-        double latencyP95Alert  = thresholds.getLatencyP95AlertMs();
-        long   minSamples       = thresholds.getMinSamplesForRateAlert();
+        // ---- 임계치 (운영 화면에서 즉시 조정 가능; DB 미설정 시 yml 기본값) -
+        AiQualityThresholdsService.EffectiveThresholds eff = thresholdsService.current();
+        double helpfulRateAlert = eff.helpfulRateThreshold();
+        double latencyMeanAlert = eff.latencyMeanAlertMs();
+        double latencyP95Alert  = eff.latencyP95AlertMs();
+        long   minSamples       = eff.minSamplesForRateAlert();
 
         // ---- 응답 시간 (마이크로미터에서 누적) -------------------------------
         // 전역 p50/p95는 모든 태그 인스턴스 중 최댓값(=가장 느린 태그)을 채택해 꼬리 지연을
@@ -139,6 +144,33 @@ public class AiQualityController {
                 helpfulRateAlert, latencyMeanAlert, latencyP95Alert, minSamples);
         return new AiQualityDto(windowDays, totalFeedback, helpfulRate, helpfulRateAlert,
                 daily, byAction, topDocs, latency, alerts, thresholdsDto);
+    }
+
+    // ----------------------------------------- threshold runtime configuration
+
+    @Operation(summary = "현재 적용 중인 AI 품질 경고 임계치")
+    @GetMapping("/thresholds")
+    @PreAuthorize("hasRole('ADMIN')")
+    public AiQualityThresholdsService.EffectiveThresholds getThresholds() {
+        return thresholdsService.current();
+    }
+
+    @Operation(summary = "AI 품질 경고 임계치 갱신 (즉시 반영, 변경 이력 기록)")
+    @PutMapping("/thresholds")
+    @PreAuthorize("hasRole('ADMIN')")
+    public AiQualityThresholdsService.EffectiveThresholds updateThresholds(
+            @RequestBody AiQualityThresholdsService.UpdateRequest req) {
+        UUID actor;
+        try { actor = CurrentUser.id(); } catch (RuntimeException ex) { actor = null; }
+        return thresholdsService.update(req, actor);
+    }
+
+    @Operation(summary = "AI 품질 경고 임계치 변경 이력 (최신순)")
+    @GetMapping("/thresholds/history")
+    @PreAuthorize("hasRole('ADMIN')")
+    public java.util.List<AiQualityThresholdsService.HistoryEntry> thresholdsHistory(
+            @RequestParam(name = "limit", defaultValue = "20") int limit) {
+        return thresholdsService.history(limit);
     }
 
     // -------------------------------------------------------------------- helpers

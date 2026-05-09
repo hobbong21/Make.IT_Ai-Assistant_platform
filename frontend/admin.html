@@ -257,6 +257,73 @@
                     </div>
                 </section>
 
+                <!-- AI 품질 경고 임계치 (운영 화면에서 즉시 조정) -->
+                <section class="admin-section" id="ai-quality-thresholds" aria-label="AI 품질 경고 임계치">
+                    <div class="section-head" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                        <h2 class="section-title">경고 임계치 설정</h2>
+                        <span id="aiq-thr-source" class="role-badge role-user" style="font-size:0.75rem;">--</span>
+                    </div>
+                    <p class="section-desc">트래픽 패턴이 바뀌면 여기서 직접 임계치를 조정하세요. 저장 즉시 대시보드 경고에 반영되고, 변경 이력은 아래에 기록됩니다.</p>
+
+                    <form id="aiq-thr-form" class="aiq-thr-form" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-top:1rem;">
+                        <label style="display:flex; flex-direction:column; gap:0.25rem; font-size:0.85rem;">
+                            <span>도움됨 비율 임계치 (%)</span>
+                            <input type="number" id="aiq-thr-helpful" min="0" max="100" step="1" required
+                                   style="padding:0.5rem; border:1px solid var(--mk-color-border); border-radius:6px; background:var(--mk-color-bg); color:var(--mk-color-text);">
+                            <small style="color:var(--mk-color-text-muted);">이 값 미만이면 경고 배너 표시 (0~100)</small>
+                        </label>
+                        <label style="display:flex; flex-direction:column; gap:0.25rem; font-size:0.85rem;">
+                            <span>ask 평균 응답 (ms)</span>
+                            <input type="number" id="aiq-thr-mean" min="0" step="100" required
+                                   style="padding:0.5rem; border:1px solid var(--mk-color-border); border-radius:6px; background:var(--mk-color-bg); color:var(--mk-color-text);">
+                            <small style="color:var(--mk-color-text-muted);">초과 시 경고</small>
+                        </label>
+                        <label style="display:flex; flex-direction:column; gap:0.25rem; font-size:0.85rem;">
+                            <span>ask p95 응답 (ms)</span>
+                            <input type="number" id="aiq-thr-p95" min="0" step="100" required
+                                   style="padding:0.5rem; border:1px solid var(--mk-color-border); border-radius:6px; background:var(--mk-color-bg); color:var(--mk-color-text);">
+                            <small style="color:var(--mk-color-text-muted);">꼬리 지연 감지용</small>
+                        </label>
+                        <label style="display:flex; flex-direction:column; gap:0.25rem; font-size:0.85rem;">
+                            <span>최소 표본 수</span>
+                            <input type="number" id="aiq-thr-min" min="0" step="1" required
+                                   style="padding:0.5rem; border:1px solid var(--mk-color-border); border-radius:6px; background:var(--mk-color-bg); color:var(--mk-color-text);">
+                            <small style="color:var(--mk-color-text-muted);">표본 부족 시 도움됨 비율 경고 보류</small>
+                        </label>
+                        <label style="grid-column:1/-1; display:flex; flex-direction:column; gap:0.25rem; font-size:0.85rem;">
+                            <span>변경 사유 (선택, 최대 500자)</span>
+                            <input type="text" id="aiq-thr-note" maxlength="500"
+                                   placeholder="예: 마케팅 캠페인으로 트래픽 급증, p95 임계 12s로 일시 완화"
+                                   style="padding:0.5rem; border:1px solid var(--mk-color-border); border-radius:6px; background:var(--mk-color-bg); color:var(--mk-color-text);">
+                        </label>
+                        <div style="grid-column:1/-1; display:flex; gap:0.5rem; align-items:center;">
+                            <button type="submit" id="aiq-thr-save" class="btn btn-primary">저장하고 즉시 적용</button>
+                            <button type="button" id="aiq-thr-reset" class="btn btn-secondary">현재값으로 되돌리기</button>
+                            <span id="aiq-thr-status" style="font-size:0.85rem; color:var(--mk-color-text-muted);"></span>
+                        </div>
+                    </form>
+
+                    <div class="table-wrap" style="margin-top:1.5rem;">
+                        <h3 class="aiq-chart-title">변경 이력 (최근 20건)</h3>
+                        <table class="admin-user-table" role="grid" aria-label="임계치 변경 이력">
+                            <thead>
+                                <tr>
+                                    <th scope="col">변경 시각</th>
+                                    <th scope="col">변경자</th>
+                                    <th scope="col">도움됨(%)</th>
+                                    <th scope="col">ask 평균(ms)</th>
+                                    <th scope="col">ask p95(ms)</th>
+                                    <th scope="col">최소 표본</th>
+                                    <th scope="col">사유</th>
+                                </tr>
+                            </thead>
+                            <tbody id="aiq-thr-history">
+                                <tr><td colspan="7" class="mk-loading-cell">로딩 중...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
                 <!-- 사용량 차트 -->
                 <section class="admin-section" aria-label="사용량 추이">
                     <div class="section-head" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">

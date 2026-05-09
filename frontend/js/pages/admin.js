@@ -36,8 +36,15 @@
     loadUsage(usageDays);
     loadNotificationBreakdown(notifDays);
     loadAiQuality(aiqDays);
+    loadAiThresholds();
+    loadAiThresholdHistory();
     loadUsers(0);
     loadFeatures();
+
+    const thrForm = document.getElementById('aiq-thr-form');
+    if (thrForm) thrForm.addEventListener('submit', onSaveThresholds);
+    const thrReset = document.getElementById('aiq-thr-reset');
+    if (thrReset) thrReset.addEventListener('click', () => loadAiThresholds());
 
     // Event listeners
     document.getElementById('prev-page').addEventListener('click', () => {
@@ -840,6 +847,129 @@
         alertsEl.innerHTML = '<div class="aiq-alert">AI 품질 데이터를 불러오지 못했습니다.</div>';
       }
     }
+  }
+
+  // ----------------------- AI quality alert thresholds (operator-tunable) ---
+
+  function setThrStatus(text, type) {
+    const el = document.getElementById('aiq-thr-status');
+    if (!el) return;
+    el.textContent = text || '';
+    el.style.color = type === 'error' ? 'var(--mk-color-danger, #ef4444)'
+      : type === 'success' ? 'var(--mk-color-success, #10b981)'
+      : 'var(--mk-color-text-muted)';
+  }
+
+  function fillThresholdsForm(t) {
+    if (!t) return;
+    document.getElementById('aiq-thr-helpful').value = (t.helpfulRateThreshold * 100).toFixed(0);
+    document.getElementById('aiq-thr-mean').value    = Math.round(t.latencyMeanAlertMs);
+    document.getElementById('aiq-thr-p95').value     = Math.round(t.latencyP95AlertMs);
+    document.getElementById('aiq-thr-min').value     = t.minSamplesForRateAlert;
+    document.getElementById('aiq-thr-note').value    = '';
+    const badge = document.getElementById('aiq-thr-source');
+    if (badge) {
+      const isDb = t.source === 'DB';
+      badge.textContent = isDb
+        ? `DB 저장값${t.changedByEmail ? ' · ' + t.changedByEmail : ''}${t.changedAt ? ' · ' + formatDate(t.changedAt) : ''}`
+        : '환경변수/기본값 적용 중';
+      badge.className = 'role-badge ' + (isDb ? 'role-admin' : 'role-user');
+    }
+  }
+
+  async function loadAiThresholds() {
+    try {
+      const t = await window.api.admin.aiThresholds();
+      fillThresholdsForm(t);
+      setThrStatus('');
+    } catch (err) {
+      console.error('Failed to load AI thresholds:', err);
+      setThrStatus('현재 임계치를 불러오지 못했습니다.', 'error');
+    }
+  }
+
+  async function loadAiThresholdHistory() {
+    const tbody = document.getElementById('aiq-thr-history');
+    if (!tbody) return;
+    try {
+      const rows = await window.api.admin.aiThresholdsHistory(20);
+      tbody.innerHTML = '';
+      if (!rows || rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:1rem; color:var(--mk-color-text-muted);">아직 변경 이력이 없습니다 (환경변수/기본값 사용 중).</td></tr>';
+        return;
+      }
+      rows.forEach((r) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${formatDateTime(r.changedAt)}</td>
+          <td>${escapeHtml(r.changedByEmail || '-')}</td>
+          <td>${(r.helpfulRateThreshold * 100).toFixed(0)}%</td>
+          <td>${Math.round(r.latencyMeanAlertMs).toLocaleString()}</td>
+          <td>${Math.round(r.latencyP95AlertMs).toLocaleString()}</td>
+          <td>${r.minSamplesForRateAlert}</td>
+          <td>${escapeHtml(r.note || '')}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (err) {
+      console.error('Failed to load AI threshold history:', err);
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:1rem; color:var(--mk-color-danger,#ef4444);">변경 이력 로드 실패</td></tr>';
+    }
+  }
+
+  async function onSaveThresholds(ev) {
+    ev.preventDefault();
+    const helpfulPct = parseFloat(document.getElementById('aiq-thr-helpful').value);
+    const meanMs = parseFloat(document.getElementById('aiq-thr-mean').value);
+    const p95Ms  = parseFloat(document.getElementById('aiq-thr-p95').value);
+    const minN   = parseInt(document.getElementById('aiq-thr-min').value, 10);
+    const note   = document.getElementById('aiq-thr-note').value.trim();
+
+    if (!Number.isFinite(helpfulPct) || helpfulPct < 0 || helpfulPct > 100) {
+      setThrStatus('도움됨 비율은 0~100 사이여야 합니다.', 'error'); return;
+    }
+    if (!Number.isFinite(meanMs) || meanMs < 0) {
+      setThrStatus('ask 평균은 0 이상의 숫자여야 합니다.', 'error'); return;
+    }
+    if (!Number.isFinite(p95Ms) || p95Ms < 0) {
+      setThrStatus('ask p95는 0 이상의 숫자여야 합니다.', 'error'); return;
+    }
+    if (!Number.isFinite(minN) || minN < 0) {
+      setThrStatus('최소 표본은 0 이상의 정수여야 합니다.', 'error'); return;
+    }
+
+    const payload = {
+      helpfulRateThreshold: helpfulPct / 100,
+      latencyMeanAlertMs: meanMs,
+      latencyP95AlertMs: p95Ms,
+      minSamplesForRateAlert: minN,
+      note: note || null
+    };
+
+    const btn = document.getElementById('aiq-thr-save');
+    if (btn) { btn.disabled = true; btn.textContent = '저장 중...'; }
+    setThrStatus('저장 중...', 'info');
+    try {
+      const updated = await window.api.admin.updateAiThresholds(payload);
+      fillThresholdsForm(updated);
+      setThrStatus('저장 완료. 대시보드 경고에 즉시 반영됩니다.', 'success');
+      window.ui.toast('경고 임계치가 갱신되었습니다.', 'success');
+      // Refresh dashboard alert banner with new thresholds
+      loadAiQuality(aiqDays);
+      loadAiThresholdHistory();
+    } catch (err) {
+      console.error('Failed to update AI thresholds:', err);
+      setThrStatus('저장 실패: ' + (err && err.message || ''), 'error');
+      window.ui.toast('임계치 저장 실패', 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '저장하고 즉시 적용'; }
+    }
+  }
+
+  function formatDateTime(iso) {
+    if (!iso) return '-';
+    const d = new Date(iso);
+    return d.toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
   }
 
   if (document.readyState === 'loading') {
