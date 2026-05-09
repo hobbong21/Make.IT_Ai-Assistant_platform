@@ -73,27 +73,107 @@ jobs:
         run: mvn -B verify
 
       # Testcontainers 통합 테스트가 "조용히 skip" 되는 회귀를 막기 위해 surefire
-      # 리포트를 직접 검사한다. tests>0 이고 skipped==0 이어야 한다.
-      - name: Assert Testcontainers ITs actually ran
+      # 리포트를 직접 검사한다. TestcontainersSupport 를 쓰는 모든 테스트 클래스를
+      # 자동 수집해 합산하므로, 새 Testcontainers 테스트가 추가돼도 별도 수정 없이
+      # 같은 정책이 적용된다. 결과는 PR Checks 의 Job summary 에도 한 줄로 노출한다.
+      - name: Assert & summarize Testcontainers ITs
         if: always()
         run: |
           set -euo pipefail
-          report="backend/target/surefire-reports/TEST-com.humanad.makit.knowledge.ai.SlowCallSamplerRedisIntegrationTest.xml"
-          if [ ! -f "$report" ]; then
-            echo "::error::Surefire report not found: $report (test class did not run at all)"
+
+          # TestcontainersSupport 헬퍼를 import/사용하는 테스트 클래스 = Testcontainers IT.
+          # (헬퍼 자신은 제외)
+          mapfile -t files < <(grep -rl --include='*.java' 'TestcontainersSupport' backend/src/test/java \
+            | grep -v '/TestcontainersSupport\.java$' | sort -u)
+
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "::error::No Testcontainers IT classes found (expected at least SlowCallSamplerRedisIntegrationTest)"
             exit 1
           fi
-          tests=$(sed -n 's/.*<testsuite[^>]* tests="\([0-9]\+\)".*/\1/p' "$report" | head -1)
-          skipped=$(sed -n 's/.*<testsuite[^>]* skipped="\([0-9]\+\)".*/\1/p' "$report" | head -1)
-          failures=$(sed -n 's/.*<testsuite[^>]* failures="\([0-9]\+\)".*/\1/p' "$report" | head -1)
-          errors=$(sed -n 's/.*<testsuite[^>]* errors="\([0-9]\+\)".*/\1/p' "$report" | head -1)
-          echo "SlowCallSamplerRedisIntegrationTest: tests=$tests skipped=$skipped failures=$failures errors=$errors"
-          if [ "${tests:-0}" -le 0 ]; then
-            echo "::error::SlowCallSamplerRedisIntegrationTest reported 0 tests"
+
+          total=0; skipped=0; failures=0; errors=0
+          missing=()
+          for f in "${files[@]}"; do
+            pkg=$(sed -n 's/^package \(.*\);.*/\1/p' "$f" | head -1)
+            cls=$(basename "$f" .java)
+            fqcn="${pkg}.${cls}"
+            report="backend/target/surefire-reports/TEST-${fqcn}.xml"
+            if [ ! -f "$report" ]; then
+              missing+=("$fqcn")
+              continue
+            fi
+            t=$(sed -n 's/.*<testsuite[^>]* tests="\([0-9]\+\)".*/\1/p' "$report" | head -1)
+            s=$(sed -n 's/.*<testsuite[^>]* skipped="\([0-9]\+\)".*/\1/p' "$report" | head -1)
+            fa=$(sed -n 's/.*<testsuite[^>]* failures="\([0-9]\+\)".*/\1/p' "$report" | head -1)
+            er=$(sed -n 's/.*<testsuite[^>]* errors="\([0-9]\+\)".*/\1/p' "$report" | head -1)
+            echo "  ${fqcn}: tests=${t:-0} skipped=${s:-0} failures=${fa:-0} errors=${er:-0}"
+            total=$(( total + ${t:-0} ))
+            skipped=$(( skipped + ${s:-0} ))
+            failures=$(( failures + ${fa:-0} ))
+            errors=$(( errors + ${er:-0} ))
+          done
+          ran=$(( total - skipped ))
+
+          ok=1
+          if [ "${#missing[@]}" -ne 0 ]; then ok=0; fi
+          if [ "$ran" -le 0 ]; then ok=0; fi
+          if [ "$skipped" -ne 0 ]; then ok=0; fi
+          if [ "$failures" -ne 0 ] || [ "$errors" -ne 0 ]; then ok=0; fi
+
+          if [ "$ok" -eq 1 ]; then
+            icon="✅"; verdict="통합 테스트 정상 실행"
+          else
+            icon="❌"; verdict="통합 테스트 실행 이상"
+          fi
+
+          line="${icon} Testcontainers ITs: ${ran} ran, ${skipped} skipped (classes=${#files[@]}, failures=${failures}, errors=${errors}) — ${verdict}"
+          echo "$line"
+
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            {
+              echo "### Testcontainers integration tests"
+              echo ""
+              echo "$line"
+              if [ "${#missing[@]}" -ne 0 ]; then
+                echo ""
+                echo "Missing surefire reports (test class did not run):"
+                for m in "${missing[@]}"; do echo "- \`$m\`"; done
+              fi
+              echo ""
+              echo "<details><summary>Per-class breakdown</summary>"
+              echo ""
+              echo "| Class | tests | skipped | failures | errors |"
+              echo "| --- | ---: | ---: | ---: | ---: |"
+              for f in "${files[@]}"; do
+                pkg=$(sed -n 's/^package \(.*\);.*/\1/p' "$f" | head -1)
+                cls=$(basename "$f" .java)
+                fqcn="${pkg}.${cls}"
+                report="backend/target/surefire-reports/TEST-${fqcn}.xml"
+                if [ ! -f "$report" ]; then
+                  echo "| \`$fqcn\` | — | — | — | — |"
+                  continue
+                fi
+                t=$(sed -n 's/.*<testsuite[^>]* tests="\([0-9]\+\)".*/\1/p' "$report" | head -1)
+                s=$(sed -n 's/.*<testsuite[^>]* skipped="\([0-9]\+\)".*/\1/p' "$report" | head -1)
+                fa=$(sed -n 's/.*<testsuite[^>]* failures="\([0-9]\+\)".*/\1/p' "$report" | head -1)
+                er=$(sed -n 's/.*<testsuite[^>]* errors="\([0-9]\+\)".*/\1/p' "$report" | head -1)
+                echo "| \`$fqcn\` | ${t:-0} | ${s:-0} | ${fa:-0} | ${er:-0} |"
+              done
+              echo ""
+              echo "</details>"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          if [ "${#missing[@]}" -ne 0 ]; then
+            echo "::error::Surefire report missing for: ${missing[*]} (test class did not run at all)"
             exit 1
           fi
-          if [ "${skipped:-0}" -ne 0 ]; then
-            echo "::error::SlowCallSamplerRedisIntegrationTest had $skipped skipped tests — Docker likely unavailable in CI"
+          if [ "$ran" -le 0 ]; then
+            echo "::error::Testcontainers ITs reported 0 effective runs"
+            exit 1
+          fi
+          if [ "$skipped" -ne 0 ]; then
+            echo "::error::Testcontainers ITs had $skipped skipped tests — Docker likely unavailable in CI"
             exit 1
           fi
 
