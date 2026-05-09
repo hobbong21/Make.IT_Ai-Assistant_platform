@@ -1,7 +1,7 @@
 {
-  "name": "MaKIT - AI 마케팅 플랫폼",
+  "name": "MaKIT - AI 마케팅",
   "short_name": "MaKIT",
-  "description": "AI 기반 마케팅 자동화 플랫폼",
+  "description": "AI 기반 마케팅 자동화",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",

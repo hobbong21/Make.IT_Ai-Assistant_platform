@@ -34,8 +34,8 @@ window.makitI18nDict = {
     'auth.error-429': '너무 많은 시도가 있었습니다. 잠시 후 다시 시도하세요',
 
     // 대시보드
-    'dashboard.welcome': 'MaKIT Platform에 오신 것을 환영합니다!',
-    'dashboard.subtitle': 'AI 기반 마케팅 플랫폼의 강력한 기능들을 직접 체험해보세요',
+    'dashboard.welcome': 'MaKIT에 오신 것을 환영합니다!',
+    'dashboard.subtitle': 'AI 기반 마케팅의 강력한 기능들을 직접 체험해보세요',
     'dashboard.stat-users': '가입자 수',
     'dashboard.stat-requests': '내 요청 수',
     'dashboard.stat-jobs': '진행 중인 작업',
@@ -100,7 +100,7 @@ window.makitI18nDict = {
     'notif.severity-error': '오류',
 
     // Intro
-    'intro.hero-title': '완벽한 마케팅 지원 플랫폼',
+    'intro.hero-title': '완벽한 마케팅 지원',
     'intro.hero-subtitle': 'AI를 활용한 마케팅 자동화와 분석으로 비즈니스를 가속화하세요',
     'intro.cta': '시작하기',
     'intro.partners': '신뢰받는 파트너들',
@@ -209,8 +209,8 @@ window.makitI18nDict = {
     'auth.error-429': 'Too many attempts. Please try again later',
 
     // Dashboard
-    'dashboard.welcome': 'Welcome to MaKIT Platform!',
-    'dashboard.subtitle': 'Experience the powerful features of our AI-powered marketing platform',
+    'dashboard.welcome': 'Welcome to MaKIT!',
+    'dashboard.subtitle': 'Experience the powerful features of our AI-powered marketing',
     'dashboard.stat-users': 'Total Users',
     'dashboard.stat-requests': 'My Requests',
     'dashboard.stat-jobs': 'Jobs In Progress',
@@ -275,7 +275,7 @@ window.makitI18nDict = {
     'notif.severity-error': 'Error',
 
     // Intro
-    'intro.hero-title': 'The Perfect Marketing Support Platform',
+    'intro.hero-title': 'The Perfect Marketing Support',
     'intro.hero-subtitle': 'Accelerate your business with AI-powered marketing automation and analytics',
     'intro.cta': 'Get Started',
     'intro.partners': 'Trusted Partners',
@@ -384,8 +384,8 @@ window.makitI18nDict = {
     'auth.error-429': 'リクエストが多すぎます。後でもう一度お試しください',
 
     // ダッシュボード
-    'dashboard.welcome': 'MaKITプラットフォームへようこそ！',
-    'dashboard.subtitle': 'AI搭載マーケティングプラットフォームの強力な機能を体験してください',
+    'dashboard.welcome': 'MaKITへようこそ！',
+    'dashboard.subtitle': 'AI搭載マーケティングの強力な機能を体験してください',
     'dashboard.stat-users': '登録ユーザー数',
     'dashboard.stat-requests': 'リクエスト数',
     'dashboard.stat-jobs': '進行中のジョブ',
@@ -450,7 +450,7 @@ window.makitI18nDict = {
     'notif.severity-error': 'エラー',
 
     // イントロ
-    'intro.hero-title': '完璧なマーケティング支援プラットフォーム',
+    'intro.hero-title': '完璧なマーケティング支援',
     'intro.hero-subtitle': 'AI搭載マーケティング自動化と分析でビジネスを加速させます',
     'intro.cta': '開始する',
     'intro.partners': '信頼されるパートナー',

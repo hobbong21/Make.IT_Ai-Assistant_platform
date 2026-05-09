@@ -55,7 +55,7 @@
         return;
       }
       auth.saveSession(data, remember);
-      showMessage('loginMessage', '로그인 성공! 플랫폼으로 이동합니다…', 'success');
+      showMessage('loginMessage', '로그인 성공! 마케팅으로 이동합니다…', 'success');
       setTimeout(function () { location.href = 'index.html'; }, 800);
     } catch (err) {
       var msg = (err && err.message) || '로그인에 실패했습니다.';
@@ -110,7 +110,7 @@
 
       if (data && data.token) {
         auth.saveSession(data, true); // 신규 가입자는 remember=true 기본
-        showMessage('regMessage', '환영합니다! 플랫폼으로 이동합니다…', 'success');
+        showMessage('regMessage', '환영합니다! 마케팅으로 이동합니다…', 'success');
         setTimeout(function () { location.href = 'index.html'; }, 800);
         return;
       }
