@@ -30,6 +30,18 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s || '');
   }
 
+  // ?redirect=... 쿼리 파라미터를 안전하게 파싱하여 동일 출처 상대경로만 허용.
+  function getRedirectDest(fallback) {
+    try {
+      var raw = new URLSearchParams(location.search).get('redirect');
+      if (!raw) return fallback;
+      // 외부 URL/프로토콜 인젝션 방어: 상대 경로(.html)만 허용
+      if (/^https?:\/\//i.test(raw) || raw.indexOf('//') === 0 || raw.charAt(0) === '/') return fallback;
+      if (!/\.html(\?|#|$)/.test(raw)) return fallback;
+      return raw;
+    } catch (_) { return fallback; }
+  }
+
   // ---- Login ----
   async function doLogin() {
     var email = byId('loginEmail') ? byId('loginEmail').value.trim() : '';
@@ -55,8 +67,9 @@
         return;
       }
       auth.saveSession(data, remember);
-      showMessage('loginMessage', '로그인 성공! 마케팅으로 이동합니다…', 'success');
-      setTimeout(function () { location.href = 'index.html'; }, 800);
+      var dest = getRedirectDest('index.html');
+      showMessage('loginMessage', '로그인 성공! 이동합니다…', 'success');
+      setTimeout(function () { location.href = dest; }, 800);
     } catch (err) {
       var msg = (err && err.message) || '로그인에 실패했습니다.';
       if (err && err.code === 'NETWORK_ERROR') {
@@ -110,8 +123,9 @@
 
       if (data && data.token) {
         auth.saveSession(data, true); // 신규 가입자는 remember=true 기본
-        showMessage('regMessage', '환영합니다! 마케팅으로 이동합니다…', 'success');
-        setTimeout(function () { location.href = 'index.html'; }, 800);
+        var dest2 = getRedirectDest('index.html');
+        showMessage('regMessage', '환영합니다! 이동합니다…', 'success');
+        setTimeout(function () { location.href = dest2; }, 800);
         return;
       }
 
@@ -164,10 +178,18 @@
       });
     }
 
-    // 이미 로그인된 사용자는 세션 검증 후 dashboard로
+    // 로그인 필수 페이지에서 리다이렉트되어 온 경우 안내 메시지 표시
+    try {
+      var qp = new URLSearchParams(location.search);
+      if (qp.get('reason') === 'required') {
+        showMessage('loginMessage', '로그인이 필요한 서비스입니다. 계속하시려면 로그인해주세요.', 'error');
+      }
+    } catch (_) {}
+
+    // 이미 로그인된 사용자는 세션 검증 후 원래 가려던 곳(또는 index)으로
     if (auth.isLoggedIn()) {
       api.auth.me().then(function () {
-        location.href = 'index.html';
+        location.href = getRedirectDest('index.html');
       }).catch(function () {
         auth.clearSession();
       });

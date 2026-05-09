@@ -8,7 +8,7 @@
 (function () {
   if (window.makitAuthGate) return;
 
-  var GATED_PATTERN = /^(service-detail|marketing-playbook|marketing-playbooks|history|settings|admin)\.html(\?|$|#)/;
+  var GATED_PATTERN = /^(index|service-detail|marketing-playbook|marketing-playbooks|history|settings|admin)\.html(\?|$|#)/;
 
   function isGatedHref(href) {
     if (!href) return false;
