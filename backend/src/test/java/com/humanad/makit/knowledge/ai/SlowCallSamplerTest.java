@@ -2,6 +2,7 @@ package com.humanad.makit.knowledge.ai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -233,6 +234,27 @@ class SlowCallSamplerTest {
             assertThat(d.answer()).isEqualTo("a2");
             assertThat(d.modelId()).isEqualTo("m2");
             assertThat(d.latencyMs()).isEqualTo(20);
+        }
+
+        @Test
+        void findDetail_incrementsHitAndMissCounters() {
+            SimpleMeterRegistry meters = new SimpleMeterRegistry();
+            SlowCallSampler s = new SlowCallSampler(meters);
+            s.recordDetail("ask", "t", 10, "ctx-known", "q", "a", List.of(), 0, 0, "m");
+
+            // hit
+            assertThat(s.findDetail("ctx-known")).isPresent();
+            assertThat(s.findDetail("ctx-known")).isPresent();
+            // miss
+            assertThat(s.findDetail("ctx-unknown")).isEmpty();
+            // blank/null은 계측 대상 아님 (컨트롤러로 들어오지 않는 비정상 입력)
+            assertThat(s.findDetail("")).isEmpty();
+            assertThat(s.findDetail(null)).isEmpty();
+
+            assertThat(meters.counter("knowledge.ai.slow.detail.lookup", "result", "hit").count())
+                    .isEqualTo(2.0);
+            assertThat(meters.counter("knowledge.ai.slow.detail.lookup", "result", "miss").count())
+                    .isEqualTo(1.0);
         }
     }
 }

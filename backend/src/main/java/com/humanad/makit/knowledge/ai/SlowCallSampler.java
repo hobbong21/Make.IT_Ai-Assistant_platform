@@ -2,6 +2,9 @@ package com.humanad.makit.knowledge.ai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,24 +116,53 @@ public class SlowCallSampler {
             });
 
     /**
+     * 응답 본문 LRU의 적중/만료를 추적하는 마이크로미터 카운터.
+     * 만료 비율이 높으면 {@link #DETAIL_CAPACITY}를 키우거나 영구 저장으로 옮길지
+     * 판단할 수 있도록 운영 대시보드에서 노출한다.
+     */
+    private final Counter detailHitCounter;
+    private final Counter detailMissCounter;
+
+    /**
      * 운영용 생성자. Redis가 없는 환경(예: 단위 테스트 컨텍스트)에서도 안전하도록
-     * 두 의존성을 모두 {@link ObjectProvider}로 받아 missing 시 null로 떨어진다.
+     * Redis/ObjectMapper 의존성은 {@link ObjectProvider}로 받아 missing 시 null로
+     * 떨어지고, MeterRegistry는 Spring Boot Actuator가 항상 제공한다.
      */
     @Autowired
     public SlowCallSampler(ObjectProvider<StringRedisTemplate> redisProvider,
-                           ObjectProvider<ObjectMapper> mapperProvider) {
-        this(redisProvider.getIfAvailable(), mapperProvider.getIfAvailable());
+                           ObjectProvider<ObjectMapper> mapperProvider,
+                           MeterRegistry meters) {
+        this(redisProvider.getIfAvailable(), mapperProvider.getIfAvailable(), meters);
     }
 
     /** 테스트/주입 직접 제어용. */
-    public SlowCallSampler(StringRedisTemplate redis, ObjectMapper mapper) {
+    public SlowCallSampler(StringRedisTemplate redis, ObjectMapper mapper, MeterRegistry meters) {
         this.redis = redis;
         this.mapper = mapper != null ? mapper : defaultMapper();
+        MeterRegistry mr = meters != null ? meters : new SimpleMeterRegistry();
+        this.detailHitCounter = Counter.builder("knowledge.ai.slow.detail.lookup")
+                .description("느린 샘플 모달에서 contextId로 응답 본문을 조회한 결과 (hit=보관 중, miss=LRU 만료/미보관)")
+                .tag("result", "hit")
+                .register(mr);
+        this.detailMissCounter = Counter.builder("knowledge.ai.slow.detail.lookup")
+                .description("느린 샘플 모달에서 contextId로 응답 본문을 조회한 결과 (hit=보관 중, miss=LRU 만료/미보관)")
+                .tag("result", "miss")
+                .register(mr);
+    }
+
+    /** 테스트 호환 생성자: Redis만 직접 제어, 메트릭은 임베드된 SimpleMeterRegistry. */
+    public SlowCallSampler(StringRedisTemplate redis, ObjectMapper mapper) {
+        this(redis, mapper, new SimpleMeterRegistry());
+    }
+
+    /** 메트릭만 직접 제어하는 in-memory 전용 생성자. */
+    public SlowCallSampler(MeterRegistry meters) {
+        this(null, null, meters);
     }
 
     /** Redis 없이 동작하는 in-memory 전용 생성자 (기존 호출자/테스트 호환). */
     public SlowCallSampler() {
-        this(null, null);
+        this(null, null, new SimpleMeterRegistry());
     }
 
     public void record(String kind,
@@ -202,7 +234,13 @@ public class SlowCallSampler {
 
     public Optional<Detail> findDetail(String contextId) {
         if (contextId == null || contextId.isBlank()) return Optional.empty();
-        return Optional.ofNullable(details.get(contextId));
+        Detail d = details.get(contextId);
+        if (d == null) {
+            detailMissCounter.increment();
+            return Optional.empty();
+        }
+        detailHitCounter.increment();
+        return Optional.of(d);
     }
 
     /**
