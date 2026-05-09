@@ -180,6 +180,32 @@ class AiQualityControllerTest {
     }
 
     @Test
+    void quality_exposesDetailLookupHitRateFromCounters() {
+        // SlowCallSampler가 등록한 카운터 형식과 동일하게 hit/miss를 직접 누적해
+        // 컨트롤러가 합산·hitRate 계산을 정확히 하는지 확인.
+        meters.counter("knowledge.ai.slow.detail.lookup", "result", "hit").increment(7);
+        meters.counter("knowledge.ai.slow.detail.lookup", "result", "miss").increment(3);
+
+        AiQualityDto dto = controller.quality(7, 10);
+
+        assertThat(dto.detailLookup()).isNotNull();
+        assertThat(dto.detailLookup().hits()).isEqualTo(7L);
+        assertThat(dto.detailLookup().misses()).isEqualTo(3L);
+        assertThat(dto.detailLookup().hitRate()).isEqualTo(0.7);
+        // 임계치는 컨트롤러 상수(70%)를 그대로 노출.
+        assertThat(dto.detailLookup().hitRateThreshold()).isEqualTo(0.70);
+    }
+
+    @Test
+    void quality_detailLookupHitRateZero_whenNoLookups() {
+        AiQualityDto dto = controller.quality(7, 10);
+        assertThat(dto.detailLookup().hits()).isEqualTo(0L);
+        assertThat(dto.detailLookup().misses()).isEqualTo(0L);
+        // 분모 0 보호: hitRate=0으로 두고 프런트가 "데이터 없음" 표시.
+        assertThat(dto.detailLookup().hitRate()).isEqualTo(0.0);
+    }
+
+    @Test
     void quality_appliesPerCollectionAndPerActionP95Overrides() {
         // 컬렉션 b는 자체 임계치 200ms, 액션 translate는 자체 임계치 1000ms.
         // 미설정 키(a, summarize)는 전역 기본값 fallback.

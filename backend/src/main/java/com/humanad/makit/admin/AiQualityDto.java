@@ -18,11 +18,22 @@ public record AiQualityDto(
         List<DocStat> topDocuments,
         Latency latency,
         List<String> alerts,
-        Thresholds thresholds
+        Thresholds thresholds,
+        DetailLookup detailLookup
 ) {
     public record DailyPoint(String date, long helpful, long notHelpful) {}
     public record ActionStat(String action, long helpful, long notHelpful, double helpfulRate) {}
     public record DocStat(String documentId, long count) {}
+
+    /**
+     * 느린 호출 모달의 contextId → 응답 본문(LRU) 조회 적중률 통계.
+     * {@code knowledge.ai.slow.detail.lookup{result=hit|miss}} 카운터 누적값을 그대로 노출.
+     * 적중률이 {@link #hitRateThreshold} 미만이면 프런트에서 노란 경고 배지를 띄워
+     * 운영자가 {@code SlowCallSampler.DETAIL_CAPACITY} 확대/영구 저장 전환을 판단할 수 있게 한다.
+     * 조회 시도가 한 건도 없을 때({@code hits + misses == 0})는 hitRate=0으로 두고 프런트가
+     * "데이터 없음"으로 표시한다(임계 비교 대상에서 제외).
+     */
+    public record DetailLookup(long hits, long misses, double hitRate, double hitRateThreshold) {}
 
     /**
      * 응답 시간 메트릭 요약. {@code askByCollection}/{@code actionByAction}는 태그별

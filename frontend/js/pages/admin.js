@@ -1100,6 +1100,29 @@
         thresholdsEl.textContent = '임계치 정보 없음';
       }
 
+      // 응답 본문 LRU 적중률 카드. SlowCallSampler.DETAIL_CAPACITY 한도가 부족해
+      // contextId 조회가 미스되는 비율이 임계 미만이면 노란 경고 배지를 띄운다.
+      const dl = data.detailLookup || null;
+      const dlCard = document.getElementById('aiq-card-detail-lookup');
+      const dlValueEl = document.getElementById('aiq-detail-hit-rate');
+      const dlSubEl = document.getElementById('aiq-detail-hit-sub');
+      if (dlCard) dlCard.classList.remove('is-warn');
+      if (dl && dlValueEl && dlSubEl) {
+        const total = (dl.hits || 0) + (dl.misses || 0);
+        if (total === 0) {
+          dlValueEl.textContent = '데이터 없음';
+          dlSubEl.textContent = '조회 0건';
+        } else {
+          dlValueEl.textContent = fmtPct(dl.hitRate);
+          dlSubEl.textContent =
+            `적중 ${dl.hits.toLocaleString()} / 만료 ${dl.misses.toLocaleString()} ` +
+            `(임계 ${fmtPct(dl.hitRateThreshold)})`;
+          if (dl.hitRate < dl.hitRateThreshold && dlCard) {
+            dlCard.classList.add('is-warn');
+          }
+        }
+      }
+
       // Alerts banner
       if (alertsEl) {
         alertsEl.innerHTML = '';

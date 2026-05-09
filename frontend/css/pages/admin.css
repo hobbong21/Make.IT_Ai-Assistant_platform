@@ -322,6 +322,18 @@
 .admin-stat-card.is-breach .stat-icon::after {
   content: " ⚠️";
 }
+/* warn 변형: breach(빨강)보다 한 단계 약한 노란 경고. 응답 본문 LRU
+   적중률처럼 "임계 미만이면 보관 정책 검토"가 필요한 시그널에 사용. */
+.admin-stat-card.is-warn {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+.admin-stat-card.is-warn .stat-value {
+  color: #b45309;
+}
+.admin-stat-card.is-warn .stat-icon::after {
+  content: " ⚠️";
+}
 @media (prefers-color-scheme: dark) {
   .admin-stat-card.is-breach {
     background: rgba(239, 68, 68, 0.12);
@@ -330,6 +342,13 @@
   .admin-stat-card.is-breach .stat-value,
   .admin-stat-card.is-breach .stat-sub.is-breach {
     color: #fecaca;
+  }
+  .admin-stat-card.is-warn {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.5);
+  }
+  .admin-stat-card.is-warn .stat-value {
+    color: #fcd34d;
   }
 }
 @media (prefers-color-scheme: dark) {

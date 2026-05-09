@@ -3,6 +3,7 @@ package com.humanad.makit.admin;
 import com.humanad.makit.knowledge.CurrentUser;
 import com.humanad.makit.knowledge.ai.OfficeHubFeedbackRepository;
 import com.humanad.makit.knowledge.ai.SlowCallSampler;
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,6 +45,14 @@ import java.util.function.ToDoubleFunction;
 @RequiredArgsConstructor
 @Tag(name = "admin")
 public class AiQualityController {
+
+    /**
+     * 응답 본문 LRU 적중률 경고 임계치(70%). 이 값 미만으로 떨어지면 프런트가
+     * 노란 경고 배지를 표시해 {@code SlowCallSampler.DETAIL_CAPACITY} 상향 또는
+     * 영구 저장 전환을 검토하도록 유도한다. 운영 중 조정이 필요해질 만큼 잦은
+     * 변경 대상이 아니므로 별도 properties 키로 노출하지 않고 상수로 둔다.
+     */
+    private static final double DETAIL_LOOKUP_HIT_RATE_THRESHOLD = 0.70;
 
     private final OfficeHubFeedbackRepository feedbackRepo;
     private final MeterRegistry meters;
@@ -180,8 +189,19 @@ public class AiQualityController {
         AiQualityDto.Thresholds thresholdsDto = new AiQualityDto.Thresholds(
                 helpfulRateAlert, latencyMeanAlert, latencyP95Alert, minSamples,
                 askOverrides, actionOverrides);
+
+        // ---- 응답 본문 LRU 적중률 (느린 호출 상세 모달용) -------------------
+        // SlowCallSampler가 등록한 카운터를 직접 읽어 누적 hit/miss를 합산한다.
+        // 조회 시도가 한 건도 없으면 hitRate=0으로 두고 프런트가 "데이터 없음" 처리.
+        long detailHits = counterCount("knowledge.ai.slow.detail.lookup", "result", "hit");
+        long detailMisses = counterCount("knowledge.ai.slow.detail.lookup", "result", "miss");
+        long detailTotal = detailHits + detailMisses;
+        double detailHitRate = detailTotal == 0 ? 0.0 : (double) detailHits / detailTotal;
+        AiQualityDto.DetailLookup detailLookup = new AiQualityDto.DetailLookup(
+                detailHits, detailMisses, detailHitRate, DETAIL_LOOKUP_HIT_RATE_THRESHOLD);
+
         return new AiQualityDto(windowDays, totalFeedback, helpfulRate, helpfulRateAlert,
-                daily, byAction, topDocs, latency, alerts, thresholdsDto);
+                daily, byAction, topDocs, latency, alerts, thresholdsDto, detailLookup);
     }
 
     // ----------------------------------------- threshold runtime configuration
@@ -325,6 +345,15 @@ public class AiQualityController {
         long c = 0;
         for (Timer t : meters.find(name).timers()) c += t.count();
         return c;
+    }
+
+    /** 같은 이름·태그 쌍으로 등록된 모든 Counter 인스턴스의 누적값 합. */
+    private long counterCount(String name, String tagKey, String tagValue) {
+        double sum = 0.0;
+        for (Counter c : meters.find(name).tag(tagKey, tagValue).counters()) {
+            sum += c.count();
+        }
+        return (long) sum;
     }
 
     /**
