@@ -88,5 +88,8 @@ The full backend (Spring Boot) requires:
 - Configured as a static site deployment serving the `frontend/` directory
 - In production with backend: uses Docker Compose with Nginx proxying to Spring Boot
 
+## Admin endpoint security
+- 신규 `/api/admin/*` 컨트롤러 메서드는 `@PreAuthorize("hasRole('ADMIN')")`를 사용한다 (SecurityConfig에 `@EnableMethodSecurity` 활성화됨).
+
 ## User preferences
 - **Coding guidelines**: Follow `CLAUDE.md` strictly for all development work. Four principles: (1) Think Before Coding — surface assumptions, ask when ambiguous; (2) Simplicity First — minimum code, no speculative features; (3) Surgical Changes — only touch what's required by the request; (4) Goal-Driven Execution — define verifiable success criteria before implementing.

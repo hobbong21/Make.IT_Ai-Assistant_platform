@@ -1,6 +1,5 @@
 package com.humanad.makit.admin;
 
-import com.humanad.makit.common.AuthenticationException;
 import com.humanad.makit.knowledge.ai.OfficeHubFeedbackRepository;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -8,15 +7,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -53,11 +48,11 @@ public class AiQualityController {
 
     @Operation(summary = "AI 답변 품질 대시보드 데이터 (최근 N일)")
     @GetMapping("/quality")
+    @PreAuthorize("hasRole('ADMIN')")
     public AiQualityDto quality(
             @RequestParam(name = "days", defaultValue = "7") int days,
             @RequestParam(name = "topDocsLimit", defaultValue = "10") int topDocsLimit) {
 
-        requireAdmin();
         int windowDays = Math.min(90, Math.max(1, days));
         int topN = Math.min(50, Math.max(1, topDocsLimit));
         OffsetDateTime since = OffsetDateTime.now(ZoneOffset.UTC).minusDays(windowDays);
@@ -141,22 +136,5 @@ public class AiQualityController {
         long c = 0;
         for (Timer t : meters.find(name).timers()) c += t.count();
         return c;
-    }
-
-    /**
-     * 메서드 보안(@PreAuthorize)이 활성화돼 있지 않으므로 컨트롤러에서 직접
-     * ROLE_ADMIN 권한을 검사한다. 다른 관리자 엔드포인트가 추가되면
-     * SecurityConfig에 EnableMethodSecurity를 켜는 편이 더 깔끔하지만,
-     * 이번 작업에서는 보안 설정 변경 없이 최소한의 수정만 한다.
-     */
-    private static void requireAdmin() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getName() == null) {
-            throw new AuthenticationException("Not authenticated");
-        }
-        for (GrantedAuthority a : auth.getAuthorities()) {
-            if ("ROLE_ADMIN".equals(a.getAuthority())) return;
-        }
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "ADMIN role required");
     }
 }
