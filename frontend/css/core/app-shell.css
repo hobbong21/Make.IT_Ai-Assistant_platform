@@ -830,6 +830,7 @@
 .mk-modal-body .mk-modal-input,
 .mk-modal-body input[type="text"],
 .mk-modal-body input[type="email"],
+.mk-modal-body input[type="password"],
 .mk-modal-body input[type="datetime-local"],
 .mk-modal-body input[type="date"],
 .mk-modal-body select,

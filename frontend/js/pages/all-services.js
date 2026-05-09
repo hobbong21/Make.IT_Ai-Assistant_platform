@@ -43,20 +43,10 @@
       });
     }
 
-    // --- Service card buttons → navigate to service-detail.html?service={key} ---
-    document.querySelectorAll('.service-card').forEach(function (card) {
-      var titleEl = card.querySelector('.service-title');
-      if (!titleEl) return;
-      var title = titleEl.textContent.trim();
-      var key = TITLE_TO_KEY[title];
-      if (!key) return;
-      var btn = card.querySelector('.service-button');
-      if (btn) {
-        btn.addEventListener('click', function () {
-          location.href = 'service-detail.html?service=' + encodeURIComponent(key);
-        });
-      }
-    });
+    // 카드 버튼은 이미 <a href="service-detail.html?service=...">로 정상 이동 가능.
+    // 비로그인 사용자는 widgets/auth-gate.js가 캡처 단계에서 가로채 모달을 띄움.
+    // (TITLE_TO_KEY는 향후 서비스 키 매핑이 필요할 때 참조 용도로 유지)
+    void TITLE_TO_KEY;
 
     // --- Sidebar dropdown toggles (harmless if absent) ---
     document.querySelectorAll('.nav-dropdown-header').forEach(function (h) {
