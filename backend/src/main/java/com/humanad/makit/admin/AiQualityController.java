@@ -233,6 +233,50 @@ public class AiQualityController {
                         "이 contextId의 응답 본문은 더 이상 보관돼 있지 않습니다 (서버 재시작 또는 LRU 만료)."));
     }
 
+    /**
+     * 같은 contextId에 달린 사용자 피드백(도움됨/도움 안 됨)을 요약해 돌려준다.
+     * 느린 호출 상세 패널 하단에서 "이 느린 호출이 사용자에게 도움이 됐는지"를
+     * 한눈에 보여주기 위한 용도. 피드백이 한 건도 없으면 helpful=notHelpful=0,
+     * recentComments=빈 배열로 응답하며 프런트가 "피드백 없음"으로 표시한다.
+     *
+     * <p>응답 본문 LRU 만료 여부와 무관하게 호출 가능하도록 별도 엔드포인트로
+     * 분리했다. 피드백은 DB 영구 저장이라 재시작 후에도 남는다.
+     */
+    @Operation(summary = "특정 contextId 호출에 달린 사용자 피드백 요약 (helpful/notHelpful + 최근 코멘트)")
+    @GetMapping("/slow/detail/feedback")
+    @PreAuthorize("hasRole('ADMIN')")
+    public SlowFeedbackSummary slowDetailFeedback(@RequestParam(name = "contextId") String contextId) {
+        if (contextId == null || contextId.isBlank()) {
+            return new SlowFeedbackSummary(0L, 0L, List.of());
+        }
+        long helpful = 0L, notHelpful = 0L;
+        List<Object[]> agg = feedbackRepo.countByContextId(contextId);
+        if (!agg.isEmpty()) {
+            Object[] r = agg.get(0);
+            if (r[0] != null) helpful    = ((Number) r[0]).longValue();
+            if (r[1] != null) notHelpful = ((Number) r[1]).longValue();
+        }
+        List<SlowFeedbackSummary.Entry> recent = new ArrayList<>();
+        for (var f : feedbackRepo.findByContextId(contextId, PageRequest.of(0, 3))) {
+            String comment = f.getComment();
+            if (comment != null && comment.length() > 500) comment = comment.substring(0, 500) + "...";
+            recent.add(new SlowFeedbackSummary.Entry(
+                    f.isHelpful(), f.getAction(), comment, f.getCreatedAt()));
+        }
+        return new SlowFeedbackSummary(helpful, notHelpful, recent);
+    }
+
+    public record SlowFeedbackSummary(
+            long helpful,
+            long notHelpful,
+            List<Entry> recentComments) {
+        public record Entry(
+                boolean helpful,
+                String action,
+                String comment,
+                OffsetDateTime createdAt) {}
+    }
+
     // -------------------------------------------------------------------- helpers
 
     private double meanMs(String name) {

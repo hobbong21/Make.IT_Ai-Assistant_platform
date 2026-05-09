@@ -509,6 +509,12 @@
       // 404일 경우 LRU에서 밀려났거나 서버 재시작으로 사라진 상태.
       aiSlowDetail: function (contextId) {
         return request('/admin/ai/slow/detail?contextId=' + encodeURIComponent(contextId));
+      },
+      // GET /api/admin/ai/slow/detail/feedback?contextId=...
+      // → {helpful, notHelpful, recentComments:[{helpful, action, comment, createdAt}]}
+      // 응답 본문 LRU와 무관하게 DB에 영구 저장된 피드백을 조회한다.
+      aiSlowDetailFeedback: function (contextId) {
+        return request('/admin/ai/slow/detail/feedback?contextId=' + encodeURIComponent(contextId));
       }
     }
   };

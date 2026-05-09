@@ -567,3 +567,54 @@
   border-radius: var(--mk-radius-sm, 8px);
   color: var(--mk-color-text, #1f1f1f);
 }
+
+/* 사용자 피드백 요약 (느린 호출 상세 패널 하단) */
+.aiq-slow-feedback {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.aiq-feedback-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.aiq-feedback-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid var(--mk-color-border, #e5e7eb);
+  background: var(--mk-color-bg-muted, #f9fafb);
+  color: var(--mk-color-text, #1f1f1f);
+}
+.aiq-feedback-pill--up    { background: rgba(34, 197, 94, 0.12);  border-color: rgba(34, 197, 94, 0.35); }
+.aiq-feedback-pill--down  { background: rgba(239, 68, 68, 0.12);  border-color: rgba(239, 68, 68, 0.35); }
+.aiq-feedback-comments {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.aiq-feedback-comments li {
+  padding: 0.45rem 0.6rem;
+  background: var(--mk-color-bg-muted, #f9fafb);
+  border: 1px solid var(--mk-color-border, #e5e7eb);
+  border-radius: var(--mk-radius-sm, 8px);
+}
+.aiq-feedback-comment-meta {
+  font-size: 0.78rem;
+  margin-bottom: 0.2rem;
+}
+.aiq-feedback-comment-body {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--mk-color-text, #1f1f1f);
+  white-space: pre-wrap;
+  word-break: break-word;
+}

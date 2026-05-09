@@ -53,4 +53,30 @@ public interface OfficeHubFeedbackRepository extends JpaRepository<OfficeHubFeed
             ORDER BY COUNT(f) DESC
            """)
     List<Object[]> topDocuments(@Param("since") OffsetDateTime since, Pageable pageable);
+
+    /**
+     * 같은 contextId에 달린 helpful/notHelpful 카운트.
+     * 결과: {@code [Long helpful, Long notHelpful]} 한 행. 피드백이 없으면 [0, 0].
+     * 느린 호출 상세 패널에서 "이 호출에 대한 사용자 평가가 어떘는가"를
+     * 한 번에 보여주는 용도.
+     */
+    @Query("""
+           SELECT SUM(CASE WHEN f.helpful = TRUE  THEN 1 ELSE 0 END),
+                  SUM(CASE WHEN f.helpful = FALSE THEN 1 ELSE 0 END)
+             FROM OfficeHubFeedback f
+            WHERE f.contextId = :contextId
+           """)
+    List<Object[]> countByContextId(@Param("contextId") String contextId);
+
+    /**
+     * 같은 contextId에 달린 피드백 행을 최신순으로. 상세 패널에서 가장 최근
+     * 코멘트 1~3건을 그대로 보여주기 위함. {@link Pageable}로 N건 제한.
+     */
+    @Query("""
+           SELECT f
+             FROM OfficeHubFeedback f
+            WHERE f.contextId = :contextId
+            ORDER BY f.createdAt DESC
+           """)
+    List<OfficeHubFeedback> findByContextId(@Param("contextId") String contextId, Pageable pageable);
 }

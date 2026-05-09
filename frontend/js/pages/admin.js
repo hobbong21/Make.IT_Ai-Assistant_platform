@@ -631,19 +631,81 @@
       if (btn.getAttribute('data-loaded') === '1') return; // 이미 로드됨
       const ctxId = btn.getAttribute('data-ctx');
       detailEl.innerHTML = '<div class="aiq-slow-empty">상세를 불러오는 중...</div>';
-      try {
-        const detail = await window.api.admin.aiSlowDetail(ctxId);
-        detailEl.innerHTML = renderSlowDetail(detail);
-        btn.setAttribute('data-loaded', '1');
-      } catch (err) {
+      // 응답 본문(LRU에서 만료될 수 있음)과 사용자 피드백(DB 영구 저장)을 병렬로 조회.
+      // 본문 로드가 실패해도 피드백은 보여줄 수 있도록 settled로 분리해 처리한다.
+      const [detailRes, feedbackRes] = await Promise.allSettled([
+        window.api.admin.aiSlowDetail(ctxId),
+        window.api.admin.aiSlowDetailFeedback(ctxId)
+      ]);
+
+      let html = '';
+      if (detailRes.status === 'fulfilled') {
+        html += renderSlowDetail(detailRes.value);
+      } else {
+        const err = detailRes.reason;
         console.error('Failed to load slow detail:', err);
         const status = err && err.status;
         const msg = status === 404
           ? '이 contextId의 응답 본문은 더 이상 보관돼 있지 않습니다 (서버 재시작 또는 보관 한도 초과로 밀려남).'
           : '응답 본문을 불러오지 못했습니다.';
-        detailEl.innerHTML = `<div class="aiq-slow-empty">${escapeHtml(msg)}</div>`;
+        html += `<div class="aiq-slow-empty">${escapeHtml(msg)}</div>`;
+      }
+      if (feedbackRes.status === 'fulfilled') {
+        html += renderSlowFeedback(feedbackRes.value);
+      } else {
+        console.error('Failed to load slow feedback:', feedbackRes.reason);
+        html += '<div class="aiq-slow-feedback"><h4>사용자 피드백</h4>'
+              + '<div class="aiq-slow-empty">피드백을 불러오지 못했습니다.</div></div>';
+      }
+      detailEl.innerHTML = html;
+      // 둘 다 실패한 경우엔 다시 펼쳤을 때 재시도할 수 있도록 loaded 마킹을 보류한다.
+      // (한쪽이라도 성공하면 캐시 이득이 있으므로 loaded 처리.)
+      if (detailRes.status === 'fulfilled' || feedbackRes.status === 'fulfilled') {
+        btn.setAttribute('data-loaded', '1');
       }
     });
+  }
+
+  // 같은 contextId에 달린 helpful/notHelpful 카운트 + 최근 코멘트 1~3건.
+  // 피드백이 한 건도 없으면 "피드백 없음" 안내만 노출한다.
+  function renderSlowFeedback(f) {
+    if (!f) return '';
+    const helpful = Number(f.helpful || 0);
+    const notHelpful = Number(f.notHelpful || 0);
+    const total = helpful + notHelpful;
+    const comments = Array.isArray(f.recentComments) ? f.recentComments : [];
+    if (total === 0 && comments.length === 0) {
+      return `
+        <div class="aiq-slow-feedback aiq-detail-section">
+          <h4>사용자 피드백</h4>
+          <div class="aiq-slow-muted">피드백 없음</div>
+        </div>`;
+    }
+    const counts = `
+      <div class="aiq-feedback-counts">
+        <span class="aiq-feedback-pill aiq-feedback-pill--up">👍 도움됨 ${helpful}</span>
+        <span class="aiq-feedback-pill aiq-feedback-pill--down">👎 도움 안 됨 ${notHelpful}</span>
+      </div>`;
+    const commentsHtml = comments.length === 0
+      ? ''
+      : '<ul class="aiq-feedback-comments">' + comments.map((c) => {
+          const icon = c.helpful ? '👍' : '👎';
+          const action = c.action ? `<span class="aiq-slow-muted"> · ${escapeHtml(c.action)}</span>` : '';
+          const when = c.createdAt ? `<span class="aiq-slow-muted"> · ${escapeHtml(formatDate(c.createdAt))}</span>` : '';
+          const body = c.comment && c.comment.length
+            ? `<div class="aiq-feedback-comment-body">${escapeHtml(c.comment)}</div>`
+            : '<div class="aiq-slow-muted">(코멘트 없음)</div>';
+          return `<li>
+              <div class="aiq-feedback-comment-meta">${icon}${action}${when}</div>
+              ${body}
+            </li>`;
+        }).join('') + '</ul>';
+    return `
+      <div class="aiq-slow-feedback aiq-detail-section">
+        <h4>사용자 피드백</h4>
+        ${counts}
+        ${commentsHtml}
+      </div>`;
   }
 
   function renderSlowDetail(d) {
