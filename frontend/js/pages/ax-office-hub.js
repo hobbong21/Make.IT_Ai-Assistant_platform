@@ -324,6 +324,7 @@
   function renderAIStream(host, kind, action, payload, documentId) {
     if (!host) return;
     host.innerHTML =
+      '<div class="hub-ai-confidence" hidden></div>' +
       '<div class="hub-ai-citations" hidden></div>' +
       '<div class="hub-ai-answer">AI 응답 생성 중<span class="hub-ai-dots">…</span></div>' +
       '<div class="hub-ai-feedback" hidden>' +
@@ -332,6 +333,7 @@
         '<button type="button" class="hub-fb hub-fb-down" aria-label="도움이 안 됨">👎</button>' +
         '<span class="hub-fb-thanks" hidden>피드백 감사합니다 🙏</span>' +
       '</div>';
+    var confEl = host.querySelector('.hub-ai-confidence');
     var citesEl = host.querySelector('.hub-ai-citations');
     var answerEl = host.querySelector('.hub-ai-answer');
     var fbEl = host.querySelector('.hub-ai-feedback');
@@ -354,6 +356,7 @@
       onDone: function (info) {
         contextId = info && info.contextId;
         if (firstDelta) { answerEl.textContent = '(빈 응답)'; }
+        renderConfidence(confEl, citations);
         fbEl.hidden = false;
       },
       onError: function (msg) {
@@ -376,6 +379,39 @@
       fbEl.querySelector('.hub-fb-down').disabled = true;
       fbEl.querySelector('.hub-fb-thanks').hidden = false;
     });
+  }
+
+  /**
+   * Render a confidence badge above the answer based on retrieval signals.
+   * - 0 citations → "근거 문서 없음 — 일반 지식 기반 답변" (red/none)
+   * - avg(score) < 0.5 → "근거가 약합니다" (yellow/weak)
+   * - otherwise hidden
+   */
+  function renderConfidence(host, citations) {
+    if (!host) return;
+    if (!citations || !citations.length) {
+      host.hidden = false;
+      host.className = 'hub-ai-confidence hub-ai-confidence--none';
+      host.innerHTML =
+        '<span class="hub-conf-icon" aria-hidden="true">⚠️</span>' +
+        '<span class="hub-conf-text">근거 문서 없음 — 일반 지식 기반 답변</span>';
+      return;
+    }
+    var scored = citations.filter(function (c) { return typeof c.score === 'number'; });
+    if (scored.length) {
+      var avg = scored.reduce(function (s, c) { return s + c.score; }, 0) / scored.length;
+      if (avg < 0.5) {
+        host.hidden = false;
+        host.className = 'hub-ai-confidence hub-ai-confidence--weak';
+        host.innerHTML =
+          '<span class="hub-conf-icon" aria-hidden="true">⚠️</span>' +
+          '<span class="hub-conf-text">근거가 약합니다 (평균 ' + Math.round(avg * 100) + '%)</span>';
+        return;
+      }
+    }
+    host.hidden = true;
+    host.className = 'hub-ai-confidence';
+    host.innerHTML = '';
   }
 
   function renderCitations(host, citations) {
