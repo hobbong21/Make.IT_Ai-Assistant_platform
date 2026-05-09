@@ -177,7 +177,7 @@
       return;
     }
     var html = '';
-    html += '<h3 style="margin:0 0 0.25rem;font-size:1.0625rem;">' + escapeHtml(item.title || '(제목 없음)') + '</h3>';
+    html += '<h3 style="margin:0 0 0.25rem;font-size:1.0625rem;">' + escapeHtml(item.title || item.url) + '</h3>';
     html += '<p class="an-hint" style="margin:0 0 0.5rem;word-break:break-all;"><a href="' + escapeHtml(item.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(item.url) + ' ↗</a></p>';
     var pills = [];
     if (item.language) pills.push('<span class="an-meta-pill">언어: ' + escapeHtml(item.language) + '</span>');

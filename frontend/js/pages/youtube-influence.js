@@ -250,19 +250,23 @@
       '<div class="an-compare-grid">' + cards + '</div>';
   }
 
-  // 반원 게이지 (0~100)
+  // 반원 게이지 (0~100). score<=0 또는 null → 진행 path 미렌더(배경만).
   function renderGauge(score) {
+    var bg = '<path d="M10,60 A50,50 0 0 1 110,60" fill="none" stroke="#f0eee6" stroke-width="12" stroke-linecap="round"></path>';
+    var s = Number(score);
+    if (!isFinite(s) || s <= 0) {
+      return '<svg class="an-gauge" viewBox="0 0 120 70" aria-hidden="true">' + bg + '</svg>';
+    }
+    s = Math.min(100, s);
     var R = 50, CX = 60, CY = 60;
-    // Half circle from (10,60) → (110,60), going up
     var angleStart = Math.PI;
-    var angleEnd = angleStart - (score / 100) * Math.PI;
+    var angleEnd = angleStart - (s / 100) * Math.PI;
     var x = CX + R * Math.cos(angleEnd);
     var y = CY + R * Math.sin(angleEnd);
-    var largeArc = score > 50 ? 1 : 0;
+    var largeArc = s > 50 ? 1 : 0;
     var path = 'M' + (CX - R) + ',' + CY + ' A' + R + ',' + R + ' 0 ' + largeArc + ' 1 ' + x.toFixed(2) + ',' + y.toFixed(2);
-    var color = score >= 80 ? '#f59e0b' : score >= 60 ? '#22c55e' : score >= 40 ? '#3b82f6' : '#9ca3af';
-    return '<svg class="an-gauge" viewBox="0 0 120 70" aria-hidden="true">' +
-      '<path d="M10,60 A50,50 0 0 1 110,60" fill="none" stroke="#f0eee6" stroke-width="12" stroke-linecap="round"></path>' +
+    var color = s >= 80 ? '#f59e0b' : s >= 60 ? '#22c55e' : s >= 40 ? '#3b82f6' : '#9ca3af';
+    return '<svg class="an-gauge" viewBox="0 0 120 70" aria-hidden="true">' + bg +
       '<path d="' + path + '" fill="none" stroke="' + color + '" stroke-width="12" stroke-linecap="round"></path>' +
       '</svg>';
   }
