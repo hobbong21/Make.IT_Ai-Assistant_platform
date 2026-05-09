@@ -678,7 +678,8 @@ const server = http.createServer(async (req, res) => {
   }
 
   let filePath = path.join(ROOT, urlPath);
-  // Root → intro.html (public landing). index.html은 로그인 필요(클라 가드).
+  // Root → intro.html (public landing). index.html도 비로그인 자유 접근(replit.md 참고).
+  // 로그인 페이지로의 이동은 사용자가 nav의 "로그인" CTA를 클릭했을 때만 발생.
   if (urlPath === '/' || urlPath === '') {
     filePath = path.join(ROOT, 'intro.html');
   } else if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {

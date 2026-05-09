@@ -5,15 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MaKIT - 마케팅 | Human.Ai.D</title>
-    <!-- 로그인 가드: 비로그인 사용자는 즉시 login.html로 리다이렉트 (페인트 전 차단) -->
-    <script>(function () {
-      try {
-        var k = 'makit_token';
-        if (!sessionStorage.getItem(k) && !localStorage.getItem(k)) {
-          location.replace('login.html?redirect=' + encodeURIComponent('index.html') + '&reason=required');
-        }
-      } catch (e) { /* storage unavailable — let page load */ }
-    })();</script>
+    <!-- index.html은 비로그인 자유 접근 (intro와 동일). 보호가 필요한 페이지는 각 페이지에서 auth.requireLogin() 호출. -->
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#c96442">
     <meta name="apple-mobile-web-app-capable" content="yes">
