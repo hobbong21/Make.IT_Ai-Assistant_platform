@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import java.util.UUID;
 
 import java.time.LocalDate;
@@ -220,6 +222,15 @@ public class AiQualityController {
         if (!"ask".equals(kind) && !"action".equals(kind)) return List.of();
         int n = Math.min(50, Math.max(1, limit));
         return slowSampler.recent(kind, tag, n);
+    }
+
+    @Operation(summary = "특정 contextId 호출의 답변·인용·토큰 사용량 (느린 샘플 모달의 contextId 클릭용)")
+    @GetMapping("/slow/detail")
+    @PreAuthorize("hasRole('ADMIN')")
+    public SlowCallSampler.Detail slowDetail(@RequestParam(name = "contextId") String contextId) {
+        return slowSampler.findDetail(contextId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "이 contextId의 응답 본문은 더 이상 보관돼 있지 않습니다 (서버 재시작 또는 LRU 만료)."));
     }
 
     // -------------------------------------------------------------------- helpers

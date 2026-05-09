@@ -549,6 +549,7 @@
       const samples = await window.api.admin.aiSlow(tag, kind, 10);
       if (!bodyEl) return;
       bodyEl.innerHTML = renderSlowSamples(samples, rowStat, kind);
+      bindSlowDetailHandler(bodyEl);
     } catch (err) {
       console.error('Failed to load slow samples:', err);
       if (bodyEl) {
@@ -576,6 +577,15 @@
       const when = s.ts ? new Date(s.ts).toLocaleString('ko-KR') : '-';
       const qLabel = kind === 'action' ? '대상 문서' : '질문';
       const q = s.question && s.question.length ? escapeHtml(s.question) : '<em class="aiq-slow-muted">(빈 문자열)</em>';
+      // contextId는 LRU에 보관된 답변/인용/토큰을 펼치는 토글 버튼으로 노출한다.
+      // 본문은 lazy load: 펼칠 때 한 번만 fetch.
+      const ctx = s.contextId || '';
+      const ctxBtn = ctx
+        ? `<button type="button" class="aiq-ctx-btn" data-ctx="${escapeHtml(ctx)}" data-loaded="0" aria-expanded="false" title="이 호출의 답변·인용·토큰 보기">
+             <code>${escapeHtml(ctx)}</code>
+             <span class="aiq-ctx-caret" aria-hidden="true">▸</span>
+           </button>`
+        : '<code>-</code>';
       return `
         <li class="aiq-slow-item">
           <div class="aiq-slow-row1">
@@ -584,12 +594,87 @@
           </div>
           <div class="aiq-slow-q"><strong>${qLabel}:</strong> ${q}</div>
           <div class="aiq-slow-meta">
-            <span>contextId <code>${escapeHtml(s.contextId || '-')}</code></span>
+            <span>contextId ${ctxBtn}</span>
             <span>모델 <code>${escapeHtml(s.modelId || '-')}</code></span>
           </div>
+          <div class="aiq-slow-detail" hidden></div>
         </li>`;
     }).join('');
     return header + `<ol class="aiq-slow-list">${items}</ol>`;
+  }
+
+  // contextId 토글: 클릭 시 백엔드 LRU에서 답변/인용/토큰을 받아와 펼친다.
+  // 모달 안의 위임 핸들러로 한 번만 등록한다 (모달이 다시 열려도 새 bodyEl을 참조).
+  function bindSlowDetailHandler(bodyEl) {
+    if (!bodyEl || bodyEl.__aiqDetailBound) return;
+    bodyEl.__aiqDetailBound = true;
+    bodyEl.addEventListener('click', async (ev) => {
+      const btn = ev.target.closest('.aiq-ctx-btn');
+      if (!btn || !bodyEl.contains(btn)) return;
+      ev.preventDefault();
+      const item = btn.closest('.aiq-slow-item');
+      const detailEl = item ? item.querySelector('.aiq-slow-detail') : null;
+      if (!detailEl) return;
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      // toggle close
+      if (expanded) {
+        btn.setAttribute('aria-expanded', 'false');
+        const caret = btn.querySelector('.aiq-ctx-caret');
+        if (caret) caret.textContent = '▸';
+        detailEl.hidden = true;
+        return;
+      }
+      btn.setAttribute('aria-expanded', 'true');
+      const caret = btn.querySelector('.aiq-ctx-caret');
+      if (caret) caret.textContent = '▾';
+      detailEl.hidden = false;
+      if (btn.getAttribute('data-loaded') === '1') return; // 이미 로드됨
+      const ctxId = btn.getAttribute('data-ctx');
+      detailEl.innerHTML = '<div class="aiq-slow-empty">상세를 불러오는 중...</div>';
+      try {
+        const detail = await window.api.admin.aiSlowDetail(ctxId);
+        detailEl.innerHTML = renderSlowDetail(detail);
+        btn.setAttribute('data-loaded', '1');
+      } catch (err) {
+        console.error('Failed to load slow detail:', err);
+        const status = err && err.status;
+        const msg = status === 404
+          ? '이 contextId의 응답 본문은 더 이상 보관돼 있지 않습니다 (서버 재시작 또는 보관 한도 초과로 밀려남).'
+          : '응답 본문을 불러오지 못했습니다.';
+        detailEl.innerHTML = `<div class="aiq-slow-empty">${escapeHtml(msg)}</div>`;
+      }
+    });
+  }
+
+  function renderSlowDetail(d) {
+    if (!d) return '<div class="aiq-slow-empty">응답 본문이 비어 있습니다.</div>';
+    const tokens = `<span>입력 ${(d.tokensIn || 0).toLocaleString()} · 출력 ${(d.tokensOut || 0).toLocaleString()} 토큰</span>`;
+    const answer = d.answer && d.answer.length
+      ? `<pre class="aiq-detail-answer">${escapeHtml(d.answer)}</pre>`
+      : '<div class="aiq-slow-muted">(빈 답변)</div>';
+    const cits = Array.isArray(d.citations) ? d.citations : [];
+    const citsHtml = cits.length === 0
+      ? '<div class="aiq-slow-muted">인용된 문서가 없습니다.</div>'
+      : '<ol class="aiq-detail-citations">' + cits.map((c) => {
+          const title = c.title && c.title.length ? c.title : '(제목 없음)';
+          const score = typeof c.score === 'number' ? c.score.toFixed(3) : '-';
+          const snippet = c.snippet && c.snippet.length ? escapeHtml(c.snippet) : '';
+          // documentId는 #doc/<id> 라우트로 바로 이동 가능.
+          const docLink = c.documentId
+            ? `<a href="#doc/${encodeURIComponent(c.documentId)}" target="_blank" rel="noopener"><code>${escapeHtml(c.documentId)}</code></a>`
+            : '<code>-</code>';
+          return `<li>
+              <div class="aiq-detail-cit-title"><strong>${escapeHtml(title)}</strong> <span class="aiq-slow-muted">#${c.chunkIndex} · score ${escapeHtml(score)}</span></div>
+              <div class="aiq-detail-cit-doc">doc ${docLink}</div>
+              ${snippet ? `<div class="aiq-detail-cit-snippet">${snippet}</div>` : ''}
+            </li>`;
+        }).join('') + '</ol>';
+    return `
+      <div class="aiq-slow-detail-inner">
+        <div class="aiq-detail-meta">${tokens}</div>
+        <div class="aiq-detail-section"><h4>답변</h4>${answer}</div>
+        <div class="aiq-detail-section"><h4>인용 문서 (${cits.length})</h4>${citsHtml}</div>
+      </div>`;
   }
 
   function formatDate(iso) {

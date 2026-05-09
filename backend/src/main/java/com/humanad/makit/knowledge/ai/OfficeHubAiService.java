@@ -108,14 +108,20 @@ public class OfficeHubAiService {
                 .publishPercentiles(0.5, 0.95)
                 .register(meters));
         meters.counter("knowledge.ai.ask.calls").increment();
-        slowSampler.record("ask", collectionTag,
-                java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(elapsedNs),
-                contextId, req.question(), inv.modelId());
+        long elapsedMs = java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(elapsedNs);
+        slowSampler.record("ask", collectionTag, elapsedMs, contextId, req.question(), inv.modelId());
+
+        List<AskResponse.Citation> citations = toCitations(chunks);
+        String answerText = trim(inv.outputText());
+        // 모달의 contextId 클릭 시 답변/인용/토큰을 한 번에 보여주기 위해 함께 보관한다.
+        slowSampler.recordDetail("ask", collectionTag, elapsedMs, contextId,
+                req.question(), answerText, toSamplerCitations(citations),
+                Math.max(0, inv.tokensIn()), Math.max(0, inv.tokensOut()), inv.modelId());
 
         return new AskResponse(
                 contextId,
-                trim(inv.outputText()),
-                toCitations(chunks),
+                answerText,
+                citations,
                 new AskResponse.Usage(Math.max(0, inv.tokensIn()), Math.max(0, inv.tokensOut())),
                 inv.modelId(),
                 Instant.now());
@@ -199,15 +205,20 @@ public class OfficeHubAiService {
                 .publishPercentiles(0.5, 0.95)
                 .register(meters));
         meters.counter("knowledge.ai.action.calls", "action", action).increment();
+        long elapsedMsAction = java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(elapsedNs);
         // 액션은 자유 질문이 없으므로 대상 문서 제목을 "질문"으로 간주해 진단을 돕는다.
-        slowSampler.record("action", action,
-                java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(elapsedNs),
-                contextId, docTitle, inv.modelId());
+        slowSampler.record("action", action, elapsedMsAction, contextId, docTitle, inv.modelId());
+
+        List<AskResponse.Citation> actCits = toCitations(related);
+        String actAnswer = trim(inv.outputText());
+        slowSampler.recordDetail("action", action, elapsedMsAction, contextId,
+                docTitle, actAnswer, toSamplerCitations(actCits),
+                Math.max(0, inv.tokensIn()), Math.max(0, inv.tokensOut()), inv.modelId());
 
         return new AskResponse(
                 contextId,
-                trim(inv.outputText()),
-                toCitations(related),
+                actAnswer,
+                actCits,
                 new AskResponse.Usage(Math.max(0, inv.tokensIn()), Math.max(0, inv.tokensOut())),
                 inv.modelId(),
                 Instant.now());
@@ -302,6 +313,16 @@ public class OfficeHubAiService {
             if (kept.size() >= 5) break;
         }
         return kept;
+    }
+
+    private static List<SlowCallSampler.Citation> toSamplerCitations(List<AskResponse.Citation> cits) {
+        if (cits == null || cits.isEmpty()) return List.of();
+        List<SlowCallSampler.Citation> out = new ArrayList<>(cits.size());
+        for (AskResponse.Citation c : cits) {
+            out.add(new SlowCallSampler.Citation(
+                    c.documentId(), c.title(), c.chunkIndex(), c.score(), c.snippet()));
+        }
+        return out;
     }
 
     private List<AskResponse.Citation> toCitations(List<RetrievedChunk> chunks) {

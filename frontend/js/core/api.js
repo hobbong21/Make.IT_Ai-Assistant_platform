@@ -503,6 +503,12 @@
         const n = limit || 10;
         return request('/admin/ai/slow?tag=' + encodeURIComponent(tag)
           + '&kind=' + encodeURIComponent(k) + '&limit=' + n);
+      },
+      // GET /api/admin/ai/slow/detail?contextId=...
+      // → {contextId, kind, tag, latencyMs, question, answer, citations:[{documentId,title,chunkIndex,score,snippet}], tokensIn, tokensOut, modelId, ts}
+      // 404일 경우 LRU에서 밀려났거나 서버 재시작으로 사라진 상태.
+      aiSlowDetail: function (contextId) {
+        return request('/admin/ai/slow/detail?contextId=' + encodeURIComponent(contextId));
       }
     }
   };

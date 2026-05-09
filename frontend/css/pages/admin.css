@@ -489,3 +489,81 @@
 @media (prefers-color-scheme: dark) {
   .aiq-slow-latency { color: #fca5a5; }
 }
+
+/* ---- contextId 토글 + 호출 상세 (답변/인용/토큰) ----------------------- */
+.aiq-ctx-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: transparent;
+  border: 1px solid var(--mk-color-border, #e5e7eb);
+  border-radius: var(--mk-radius-sm, 8px);
+  padding: 0.1rem 0.4rem;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.aiq-ctx-btn:hover,
+.aiq-ctx-btn:focus-visible {
+  background: var(--mk-color-bg-muted, #f3f4f6);
+  outline: none;
+  border-color: var(--mk-color-accent, #c96442);
+}
+.aiq-ctx-btn code { font-size: 0.78rem; }
+.aiq-ctx-caret {
+  font-size: 0.7rem;
+  color: var(--mk-color-text-muted, #6b7280);
+}
+.aiq-slow-detail {
+  margin-top: 0.5rem;
+  border-top: 1px dashed var(--mk-color-border, #e5e7eb);
+  padding-top: 0.5rem;
+}
+.aiq-slow-detail-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.aiq-detail-meta {
+  font-size: 0.78rem;
+  color: var(--mk-color-text-muted, #6b7280);
+}
+.aiq-detail-section h4 {
+  margin: 0 0 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--mk-color-text, #1f1f1f);
+}
+.aiq-detail-answer {
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  background: var(--mk-color-bg-muted, #f9fafb);
+  border: 1px solid var(--mk-color-border, #e5e7eb);
+  border-radius: var(--mk-radius-sm, 8px);
+  font-family: inherit;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 20rem;
+  overflow: auto;
+}
+.aiq-detail-citations {
+  list-style: decimal;
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.aiq-detail-citations li { font-size: 0.82rem; line-height: 1.45; }
+.aiq-detail-cit-title { color: var(--mk-color-text, #1f1f1f); }
+.aiq-detail-cit-doc { font-size: 0.78rem; color: var(--mk-color-text-muted, #6b7280); }
+.aiq-detail-cit-doc code { font-size: 0.78rem; }
+.aiq-detail-cit-snippet {
+  margin-top: 0.2rem;
+  padding: 0.4rem 0.55rem;
+  background: var(--mk-color-bg-muted, #f9fafb);
+  border-radius: var(--mk-radius-sm, 8px);
+  color: var(--mk-color-text, #1f1f1f);
+}
