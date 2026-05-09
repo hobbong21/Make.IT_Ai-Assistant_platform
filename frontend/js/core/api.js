@@ -347,6 +347,15 @@
       }
     },
 
+    meetingNotes: {
+      // POST /api/meeting-notes/summarize
+      // body: { title, meetingAt, attendees: [], transcript }
+      // returns: { title, meetingAt, attendees, summary, decisions: [], actionItems: [{owner,task,due}], generatedBy }
+      summarize: function (payload) {
+        return request('/meeting-notes/summarize', { method: 'POST', body: payload });
+      }
+    },
+
     admin: {
       // GET /api/admin/stats/overview — AdminOverviewDto
       overview: function () {

@@ -8,11 +8,12 @@
     <meta name="theme-color" content="#c96442">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="/img/illustrations/login-mark.svg">
-    <meta name="description" content="회의 음성/텍스트를 요약하고 액션 아이템을 추출합니다 (준비 중).">
+    <meta name="description" content="회의 내용을 음성으로 받아쓰고 AI가 자동으로 회의록을 정리해 발송합니다.">
     <link rel="stylesheet" href="/css/core/tokens.css">
     <link rel="stylesheet" href="/css/core/common.css">
     <link rel="stylesheet" href="/css/core/app-shell.css">
     <link rel="stylesheet" href="/css/pages/service-detail-styles.css">
+    <link rel="stylesheet" href="/css/pages/meeting-notes.css">
 </head>
 <body data-service="meeting-notes">
     <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
@@ -49,7 +50,6 @@
                         </svg>
                     </a>
                 </div>
-
                 <div class="nav-section">
                     <div class="nav-section-title">마케팅 허브</div>
                     <div class="nav-dropdown">
@@ -62,7 +62,6 @@
                             <a href="/services/youtube-keyword-search.html" class="nav-dropdown-item">유튜브 키워드 채널검색</a>
                         </div>
                     </div>
-
                     <div class="nav-dropdown">
                         <div class="nav-dropdown-header"><span>AX Marketing Intelligence</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></div>
                         <div class="nav-dropdown-items">
@@ -72,7 +71,6 @@
                             <a href="/marketing-playbooks.html" class="nav-dropdown-item">마케팅 플레이북</a>
                         </div>
                     </div>
-
                     <div class="nav-dropdown">
                         <div class="nav-dropdown-header"><span>AX Commerce Brain</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></div>
                         <div class="nav-dropdown-items">
@@ -81,7 +79,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="nav-section">
                     <div class="nav-section-title">백오피스</div>
                     <a href="/services/meeting-notes.html" class="nav-item active">
@@ -94,7 +91,6 @@
                         </svg>
                     </a>
                 </div>
-
                 <a href="/intro.html" class="nav-item go-to-web">
                     <span>웹사이트</span>
                     <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -111,12 +107,81 @@
                 <div class="service-header">
                     <div class="service-header-content">
                         <h1>회의록 정리</h1>
-                        <p>회의 음성/텍스트를 요약하고 결정사항·액션 아이템을 자동 추출합니다.</p>
+                        <p>회의 내용을 음성으로 받아쓰고 AI가 자동으로 회의록을 정리합니다. 결과를 메일 양식으로 바로 보낼 수 있습니다.</p>
                     </div>
                 </div>
-                <div style="background:var(--mk-color-bg-subtle);border:1px solid var(--mk-color-border);border-radius:12px;padding:2.5rem;text-align:center;color:var(--mk-color-text-muted);margin-top:1.5rem;">
-                    <p style="font-size:1.0625rem;font-weight:600;color:var(--mk-color-text);margin:0 0 0.5rem;">준비 중인 서비스입니다</p>
-                    <p style="margin:0;">곧 음성 업로드 → 자동 요약 → 액션 아이템 추출 기능을 제공할 예정입니다.</p>
+
+                <div class="mn-grid">
+                    <!-- 좌측: 입력 영역 -->
+                    <section class="mn-card" aria-label="회의 정보 및 받아쓰기 입력">
+                        <h2>1. 회의 정보</h2>
+                        <div class="mn-meta">
+                            <div class="mn-field full">
+                                <label for="mnTitle">회의 제목</label>
+                                <input type="text" id="mnTitle" placeholder="예: 2026년 5월 마케팅 주간 회의">
+                            </div>
+                            <div class="mn-field">
+                                <label for="mnMeetingAt">일시</label>
+                                <input type="datetime-local" id="mnMeetingAt">
+                            </div>
+                            <div class="mn-field">
+                                <label for="mnRequester">요청자 이메일 (메일 발송용)</label>
+                                <input type="email" id="mnRequester" placeholder="name@example.com">
+                            </div>
+                            <div class="mn-field full">
+                                <label for="mnAttendees">참석자 (쉼표로 구분)</label>
+                                <input type="text" id="mnAttendees" placeholder="홍길동, 김영희, 이철수">
+                            </div>
+                        </div>
+
+                        <h2 style="margin-top:1.25rem;">2. 회의 내용 받아쓰기</h2>
+                        <p class="mn-hint">마이크 버튼으로 한국어 실시간 받아쓰기를 시작하거나, 아래 영역에 직접 입력/붙여넣기 할 수 있습니다.</p>
+                        <div id="mnSpeechWarn" class="mn-warn" style="display:none;">
+                            이 브라우저는 음성 받아쓰기를 지원하지 않습니다(Chrome/Edge 권장). 텍스트 입력만 사용 가능합니다.
+                        </div>
+                        <div class="mn-recorder" id="mnRecorder">
+                            <button type="button" id="mnStartBtn" class="mn-btn is-primary">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line></svg>
+                                녹음 시작
+                            </button>
+                            <button type="button" id="mnStopBtn" class="mn-btn is-danger" disabled>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"></rect></svg>
+                                정지
+                            </button>
+                            <button type="button" id="mnClearBtn" class="mn-btn">지우기</button>
+                            <span class="mn-status" id="mnRecStatusBox"><span class="mn-dot"></span><span id="mnRecStatus">대기</span></span>
+                        </div>
+                        <textarea id="mnTranscript" class="mn-textarea" placeholder="여기에 회의 내용이 받아쓰여지거나 직접 입력할 수 있습니다."></textarea>
+
+                        <div class="mn-action-row">
+                            <button type="button" id="mnSummarizeBtn" class="mn-btn is-primary">AI로 회의록 정리</button>
+                        </div>
+                    </section>
+
+                    <!-- 우측: 결과 영역 -->
+                    <section class="mn-card" aria-label="회의록 미리보기 및 발송">
+                        <h2>3. 회의록 미리보기 (편집 가능)</h2>
+                        <p class="mn-hint">제목/요약/결정 사항/액션 아이템을 직접 클릭해 수정할 수 있습니다.</p>
+                        <div id="mnPreview" class="mn-preview"></div>
+
+                        <h2 style="margin-top:1.25rem;">4. 발송 / 다운로드</h2>
+                        <div class="mn-action-row">
+                            <button type="button" id="mnMailtoBtn" class="mn-btn is-primary">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                메일로 보내기
+                            </button>
+                            <button type="button" id="mnDownloadMdBtn" class="mn-btn">
+                                Markdown 다운로드
+                            </button>
+                            <button type="button" id="mnPrintBtn" class="mn-btn">
+                                PDF로 저장 (인쇄)
+                            </button>
+                        </div>
+                        <p class="mn-hint" style="margin-top:0.625rem;">
+                            * "메일로 보내기"는 기본 메일 클라이언트(Gmail, Outlook 등)를 열어 본문/제목/수신자를 자동 채웁니다.<br>
+                            * "PDF로 저장"은 브라우저 인쇄 화면에서 대상을 "PDF로 저장"으로 선택하면 됩니다.
+                        </p>
+                    </section>
                 </div>
             </div>
         </main>
@@ -135,15 +200,6 @@
     <script src="/js/widgets/app-shell-extras.js"></script>
     <script src="/js/widgets/settings-menu.js"></script>
     <script src="/js/core/sw-register.js"></script>
-    <script>
-      // 서비스 진입 페이지: 로그인 필수 (다른 서비스 페이지와 동일 정책)
-      if (window.auth && !auth.requireLogin()) { /* redirected */ }
-      // 사이드바 드롭다운 토글 (다른 서비스 페이지와 동일 동작)
-      document.querySelectorAll('.nav-dropdown-header').forEach(function(h){
-        h.addEventListener('click', function(){
-          var d = h.parentElement; if (d) d.classList.toggle('expanded');
-        });
-      });
-    </script>
+    <script src="/js/pages/meeting-notes.js"></script>
 </body>
 </html>

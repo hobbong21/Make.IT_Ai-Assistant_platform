@@ -6,7 +6,7 @@
  *  - HTML: network-first with fallback to cache
  */
 
-const CACHE_VERSION = 'makit-v12';
+const CACHE_VERSION = 'makit-v13';
 const SHELL_ASSETS = [
   '/index.html',
   '/services/nlp-analyze.html',
@@ -28,6 +28,7 @@ const SHELL_ASSETS = [
   '/css/pages/all-services-styles.css',
   '/css/pages/service-detail-styles.css',
   '/css/pages/marketing-hub.css',
+  '/css/pages/meeting-notes.css',
   '/js/core/api.js',
   '/js/core/auth.js',
   '/js/core/ui.js',
@@ -38,6 +39,7 @@ const SHELL_ASSETS = [
   '/js/widgets/auth-gate.js',
   '/js/widgets/settings-menu.js',
   '/js/core/sw-register.js',
+  '/js/pages/meeting-notes.js',
 ];
 
 const ICON_ASSETS = [
