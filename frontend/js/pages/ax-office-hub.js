@@ -43,6 +43,7 @@
   var RECENT_KEY = 'mk:axhub:recent';
   var CONF_THRESHOLD_KEY = 'mk:axhub:confThreshold';
   var DEFAULT_CONF_THRESHOLD = 0.5;
+  var LOW_CONF_WARN_KEY = 'mk:axhub:lowConfWarn';
   function getGlobalConfThreshold() {
     try {
       var raw = localStorage.getItem(CONF_THRESHOLD_KEY);
@@ -66,16 +67,28 @@
     }
     return { value: getGlobalConfThreshold(), source: 'global' };
   }
-  // 다른 탭(설정 화면)에서 임계치를 바꾸면 즉시 반영
+  function getLowConfWarn() {
+    try {
+      var raw = localStorage.getItem(LOW_CONF_WARN_KEY);
+      if (raw == null) return true; // 기본 ON
+      return raw !== 'false';
+    } catch (_) { return true; }
+  }
+  // 다른 탭(설정 화면)에서 임계치/경고 옵션을 바꾸면 즉시 반영
   window.addEventListener('storage', function (e) {
-    if (e && e.key === CONF_THRESHOLD_KEY) {
+    if (!e) return;
+    if (e.key === CONF_THRESHOLD_KEY || e.key === LOW_CONF_WARN_KEY) {
       document.querySelectorAll('.hub-ai-confidence').forEach(function (host) {
         var raw = host.getAttribute('data-citations');
         if (raw == null) return;
         var ctxRaw = host.getAttribute('data-context');
         var ctx = null;
         if (ctxRaw) { try { ctx = JSON.parse(ctxRaw); } catch (_) {} }
-        try { renderConfidence(host, JSON.parse(raw), ctx); } catch (_) {}
+        try {
+          var status = renderConfidence(host, JSON.parse(raw), ctx);
+          var stream = host.closest('.hub-ai-stream');
+          if (stream) applyLowConfState(stream, status);
+        } catch (_) {}
       });
     }
   });
@@ -363,10 +376,35 @@
    */
   function renderAIStream(host, kind, action, payload, documentId, context) {
     if (!host) return;
+    // 같은 host(예: #hubAIOut)가 다음 답변에 재사용될 때
+    // 이전 답변의 경고 상태(토스트 노출/오버레이 해제)가 남지 않도록 초기화
+    host.classList.remove(
+      'hub-ai-stream--blurred',
+      'hub-ai-stream--revealed',
+      'hub-ai-stream--low',
+      'hub-ai-stream--low-none',
+      'hub-ai-stream--low-weak'
+    );
+    try { delete host.dataset.lowConfToasted; } catch (_) { host.dataset.lowConfToasted = ''; }
+    host.classList.add('hub-ai-stream');
+    // storage 이벤트의 재평가에서 원래 context(질문/컬렉션)를 잃지 않도록 보관
+    try { host.dataset.confContext = JSON.stringify(context || {}); } catch (_) {}
     host.innerHTML =
       '<div class="hub-ai-confidence" hidden></div>' +
       '<div class="hub-ai-citations" hidden></div>' +
-      '<div class="hub-ai-answer">AI 응답 생성 중<span class="hub-ai-dots">…</span></div>' +
+      '<div class="hub-ai-answer-wrap">' +
+        '<div class="hub-ai-low-overlay" hidden role="alert">' +
+          '<div class="hub-ai-low-overlay-inner">' +
+            '<span class="hub-ai-low-icon" aria-hidden="true">⚠️</span>' +
+            '<div class="hub-ai-low-text">' +
+              '<strong>신뢰도 낮음 — 확인 필요</strong>' +
+              '<span class="hub-ai-low-sub"></span>' +
+            '</div>' +
+            '<button type="button" class="hub-ai-low-reveal">그래도 보기</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="hub-ai-answer">AI 응답 생성 중<span class="hub-ai-dots">…</span></div>' +
+      '</div>' +
       '<div class="hub-ai-feedback" hidden>' +
         '<span>이 답변이 도움이 되었나요?</span>' +
         '<button type="button" class="hub-fb hub-fb-up"   aria-label="도움이 됨">👍</button>' +
@@ -377,6 +415,15 @@
     var citesEl = host.querySelector('.hub-ai-citations');
     var answerEl = host.querySelector('.hub-ai-answer');
     var fbEl = host.querySelector('.hub-ai-feedback');
+    var overlayEl = host.querySelector('.hub-ai-low-overlay');
+    var revealBtn = host.querySelector('.hub-ai-low-reveal');
+    if (revealBtn && overlayEl) {
+      revealBtn.addEventListener('click', function () {
+        overlayEl.hidden = true;
+        host.classList.remove('hub-ai-stream--blurred');
+        host.classList.add('hub-ai-stream--revealed');
+      });
+    }
     var answerText = '';
     var citations = [];
     var contextId = null;
@@ -396,7 +443,8 @@
       onDone: function (info) {
         contextId = info && info.contextId;
         if (firstDelta) { answerEl.textContent = '(빈 응답)'; }
-        renderConfidence(confEl, citations, context);
+        var status = renderConfidence(confEl, citations, context);
+        applyLowConfState(host, status);
         fbEl.hidden = false;
       },
       onError: function (msg) {
@@ -428,7 +476,7 @@
    * - otherwise hidden
    */
   function renderConfidence(host, citations, context) {
-    if (!host) return;
+    if (!host) return { level: 'ok' };
     // 추후 임계치 변경 시 재렌더할 수 있도록 citations + context 스냅샷 보관
     try { host.setAttribute('data-citations', JSON.stringify(citations || [])); } catch (_) {}
     try { host.setAttribute('data-context', JSON.stringify(context || {})); } catch (_) {}
@@ -449,7 +497,7 @@
           openAddDocFromQuestionModal(question, ctx.collectionId || null);
         });
       }
-      return;
+      return { level: 'none', detail: '근거 문서가 없는 일반 지식 기반 답변입니다.' };
     }
     var scored = citations.filter(function (c) { return typeof c.score === 'number'; });
     if (scored.length) {
@@ -464,12 +512,52 @@
           '<span class="hub-conf-icon" aria-hidden="true">⚠️</span>' +
           '<span class="hub-conf-text">근거가 약합니다 (평균 ' + Math.round(avg * 100) +
           '%, ' + sourceLabel + ' 임계치 ' + Math.round(resolved.value * 100) + '%)</span>';
-        return;
+        return {
+          level: 'weak',
+          detail: '근거 평균 ' + Math.round(avg * 100) + '% (' + sourceLabel + ' 임계치 ' + Math.round(resolved.value * 100) + '%)'
+        };
       }
     }
     host.hidden = true;
     host.className = 'hub-ai-confidence';
     host.innerHTML = '';
+    return { level: 'ok' };
+  }
+
+  // 약한 근거 답변에 대해 흐림 오버레이 + 토스트를 적용한다.
+  // 사용자가 설정 화면에서 끌 수 있다(localStorage: mk:axhub:lowConfWarn).
+  function applyLowConfState(host, status) {
+    if (!host || !status) return;
+    var overlay = host.querySelector('.hub-ai-low-overlay');
+    var sub = host.querySelector('.hub-ai-low-sub');
+    var warnEnabled = getLowConfWarn();
+    var isLow = status.level === 'weak' || status.level === 'none';
+    var alreadyRevealed = host.classList.contains('hub-ai-stream--revealed');
+
+    host.classList.toggle('hub-ai-stream--low', isLow);
+    host.classList.toggle('hub-ai-stream--low-none', status.level === 'none');
+    host.classList.toggle('hub-ai-stream--low-weak', status.level === 'weak');
+
+    if (!isLow || !warnEnabled || alreadyRevealed) {
+      if (overlay) overlay.hidden = true;
+      host.classList.remove('hub-ai-stream--blurred');
+      return;
+    }
+
+    if (overlay) {
+      overlay.hidden = false;
+      if (sub) sub.textContent = status.detail || '';
+    }
+    host.classList.add('hub-ai-stream--blurred');
+
+    // 토스트는 한 답변당 1회만 노출
+    if (!host.dataset.lowConfToasted && window.ui && typeof ui.toast === 'function') {
+      var msg = status.level === 'none'
+        ? '⚠️ 근거 문서 없이 생성된 답변입니다 — 사실 확인이 필요합니다.'
+        : '⚠️ 신뢰도 낮은 답변입니다 — 인용 출처를 함께 확인하세요.';
+      ui.toast(msg, 'warn');
+      host.dataset.lowConfToasted = '1';
+    }
   }
 
   function renderCitations(host, citations) {

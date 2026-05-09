@@ -632,6 +632,95 @@ body[data-page="ax-office-hub"] {
     color: #fff;
 }
 
+/* 약한 근거 답변 — 흐림 오버레이 (Task #37) */
+.hub-ai-stream--low .hub-ai-confidence {
+    box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.18);
+}
+.hub-ai-stream--low-none .hub-ai-confidence {
+    box-shadow: 0 0 0 2px rgba(154, 42, 31, 0.22);
+}
+.hub-ai-answer-wrap {
+    position: relative;
+}
+.hub-ai-stream--blurred .hub-ai-answer {
+    filter: blur(6px);
+    user-select: none;
+    pointer-events: none;
+    transition: filter 0.18s ease;
+}
+.hub-ai-low-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+    background: rgba(255, 247, 214, 0.78);
+    border: 1px solid #f1d97a;
+    border-radius: var(--mk-radius-md, 12px);
+    backdrop-filter: saturate(120%);
+}
+.hub-ai-low-overlay[hidden] { display: none; }
+.hub-ai-stream--low-none .hub-ai-low-overlay {
+    background: rgba(253, 236, 234, 0.85);
+    border-color: #f5c2bd;
+}
+.hub-ai-low-overlay-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+    max-width: 36rem;
+}
+.hub-ai-low-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+}
+.hub-ai-low-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    color: #6b5400;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+}
+.hub-ai-stream--low-none .hub-ai-low-text { color: #9a2a1f; }
+.hub-ai-low-text strong {
+    font-size: 0.9375rem;
+    font-weight: 700;
+}
+.hub-ai-low-sub {
+    font-weight: 500;
+    opacity: 0.85;
+}
+.hub-ai-low-sub:empty { display: none; }
+.hub-ai-low-reveal {
+    appearance: none;
+    background: #fff;
+    border: 1px solid currentColor;
+    color: inherit;
+    border-radius: 999px;
+    padding: 0.375rem 0.875rem;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    line-height: 1.2;
+    transition: background 0.15s, color 0.15s;
+}
+.hub-ai-stream--low-weak .hub-ai-low-reveal { color: #6b5400; }
+.hub-ai-stream--low-weak .hub-ai-low-reveal:hover { background: #6b5400; color: #fff7d6; }
+.hub-ai-stream--low-none .hub-ai-low-reveal { color: #9a2a1f; }
+.hub-ai-stream--low-none .hub-ai-low-reveal:hover { background: #9a2a1f; color: #fff; }
+@media (prefers-reduced-motion: reduce) {
+    .hub-ai-stream--blurred .hub-ai-answer { transition: none; }
+}
+[data-reduce-motion="true"] .hub-ai-stream--blurred .hub-ai-answer { transition: none; }
+
 .hub-ai-citations {
     display: flex; flex-wrap: wrap; gap: 0.375rem;
     margin-bottom: 0.625rem;

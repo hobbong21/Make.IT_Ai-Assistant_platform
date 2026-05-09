@@ -134,6 +134,23 @@
       }
     }
 
+    // 약한 근거 답변 경고 토글 (Task #37)
+    var WARN_KEY = 'mk:axhub:lowConfWarn';
+    var warnCheck = byId('lowConfWarnCheck');
+    if (warnCheck) {
+      var savedWarn = null;
+      try { savedWarn = localStorage.getItem(WARN_KEY); } catch (_) {}
+      warnCheck.checked = savedWarn !== 'false'; // 기본 ON
+      warnCheck.addEventListener('change', function () {
+        try { localStorage.setItem(WARN_KEY, warnCheck.checked ? 'true' : 'false'); } catch (_) {}
+        showMsg('confMessage',
+          warnCheck.checked
+            ? '약한 근거 경고가 켜졌습니다. AX Office Hub에 즉시 반영됩니다.'
+            : '약한 근거 경고가 꺼졌습니다. 토스트와 흐림 오버레이가 표시되지 않습니다.',
+          true);
+      });
+    }
+
     // 애니메이션 줄이기 체크박스
     var reduceMotionCheck = byId('reduceMotionCheck');
     if (reduceMotionCheck) {

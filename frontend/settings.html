@@ -175,6 +175,19 @@
             <div class="set-actions">
                 <button type="button" class="btn-primary" id="confResetBtn" data-i18n="settings.ai-confidence-reset">기본값(50%)으로 복원</button>
             </div>
+
+            <div style="margin-top: var(--mk-space-4); padding-top: var(--mk-space-3); border-top: 1px dashed var(--mk-color-border);">
+                <label style="display:flex; align-items:flex-start; gap: var(--mk-space-2); cursor: pointer;">
+                    <input type="checkbox" id="lowConfWarnCheck" checked style="margin-top: 3px;">
+                    <span>
+                        <strong data-i18n="settings.ai-confidence-warn">약한 근거 답변 경고 표시</strong>
+                        <br>
+                        <span style="color: var(--mk-color-text-muted); font-size: var(--mk-font-size-sm);" data-i18n="settings.ai-confidence-warn-desc">
+                            임계치 미달 답변에 토스트 알림과 본문 흐림 오버레이("그래도 보기" 버튼)를 표시합니다.
+                        </span>
+                    </span>
+                </label>
+            </div>
             <div id="confMessage" role="status" aria-live="polite" style="margin-top: var(--mk-space-3);"></div>
         </section>
     </main>
