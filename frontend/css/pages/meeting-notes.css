@@ -140,6 +140,22 @@
   margin-top: 0.875rem;
 }
 
+/* 원본 오디오 출력 영역 */
+.mn-audio-output {
+  margin-top: 0.875rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--mk-color-border, #e5e2da);
+  border-radius: var(--mk-radius-md, 12px);
+  background: var(--mk-color-bg-subtle, #faf9f5);
+}
+.mn-audio-row { display: flex; flex-direction: column; gap: 0.5rem; }
+.mn-audio-row audio { width: 100%; max-width: 100%; }
+.mn-audio-meta {
+  font-size: 0.8125rem;
+  color: var(--mk-color-text-muted, #6e6e6e);
+}
+.mn-audio-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
 .mn-preview {
   border: 1px dashed var(--mk-color-border, #e5e2da);
   border-radius: var(--mk-radius-md, 12px);

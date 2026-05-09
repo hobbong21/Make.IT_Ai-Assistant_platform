@@ -14,6 +14,14 @@
     finalText: '',     // 확정된 받아쓰기 텍스트
     interimText: '',   // 임시(미확정) 받아쓰기 텍스트
     summary: null,     // 백엔드에서 받은 정리 결과
+    // --- 원본 오디오 녹음 (MediaRecorder) ---
+    mediaRecorder: null,
+    audioStream: null,
+    audioChunks: [],
+    audioBlob: null,
+    audioUrl: null,
+    audioMime: 'audio/webm',
+    recStartedAt: 0,
   };
 
   // ---------- DOM helpers ----------
@@ -73,18 +81,92 @@
     return r;
   }
 
-  function startRecording() {
+  // ---------- 원본 오디오 녹음 (MediaRecorder) ----------
+  function pickAudioMime() {
+    var candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
+    if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
+    for (var i = 0; i < candidates.length; i++) {
+      if (MediaRecorder.isTypeSupported(candidates[i])) return candidates[i];
+    }
+    return ''; // 빈 문자열이면 브라우저 기본
+  }
+
+  async function startAudioRecording() {
+    if (!window.MediaRecorder || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      // 받아쓰기는 가능해도 MediaRecorder는 안 될 수 있음 — 받아쓰기만 진행
+      toast('이 브라우저는 오디오 녹음을 지원하지 않습니다. 받아쓰기만 진행합니다.', 'info');
+      return false;
+    }
+    try {
+      var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      var mime = pickAudioMime();
+      var opts = mime ? { mimeType: mime } : undefined;
+      var rec = new MediaRecorder(stream, opts);
+      state.audioChunks = [];
+      state.audioMime = rec.mimeType || mime || 'audio/webm';
+      rec.ondataavailable = function (e) {
+        if (e.data && e.data.size > 0) state.audioChunks.push(e.data);
+      };
+      rec.onstop = function () {
+        var blob = new Blob(state.audioChunks, { type: state.audioMime });
+        state.audioBlob = blob;
+        if (state.audioUrl) { URL.revokeObjectURL(state.audioUrl); }
+        state.audioUrl = URL.createObjectURL(blob);
+        renderAudioOutput();
+      };
+      rec.start(1000); // 1초마다 chunk flush
+      state.mediaRecorder = rec;
+      state.audioStream = stream;
+      state.recStartedAt = Date.now();
+      return true;
+    } catch (err) {
+      toast('마이크 접근 실패: ' + (err && err.message || err), 'error');
+      return false;
+    }
+  }
+
+  function stopAudioRecording() {
+    if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
+      try { state.mediaRecorder.stop(); } catch (_) { /* ignore */ }
+    }
+    if (state.audioStream) {
+      state.audioStream.getTracks().forEach(function (t) { try { t.stop(); } catch (_) {} });
+    }
+    state.mediaRecorder = null;
+    state.audioStream = null;
+  }
+
+  // 페이지 이탈/종료 시 호출 — 진행 중인 녹음과 Blob URL을 모두 해제 (메모리 누수 방지)
+  function cleanupAudioResources() {
+    state.isRecording = false;
+    if (state.recognition) {
+      try { state.recognition.abort(); } catch (_) { /* ignore */ }
+    }
+    stopAudioRecording();
+    if (state.audioUrl) {
+      try { URL.revokeObjectURL(state.audioUrl); } catch (_) { /* ignore */ }
+      state.audioUrl = null;
+    }
+    state.audioBlob = null;
+    state.audioChunks = [];
+  }
+
+  async function startRecording() {
     if (state.isRecording) return;
     if (!state.recognition) state.recognition = setupRecognition();
     if (!state.recognition) {
       toast('이 브라우저는 음성 받아쓰기를 지원하지 않습니다. 텍스트 입력을 사용해주세요.', 'error');
       return;
     }
+    // 1) 오디오 녹음 먼저 시도 (마이크 권한 동시 획득)
+    await startAudioRecording();
+    // 2) 받아쓰기 시작
     try {
       state.recognition.start();
       state.isRecording = true;
       updateRecorderUi();
     } catch (err) {
+      stopAudioRecording();
       toast('받아쓰기를 시작할 수 없습니다: ' + (err && err.message || ''), 'error');
     }
   }
@@ -94,6 +176,7 @@
     if (state.recognition) {
       try { state.recognition.stop(); } catch (_) { /* ignore */ }
     }
+    stopAudioRecording();
     // 임시 텍스트는 확정으로 흡수하지 않음 — 사용자가 수동 편집 가능
     state.interimText = '';
     updateRecorderUi();
@@ -104,6 +187,50 @@
     state.finalText = '';
     state.interimText = '';
     renderTranscript();
+  }
+
+  function clearAudio() {
+    if (state.audioUrl) {
+      try { URL.revokeObjectURL(state.audioUrl); } catch (_) { /* ignore */ }
+      state.audioUrl = null;
+    }
+    state.audioBlob = null;
+    state.audioChunks = [];
+    renderAudioOutput();
+  }
+
+  function downloadAudio() {
+    if (!state.audioBlob || !state.audioUrl) return;
+    var a = document.createElement('a');
+    a.href = state.audioUrl;
+    var ext = state.audioMime.indexOf('mp4') !== -1 ? 'mp4'
+            : state.audioMime.indexOf('ogg') !== -1 ? 'ogg' : 'webm';
+    var titleVal = ($('mnTitle').value || '회의').replace(/[\\/:*?"<>|]/g, '_');
+    a.download = titleVal + '_audio.' + ext;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+
+  function renderAudioOutput() {
+    var box = $('mnAudioOutput');
+    if (!box) return;
+    if (!state.audioBlob || !state.audioUrl) {
+      box.innerHTML = '';
+      box.style.display = 'none';
+      return;
+    }
+    var sizeKb = Math.round(state.audioBlob.size / 1024);
+    box.style.display = 'block';
+    box.innerHTML =
+      '<div class="mn-audio-row">' +
+      '  <audio controls src="' + state.audioUrl + '" preload="metadata"></audio>' +
+      '  <div class="mn-audio-meta">원본 오디오 · ' + sizeKb + ' KB · ' + escapeHtml(state.audioMime) + '</div>' +
+      '  <div class="mn-audio-actions">' +
+      '    <button type="button" id="mnAudioDownloadBtn" class="mn-btn">오디오 다운로드</button>' +
+      '    <button type="button" id="mnAudioClearBtn" class="mn-btn">삭제</button>' +
+      '  </div>' +
+      '</div>';
+    $('mnAudioDownloadBtn').addEventListener('click', downloadAudio);
+    $('mnAudioClearBtn').addEventListener('click', clearAudio);
   }
 
   function updateRecorderUi() {
@@ -447,6 +574,11 @@
 
     updateRecorderUi();
     renderPreview();
+    renderAudioOutput();
+
+    // 페이지 이탈 시 진행 중인 녹음과 Blob URL 해제 (메모리 누수 방지)
+    window.addEventListener('pagehide', cleanupAudioResources);
+    window.addEventListener('beforeunload', cleanupAudioResources);
   }
 
   if (document.readyState === 'loading') {
