@@ -20,12 +20,18 @@ The frontend is served as a static site using a simple Node.js HTTP server (`ser
 ### Workflow
 - **Start application**: `node serve.js` → serves `frontend/` on port 5000
 
-### Entry flow (2026-05-08)
-- Root `/` → `intro.html` (public landing)
-- `intro.html`, `index.html`(플랫폼 홈)은 비로그인 자유 접근. `js/pages/index.js`는
+### Entry flow (2026-05-09)
+- Root `/` → `intro.html` (public landing). intro.html은 **서비스 카탈로그**
+  콘텐츠(사이드바 + 카테고리별 service card grid + 검색)를 보여줌.
+  `js/pages/all-services.js`를 공유하며, 해당 스크립트는 더 이상
+  `auth.requireLogin()`을 호출하지 않음(공개 접근).
+- `index.html`(플랫폼 홈)도 비로그인 자유 접근. `js/pages/index.js`는
   `if (!auth.isLoggedIn()) return;` 가드로 사용자/대시보드 API만 스킵.
-- `all-services.html` 및 그 하위 서비스(service-detail, marketing-*, history,
-  settings, admin)는 `auth.requireLogin()`으로 로그인 필수.
+- `all-services.html`은 콘텐츠가 intro.html로 이전됨. 파일은 그대로
+  남아있으며 향후 다른 용도로 재사용 예정. 현재는 기존 콘텐츠 유지
+  (스크립트 가드 제거된 동일 카탈로그).
+- 서비스 진입 페이지(service-detail, marketing-*, history, settings,
+  admin)는 여전히 `auth.requireLogin()`으로 로그인 필수.
 - `login.html` 성공 후 `index.html`로 이동.
 - 알 수 없는 경로(404 fallback)도 `intro.html`로 (퍼블릭).
 - 통일 상단 nav: 비로그인 시 우측 "로그인" CTA 표시. 로그인 시

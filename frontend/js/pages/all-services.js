@@ -15,9 +15,7 @@
   };
 
   function init() {
-    // Require login to use any service.
-    if (!auth.requireLogin()) return;
-
+    // Public access — login is required only when navigating into a specific service (handled per-service page).
     // --- Filter tabs ---
     document.querySelectorAll('.filter-tab').forEach(function (tab) {
       tab.addEventListener('click', function () {
