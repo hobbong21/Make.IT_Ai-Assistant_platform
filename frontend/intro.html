@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MaKIT - AX 마케팅 소개 | Human.Ai.D</title>
+    <title>MaKIT - AX 마케팅 플랫폼 소개 | Human.Ai.D</title>
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#c96442">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="/img/illustrations/login-mark.svg">
     <!-- SEO Meta Tags -->
-    <meta name="description" content="MaKIT 마케팅 소개. AI 기반 마케팅 자동화로 비즈니스 성장을 가속화하세요.">
-    <meta name="keywords" content="MaKIT, AI 마케팅, 자동화, 소개">
+    <meta name="description" content="MaKIT 플랫폼 소개. AI 기반 마케팅 자동화로 비즈니스 성장을 가속화하세요.">
+    <meta name="keywords" content="MaKIT, AI 마케팅, 자동화, 플랫폼, 소개">
     <meta name="author" content="Human.Ai.D">
     <link rel="canonical" href="https://makit.example.com/intro.html">
     <!-- Open Graph Meta -->
@@ -20,298 +20,235 @@
     <meta property="og:locale:alternate" content="en_US">
     <meta property="og:locale:alternate" content="ja_JP">
     <meta property="og:title" content="MaKIT - 제품 소개">
-    <meta property="og:description" content="AI 기반 마케팅 자동화 소개">
+    <meta property="og:description" content="AI 기반 마케팅 자동화 플랫폼 소개">
     <meta property="og:url" content="https://makit.example.com/intro.html">
     <meta property="og:image" content="https://makit.example.com/img/illustrations/intro-hero.svg">
     <meta property="og:site_name" content="MaKIT">
     <!-- Twitter Card Meta -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="MaKIT - 제품 소개">
-    <meta name="twitter:description" content="AI 기반 마케팅 자동화 소개">
+    <meta name="twitter:description" content="AI 기반 마케팅 자동화 플랫폼 소개">
     <meta name="twitter:image" content="https://makit.example.com/img/illustrations/intro-hero.svg">
     <!-- hreflang Links -->
     <link rel="alternate" hreflang="ko" href="https://makit.example.com/intro.html">
     <link rel="alternate" hreflang="en" href="https://makit.example.com/intro.html?lang=en">
     <link rel="alternate" hreflang="ja" href="https://makit.example.com/intro.html?lang=ja">
     <link rel="alternate" hreflang="x-default" href="https://makit.example.com/intro.html">
+    <link rel="preconnect" href="https://upload.wikimedia.org" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preload" as="image" href="img/illustrations/intro-hero.svg">
     <link rel="stylesheet" href="css/core/tokens.css">
     <link rel="stylesheet" href="css/core/common.css">
     <link rel="stylesheet" href="css/core/app-shell.css">
-    <link rel="stylesheet" href="css/pages/all-services-styles.css">
+    <link rel="stylesheet" href="css/pages/intro-styles.css">
 </head>
 
 <body>
     <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
-    <noscript><div class="makit-noscript">이 페이지는 JavaScript가 필요합니다. 브라우저에서 JavaScript를 활성화해주세요.</div></noscript>
-
-    <nav class="top-nav" aria-label="페이지 네비게이션">
-        <div class="top-nav-container">
-            <div class="nav-logo"><div class="logo-text">MaKIT</div></div>
+    <!-- 네비게이션 -->
+    <nav class="navbar" aria-label="메인 네비게이션">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="logo-text">MaKIT</div>
+            </div>
             <div class="nav-links">
                 <a href="intro.html" class="nav-link active" aria-current="page">제품 소개</a>
-                <a href="index.html" class="nav-link">마케팅</a>
-                <a href="all-services.html" class="nav-link">백오피스</a>
+                <a href="all-services.html" class="nav-link">서비스 체험</a>
+                <a href="index.html" class="nav-link">플랫폼</a>
                 <a href="login.html" class="nav-link nav-link-cta">로그인</a>
-                <button type="button" class="nav-settings-btn" id="navSettingsBtn" aria-label="설정" aria-haspopup="true" aria-expanded="false" title="설정"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
             </div>
         </div>
     </nav>
 
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo"><div class="logo-text">MaKIT</div></div>
-                <button class="sidebar-toggle" aria-label="사이드바 접기/펼치기" aria-expanded="true">
-                    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="m6 9 6 6 6-6"></path>
-                    </svg>
-                </button>
+    <!-- 히어로 섹션 -->
+    <section class="hero" id="main-content" role="main">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title" data-i18n="intro.hero-title">
+                    MaKIT으로<br>
+                    <span class="highlight">비즈니스 성장을 가속화하세요</span>
+                </h1>
+                <p class="hero-subtitle" data-i18n="intro.hero-subtitle">
+                    Human.Ai.D의 MaKIT은 데이터 통합부터 예측 분석까지<br>
+                    마케팅의 모든 과정을 AI로 자동화하는 통합 플랫폼입니다
+                </p>
+                <div class="hero-buttons">
+                    <a href="index.html" class="btn-primary">플랫폼 보기</a>
+                    <a href="#what-we-do" class="btn-secondary">자세히 알아보기</a>
+                </div>
             </div>
+            <div class="hero-visual">
+                <img src="img/illustrations/intro-hero.svg" alt="MaKIT 플랫폼 히어로 일러스트" class="hero-illustration" fetchpriority="high" decoding="async">
+            </div>
+        </div>
+    </section>
 
-            <nav class="sidebar-nav" aria-label="사이드바 메뉴">
-                <div class="nav-section">
-                    <div class="nav-section-title">홈</div>
-                    <a href="index.html" class="nav-item">
-                        <span>개요</span>
-                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
-                            <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                        </svg>
-                    </a>
-                    <a href="all-services.html" class="nav-item">
-                        <span>백오피스</span>
-                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path>
-                        </svg>
-                    </a>
+    <!-- 파트너 섹션 -->
+    <section class="partners">
+        <div class="container">
+            <div class="partners-header">
+                <span class="partners-badge" data-i18n="intro.partners">Developed by</span>
+            </div>
+            <div class="tech-stack-grid">
+                <div class="tech-item">
+                    <img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS" class="tech-logo">
+                    <span class="tech-name">AWS</span>
+                </div>
+                <div class="tech-item">
+                    <img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="Bedrock" class="tech-logo">
+                    <span class="tech-name">Bedrock</span>
+                </div>
+                <div class="tech-item">
+                    <img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg" alt="Java" class="tech-logo">
+                    <span class="tech-name">Java</span>
+                </div>
+                <div class="tech-item">
+                    <img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/commons/4/44/Spring_Framework_Logo_2018.svg" alt="Spring Boot" class="tech-logo">
+                    <span class="tech-name">Spring Boot</span>
+                </div>
+                <div class="tech-item">
+                    <img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Docker_%28container_engine%29_logo.svg" alt="Docker" class="tech-logo">
+                    <span class="tech-name">Docker</span>
+                </div>
+                <div class="tech-item">
+                    <img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/commons/3/39/Kubernetes_logo_without_workmark.svg" alt="Kubernetes" class="tech-logo">
+                    <span class="tech-name">Kubernetes</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 문제점 섹션 -->
+    <section class="problems">
+        <div class="container">
+            <h2 class="section-title">이런 고민이 있으신가요?</h2>
+            <div class="problems-grid">
+                <div class="problem-card">
+                    <div class="problem-icon">📊</div>
+                    <h3>복잡한 데이터 분석</h3>
+                    <p>여러 채널의 마케팅 데이터를 통합하고 분석하는 것이 어렵습니다</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">⏰</div>
+                    <h3>시간 부족</h3>
+                    <p>반복적인 마케팅 업무로 인해 전략적 사고에 집중할 시간이 부족합니다</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">💰</div>
+                    <h3>비효율적인 예산 운용</h3>
+                    <p>어떤 채널에 예산을 집중해야 할지 명확한 근거가 부족합니다</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">🎯</div>
+                    <h3>개인화의 어려움</h3>
+                    <p>고객 개별 특성에 맞는 맞춤형 마케팅 실행이 어렵습니다</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 솔루션 섹션 -->
+    <section class="solution">
+        <div class="container">
+            <h2 class="section-title">AX 마케팅 플랫폼이 해결합니다</h2>
+            <div class="solution-content">
+                <div class="solution-text">
+                    <h3>생성형 AI 기반 마케팅 자동화 플랫폼</h3>
+                    <p>MaKIT은 Amazon Bedrock과 AWS 인프라를 활용하여 마케팅 콘텐츠 생성부터 캠페인 최적화까지 전 과정을 자동화합니다. Java와 Spring Boot로 개발된 확장 가능하고 안전한 솔루션입니다.</p>
+                    <ul class="solution-features">
+                        <li>✅ AI 기반 텍스트/이미지 콘텐츠 자동 생성</li>
+                        <li>✅ RAG 기반 24/7 고객 지원 챗봇</li>
+                        <li>✅ 실시간 캠페인 성과 분석 및 최적화</li>
+                        <li>✅ 개인화된 고객 참여 및 타겟팅</li>
+                        <li>✅ AWS 서버리스 아키텍처로 확장성 보장</li>
+                    </ul>
+                    <div class="tech-highlights">
+                        <h4>핵심 기술</h4>
+                        <div class="tech-tags">
+                            <span class="tech-tag">Amazon Bedrock</span>
+                            <span class="tech-tag">Titan & Claude 모델</span>
+                            <span class="tech-tag">Stable Diffusion</span>
+                            <span class="tech-tag">RAG 시스템</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="solution-visual">
+                    <img loading="lazy" decoding="async" src="img/illustrations/intro-hero.svg" alt="마케팅 인텔리전스" class="solution-illustration">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHAT WE DO 섹션 -->
+    <section id="what-we-do" class="what-we-do">
+        <div class="container">
+            <div class="section-badge"><span>WHAT WE DO</span></div>
+            <div class="service-items">
+                <div class="service-item">
+                    <div class="service-content">
+                        <h3>AX Data Intelligence</h3>
+                        <p>데이터 통합, 파이프라인 설계, 시각화, 자연어 기반의 분석 및 인사이트 추출, ML 모델을 활용한 예측분석까지 데이터 분석을 위한 모든 솔루션</p>
+                        <a href="all-services.html" class="learn-more">Learn More<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"></path><path d="M17 7h-6v6"></path></svg></a>
+                    </div>
+                    <div class="service-visual">
+                        <img loading="lazy" decoding="async" src="img/illustrations/ax-data.svg" alt="AX Data Intelligence" class="service-illustration">
+                    </div>
                 </div>
 
-                <div class="nav-section">
-                    <div class="nav-section-title">카테고리별 서비스</div>
-                    <div class="nav-dropdown">
-                        <div class="nav-dropdown-header"><span>AX Data Intelligence</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></div>
-                        <div class="nav-dropdown-items">
-                            <a href="service-detail.html?service=nlp-analyze" class="nav-dropdown-item">자연어 분석</a>
-                            <a href="service-detail.html?service=youtube-comments" class="nav-dropdown-item">유튜브 댓글 분석</a>
-                            <a href="service-detail.html?service=youtube-influence" class="nav-dropdown-item">유튜브 영향력 분석</a>
-                            <a href="service-detail.html?service=url-analyze" class="nav-dropdown-item">URL 분석</a>
-                            <a href="service-detail.html?service=youtube-keyword-search" class="nav-dropdown-item">유튜브 키워드 채널검색</a>
-                        </div>
+                <div class="service-item">
+                    <div class="service-content">
+                        <h3>AX Marketing Intelligence</h3>
+                        <p>AI 기반의 창의적인 콘텐츠 생성, 이미지 처리 및 자동 편집, 캠페인 최적화 및 성과 분석, 마케팅의 모든 단계를 자동화</p>
+                        <a href="all-services.html" class="learn-more">Learn More<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"></path><path d="M17 7h-6v6"></path></svg></a>
                     </div>
-
-                    <div class="nav-dropdown">
-                        <div class="nav-dropdown-header"><span>AX Marketing Intelligence</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></div>
-                        <div class="nav-dropdown-items">
-                            <a href="service-detail.html?service=feed-generate" class="nav-dropdown-item">인스타그램 피드 생성</a>
-                            <a href="service-detail.html?service=remove-bg" class="nav-dropdown-item">배경 제거</a>
-                            <a href="service-detail.html?service=modelshot" class="nav-dropdown-item">모델컷 생성</a>
-                            <a href="marketing-playbooks.html" class="nav-dropdown-item">마케팅 플레이북</a>
-                        </div>
-                    </div>
-
-                    <div class="nav-dropdown">
-                        <div class="nav-dropdown-header"><span>AX Commerce Brain</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></div>
-                        <div class="nav-dropdown-items">
-                            <a href="service-detail.html?service=chatbot" class="nav-dropdown-item">고객 응대 AI 챗봇</a>
-                            <a href="service-detail.html?service=review-analysis" class="nav-dropdown-item">상품 리뷰 분석</a>
-                        </div>
+                    <div class="service-visual">
+                        <img loading="lazy" decoding="async" src="img/illustrations/ax-marketing.svg" alt="AX Marketing Intelligence" class="service-illustration">
                     </div>
                 </div>
 
-                <a href="intro.html" class="nav-item go-to-web active" aria-current="page">
-                    <span>웹사이트</span>
-                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M15 3h6v6"></path>
-                        <path d="M10 14 21 3"></path>
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                    </svg>
+                <div class="service-item">
+                    <div class="service-content">
+                        <h3>AX Commerce Brain</h3>
+                        <p>전자상거래 고객 응대 자동화, 제품 리뷰 및 피드백 분석, 개인화된 추천 및 타겟팅, 판매 극대화를 위한 AI 솔루션</p>
+                        <a href="all-services.html" class="learn-more">Learn More<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"></path><path d="M17 7h-6v6"></path></svg></a>
+                    </div>
+                    <div class="service-visual">
+                        <img loading="lazy" decoding="async" src="img/illustrations/commerce-brain.svg" alt="AX Commerce Brain" class="service-illustration">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features 섹션 -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title" data-i18n="intro.features">강력한 기능들</h2>
+            <div class="features-grid">
+                <div class="feature-card"><div class="feature-icon">🚀</div><h3>빠른 구현</h3><p>즉시 사용 가능한 사전 구성된 모듈로 빠르게 시작합니다</p></div>
+                <div class="feature-card"><div class="feature-icon">🔒</div><h3>엔터프라이즈 보안</h3><p>AWS의 강화된 보안으로 데이터와 개인정보를 철저히 보호합니다</p></div>
+                <div class="feature-card"><div class="feature-icon">📈</div><h3>확장 가능</h3><p>비즈니스 성장에 맞춰 탄력적으로 확장할 수 있습니다</p></div>
+                <div class="feature-card"><div class="feature-icon">🤖</div><h3>최신 AI 기술</h3><p>Claude, Titan, Stable Diffusion 등 최첨단 AI 모델을 활용합니다</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section"><h4>MaKIT</h4><p>AI 기반 마케팅 자동화 플랫폼</p></div>
+                <div class="footer-section"><h4>제품</h4><ul><li><a href="index.html">플랫폼</a></li><li><a href="all-services.html">서비스 체험</a></li></ul></div>
+                <div class="footer-section"><h4>회사</h4><ul><li><a href="https://humanAId.digital" target="_blank" rel="noopener noreferrer">소개</a></li><li><a href="#">문의</a></li></ul></div>
+            </div>
+            <div class="footer-bottom">
+                <a href="https://www.humanaid.digital" target="_blank" rel="noopener noreferrer" class="footer-logo-link" aria-label="humanAId 웹사이트로 이동">
+                    <img src="img/humanaid-logo.png" alt="humanAId" class="footer-logo">
                 </a>
-            </nav>
-        </aside>
-
-        <main id="main-content" class="main-content">
-            <div class="content-wrapper">
-                <div class="page-header">
-                    <img loading="lazy" decoding="async" src="img/illustrations/all-services-hero.svg" alt="모든 서비스" class="page-header-image">
-                    <h1 data-i18n="services.list-page-title">모든 서비스</h1>
-                    <p>MaKIT의 모든 AI 서비스를 확인하고 즉시 사용해보세요</p>
-                </div>
-
-                <div class="search-filter">
-                    <label for="serviceSearch" class="mk-sr-only" data-i18n="common.search">서비스 검색</label>
-                    <input type="search" class="search-box" data-i18n-attr="placeholder:services.search" placeholder="서비스 검색..." id="serviceSearch" aria-label="서비스 검색">
-                </div>
-
-                <div class="category-section">
-                    <div class="category-header">
-                        <h2 class="category-title">AX Data Intelligence</h2>
-                        <p class="category-description">데이터 분석부터 예측 분석까지 모든 데이터 관련 서비스</p>
-                    </div>
-
-                    <div class="service-grid">
-                        <div class="service-card">
-                            <div class="service-card-header">
-                                <h3 class="service-title">자연어 분석</h3>
-                                <span class="service-badge">NLP</span>
-                            </div>
-                            <p class="service-description">텍스트 데이터를 분석하여 감정, 주제, 키워드 추출</p>
-                            <div class="service-tags">
-                                <span class="tag">텍스트 분석</span>
-                                <span class="tag">감정 분석</span>
-                                <span class="tag">키워드 추출</span>
-                            </div>
-                            <a href="service-detail.html?service=nlp-analyze" class="service-button">서비스 사용</a>
-                        </div>
-
-                        <div class="service-card">
-                            <div class="service-card-header">
-                                <h3 class="service-title">유튜브 댓글 분석</h3>
-                                <span class="service-badge">YouTube</span>
-                            </div>
-                            <p class="service-description">유튜브 영상의 댓글을 자동으로 분석하여 인사이트 추출</p>
-                            <div class="service-tags">
-                                <span class="tag">유튜브</span>
-                                <span class="tag">댓글 분석</span>
-                                <span class="tag">자동화</span>
-                            </div>
-                            <a href="service-detail.html?service=youtube-comments" class="service-button">서비스 사용</a>
-                        </div>
-
-                        <div class="service-card">
-                            <div class="service-card-header">
-                                <h3 class="service-title">유튜브 영향력 분석</h3>
-                                <span class="service-badge">Analytics</span>
-                            </div>
-                            <p class="service-description">유튜브 채널의 영향력 지수 및 성과 분석</p>
-                            <div class="service-tags">
-                                <span class="tag">유튜브</span>
-                                <span class="tag">영향력</span>
-                                <span class="tag">분석</span>
-                            </div>
-                            <a href="service-detail.html?service=youtube-influence" class="service-button">서비스 사용</a>
-                        </div>
-
-                        <div class="service-card">
-                            <div class="service-card-header">
-                                <h3 class="service-title">웹사이트 URL 분석</h3>
-                                <span class="service-badge">URL</span>
-                            </div>
-                            <p class="service-description">웹사이트 URL의 콘텐츠를 분석하여 요약 및 인사이트 제공</p>
-                            <div class="service-tags">
-                                <span class="tag">웹 분석</span>
-                                <span class="tag">URL 파싱</span>
-                                <span class="tag">요약</span>
-                            </div>
-                            <a href="service-detail.html?service=url-analyze" class="service-button">서비스 사용</a>
-                        </div>
-
-                        <div class="service-card">
-                            <div class="service-card-header">
-                                <h3 class="service-title">유튜브 키워드 채널검색</h3>
-                                <span class="service-badge">Search</span>
-                            </div>
-                            <p class="service-description">키워드 관련 유튜브 채널을 검색하고 분석</p>
-                            <div class="service-tags">
-                                <span class="tag">검색</span>
-                                <span class="tag">채널</span>
-                                <span class="tag">키워드</span>
-                            </div>
-                            <a href="service-detail.html?service=youtube-keyword-search" class="service-button">서비스 사용</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="category-section">
-                    <div class="category-header">
-                        <h2 class="category-title">AX Marketing Intelligence</h2>
-                        <p class="category-description">콘텐츠 생성부터 이미지 편집까지 마케팅 자동화</p>
-                    </div>
-
-                    <div class="service-grid">
-                        <div class="service-card">
-                            <div class="service-card-header">
-                                <h3 class="service-title">인스타그램 피드 생성</h3>
-                                <span class="service-badge">Content</span>
-                            </div>
-                            <p class="service-description">AI가 인스타그램용 피드 이미지 및 캡션 자동 생성</p>
-                            <div class="service-tags">
-                                <span class="tag">생성</span>
-                                <span class="tag">인스타그램</span>
-                                <span class="tag">콘텐츠</span>
-                            </div>
-                            <a href="service-detail.html?service=feed-generate" class="service-button">서비스 사용</a>
-                        </div>
-
-                        <div class="service-card">
-                            <div class="service-card-header">
-                                <h3 class="service-title">배경 제거</h3>
-                                <span class="service-badge">Image</span>
-                            </div>
-                            <p class="service-description">이미지에서 배경을 자동으로 제거하고 편집</p>
-                            <div class="service-tags">
-                                <span class="tag">이미지</span>
-                                <span class="tag">배경 제거</span>
-                                <span class="tag">편집</span>
-                            </div>
-                            <a href="service-detail.html?service=remove-bg" class="service-button">서비스 사용</a>
-                        </div>
-
-                        <div class="service-card">
-                            <div class="service-card-header">
-                                <h3 class="service-title">모델컷 생성</h3>
-                                <span class="service-badge">AI Image</span>
-                            </div>
-                            <p class="service-description">제품 설명에 맞는 모델샷 이미지 AI로 생성</p>
-                            <div class="service-tags">
-                                <span class="tag">생성</span>
-                                <span class="tag">모델샷</span>
-                                <span class="tag">AI</span>
-                            </div>
-                            <a href="service-detail.html?service=modelshot" class="service-button">서비스 사용</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="category-section">
-                    <div class="category-header">
-                        <h2 class="category-title">AX Commerce Brain</h2>
-                        <p class="category-description">고객 응대 자동화 및 판매 최적화</p>
-                    </div>
-
-                    <div class="service-grid">
-                        <div class="service-card">
-                            <div class="service-card-header">
-                                <h3 class="service-title">고객 응대 AI 챗봇</h3>
-                                <span class="service-badge">Chatbot</span>
-                            </div>
-                            <p class="service-description">24/7 자동 고객 응대 및 상담을 위한 AI 챗봇</p>
-                            <div class="service-tags">
-                                <span class="tag">챗봇</span>
-                                <span class="tag">자동 응대</span>
-                                <span class="tag">24/7</span>
-                            </div>
-                            <a href="service-detail.html?service=chatbot" class="service-button">서비스 사용</a>
-                        </div>
-
-                        <div class="service-card">
-                            <div class="service-card-header">
-                                <h3 class="service-title">상품 리뷰 분석</h3>
-                                <span class="service-badge">Review</span>
-                            </div>
-                            <p class="service-description">고객 리뷰를 자동으로 수집 및 분석하여 인사이트 제공</p>
-                            <div class="service-tags">
-                                <span class="tag">리뷰</span>
-                                <span class="tag">분석</span>
-                                <span class="tag">인사이트</span>
-                            </div>
-                            <a href="service-detail.html?service=review-analysis" class="service-button">서비스 사용</a>
-                        </div>
-                    </div>
-                </div>
+                <p>&copy; 2026 humanAId. All rights reserved.</p>
             </div>
-        </main>
-    </div>
+        </div>
+    </footer>
 
     <div id="chatbot-widget-mount"></div>
     <div id="user-menu-mount"></div>
@@ -319,8 +256,6 @@
     <script src="js/core/config.js"></script>
     <script src="js/core/api.js"></script>
     <script src="js/core/auth.js"></script>
-    <script src="js/core/modal.js"></script>
-    <script src="js/widgets/auth-gate.js"></script>
     <script src="js/core/ui.js"></script>
     <script src="js/pages/chatbot.js"></script>
     <script src="js/widgets/chatbot-widget.js"></script>
@@ -328,12 +263,10 @@
     <script src="js/core/i18n-dict.js"></script>
     <script src="js/core/i18n.js"></script>
     <script src="js/widgets/app-shell-extras.js"></script>
-    <script src="js/widgets/settings-menu.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <script src="js/core/ws-client.js"></script>
-    <script src="js/pages/all-services.js"></script>
-    <script src="js/core/push-subscribe.js"></script>
+    <!-- intro 전용 스크립트는 별도 없음. 페이지 동작은 공통 스크립트로 처리. -->
     <script src="js/core/sw-register.js"></script>
     <script src="js/widgets/skeleton.js"></script>
 </body>
