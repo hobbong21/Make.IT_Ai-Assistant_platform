@@ -58,6 +58,7 @@ public class KnowledgeService {
         c.setEmoji(req.emoji());
         c.setDescription(req.description());
         c.setSortOrder(req.sortOrder() == null ? 0 : req.sortOrder());
+        c.setConfidenceThreshold(req.confidenceThreshold());
         c = collectionRepo.save(c);
         return toCollectionDto(c, userId);
     }
@@ -72,6 +73,9 @@ public class KnowledgeService {
         c.setEmoji(req.emoji());
         c.setDescription(req.description());
         if (req.sortOrder() != null) c.setSortOrder(req.sortOrder());
+        // Always overwrite (incl. null) so admins can clear an override and
+        // fall back to the user/global threshold.
+        c.setConfidenceThreshold(req.confidenceThreshold());
         return toCollectionDto(c, userId);
     }
 
@@ -248,6 +252,7 @@ public class KnowledgeService {
         return new CollectionDto(
                 c.getId(), c.getOwnerId(), c.getName(), c.getEmoji(), c.getDescription(),
                 c.getSortOrder(), c.isArchived(), count, canEditCollection(c, userId),
+                c.getConfidenceThreshold(),
                 c.getCreatedAt(), c.getUpdatedAt()
         );
     }

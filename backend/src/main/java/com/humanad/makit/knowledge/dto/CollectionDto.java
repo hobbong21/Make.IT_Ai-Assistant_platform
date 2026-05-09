@@ -13,6 +13,7 @@ public record CollectionDto(
         boolean archived,
         long docCount,
         boolean canEdit,
+        Double confidenceThreshold,
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt
 ) {}

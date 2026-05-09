@@ -43,7 +43,7 @@
   var RECENT_KEY = 'mk:axhub:recent';
   var CONF_THRESHOLD_KEY = 'mk:axhub:confThreshold';
   var DEFAULT_CONF_THRESHOLD = 0.5;
-  function getConfThreshold() {
+  function getGlobalConfThreshold() {
     try {
       var raw = localStorage.getItem(CONF_THRESHOLD_KEY);
       if (raw == null) return DEFAULT_CONF_THRESHOLD;
@@ -52,13 +52,30 @@
       return Math.max(0, Math.min(1, v));
     } catch (_) { return DEFAULT_CONF_THRESHOLD; }
   }
+  /**
+   * Resolve the AI confidence threshold for a given collection.
+   * Per-collection override (Task #36) wins over the user/global value (Task #23).
+   * Returns { value, source: 'collection' | 'global' }.
+   */
+  function getConfThreshold(collectionId) {
+    if (collectionId && COLLECTIONS_BY_ID[collectionId]) {
+      var override = COLLECTIONS_BY_ID[collectionId].confidenceThreshold;
+      if (typeof override === 'number' && isFinite(override)) {
+        return { value: Math.max(0, Math.min(1, override)), source: 'collection' };
+      }
+    }
+    return { value: getGlobalConfThreshold(), source: 'global' };
+  }
   // 다른 탭(설정 화면)에서 임계치를 바꾸면 즉시 반영
   window.addEventListener('storage', function (e) {
     if (e && e.key === CONF_THRESHOLD_KEY) {
       document.querySelectorAll('.hub-ai-confidence').forEach(function (host) {
         var raw = host.getAttribute('data-citations');
         if (raw == null) return;
-        try { renderConfidence(host, JSON.parse(raw)); } catch (_) {}
+        var ctxRaw = host.getAttribute('data-context');
+        var ctx = null;
+        if (ctxRaw) { try { ctx = JSON.parse(ctxRaw); } catch (_) {} }
+        try { renderConfidence(host, JSON.parse(raw), ctx); } catch (_) {}
       });
     }
   });
@@ -412,8 +429,9 @@
    */
   function renderConfidence(host, citations, context) {
     if (!host) return;
-    // 추후 임계치 변경 시 재렌더할 수 있도록 citations 스냅샷 보관
+    // 추후 임계치 변경 시 재렌더할 수 있도록 citations + context 스냅샷 보관
     try { host.setAttribute('data-citations', JSON.stringify(citations || [])); } catch (_) {}
+    try { host.setAttribute('data-context', JSON.stringify(context || {})); } catch (_) {}
     if (!citations || !citations.length) {
       host.hidden = false;
       host.className = 'hub-ai-confidence hub-ai-confidence--none';
@@ -436,14 +454,16 @@
     var scored = citations.filter(function (c) { return typeof c.score === 'number'; });
     if (scored.length) {
       var avg = scored.reduce(function (s, c) { return s + c.score; }, 0) / scored.length;
-      var threshold = getConfThreshold();
-      if (avg < threshold) {
+      var ctx = context || {};
+      var resolved = getConfThreshold(ctx.collectionId);
+      if (avg < resolved.value) {
         host.hidden = false;
         host.className = 'hub-ai-confidence hub-ai-confidence--weak';
+        var sourceLabel = resolved.source === 'collection' ? '컬렉션' : '전역';
         host.innerHTML =
           '<span class="hub-conf-icon" aria-hidden="true">⚠️</span>' +
           '<span class="hub-conf-text">근거가 약합니다 (평균 ' + Math.round(avg * 100) +
-          '%, 임계치 ' + Math.round(threshold * 100) + '%)</span>';
+          '%, ' + sourceLabel + ' 임계치 ' + Math.round(resolved.value * 100) + '%)</span>';
         return;
       }
     }
@@ -1020,6 +1040,39 @@
   // -------------------------------------------------------------------------
   // Create / edit prompts (lightweight modals via window.modal or prompt())
   // -------------------------------------------------------------------------
+  /**
+   * Parse a confidence-threshold prompt response.
+   * Accepts blank → null (inherit global). Accepts 0–100 (treated as %) or 0–1.
+   * Returns { ok: true, value: number|null } or { ok: false, msg } on bad input.
+   */
+  function parseConfThresholdInput(raw) {
+    if (raw == null) return { ok: false, cancelled: true };
+    var s = String(raw).trim();
+    if (s === '') return { ok: true, value: null };
+    var n = parseFloat(s);
+    if (!isFinite(n)) return { ok: false, msg: '숫자를 입력해 주세요. 비워두면 전역값을 사용합니다.' };
+    if (n > 1) n = n / 100;
+    if (n < 0 || n > 1) return { ok: false, msg: '0–100(%) 범위로 입력해 주세요.' };
+    return { ok: true, value: n };
+  }
+
+  function promptConfThreshold(current) {
+    var initial = (typeof current === 'number' && isFinite(current))
+      ? String(Math.round(current * 100))
+      : '';
+    var raw = window.prompt(
+      '컬렉션별 AI 신뢰도 임계치 (0–100%, 비워두면 전역값 사용)',
+      initial
+    );
+    var parsed = parseConfThresholdInput(raw);
+    if (parsed.cancelled) return { cancelled: true };
+    if (!parsed.ok) {
+      notifyError(parsed.msg);
+      return { cancelled: true };
+    }
+    return { value: parsed.value };
+  }
+
   function openNewCollectionPrompt() {
     var name = window.prompt('새 컬렉션 이름', '');
     if (name == null) return;
@@ -1027,8 +1080,11 @@
     if (!name) return;
     var emojiVal = window.prompt('아이콘 이모지 (선택)', '📁') || '';
     var desc = window.prompt('설명 (선택)', '') || '';
+    var conf = promptConfThreshold(null);
+    if (conf.cancelled) return;
     window.api.knowledge.createCollection({
-      name: name, emoji: emojiVal.trim() || null, description: desc.trim() || null, sortOrder: 0
+      name: name, emoji: emojiVal.trim() || null, description: desc.trim() || null,
+      sortOrder: 0, confidenceThreshold: conf.value
     }).then(function (created) {
       refreshCollections().then(function () {
         location.hash = '#collection/' + created.id;
@@ -1043,11 +1099,14 @@
     if (!name) return;
     var emojiVal = window.prompt('이모지', col.emoji || '');
     var desc = window.prompt('설명', col.description || '');
+    var conf = promptConfThreshold(col.confidenceThreshold);
+    if (conf.cancelled) return;
     window.api.knowledge.updateCollection(col.id, {
       name: name,
       emoji: (emojiVal == null ? col.emoji : emojiVal.trim()) || null,
       description: (desc == null ? col.description : desc.trim()) || null,
-      sortOrder: col.sortOrder
+      sortOrder: col.sortOrder,
+      confidenceThreshold: conf.value
     }).then(function () {
       refreshCollections().then(function () { viewCollection(col.id); });
     }).catch(function (err) { notifyError((err && err.message) || '컬렉션 수정 실패'); });

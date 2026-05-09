@@ -38,6 +38,13 @@ public class KnowledgeCollection {
     @Column(name = "is_archived", nullable = false)
     private boolean archived = false;
 
+    /**
+     * Per-collection AI confidence threshold (0.0–1.0). When NULL the user/global
+     * threshold from settings is used. See task #36.
+     */
+    @Column(name = "confidence_threshold")
+    private Double confidenceThreshold;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
