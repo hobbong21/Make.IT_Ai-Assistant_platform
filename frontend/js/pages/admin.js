@@ -11,6 +11,7 @@
   let aiqDays = 7;
   let aiqDailyChart = null;
   let aiqActionChart = null;
+  let lastAiQuality = null;
 
   async function init() {
     // Check if user is admin
@@ -70,6 +71,10 @@
     if (exportJsonBtn) exportJsonBtn.addEventListener('click', exportOverviewJson);
     const exportCsvBtn = document.getElementById('users-export-csv');
     if (exportCsvBtn) exportCsvBtn.addEventListener('click', exportAllUsersCsv);
+    const aiqCsvBtn = document.getElementById('aiq-export-csv');
+    if (aiqCsvBtn) aiqCsvBtn.addEventListener('click', exportAiQualityCsv);
+    const aiqJsonBtn = document.getElementById('aiq-export-json');
+    if (aiqJsonBtn) aiqJsonBtn.addEventListener('click', exportAiQualityJson);
   }
 
   function wirePeriodChips(containerId, onPick) {
@@ -143,6 +148,97 @@
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = '사용자 전체 CSV 내보내기'; }
     }
+  }
+
+  function exportAiQualityJson() {
+    if (!lastAiQuality) {
+      window.ui.toast('AI 품질 데이터가 아직 로드되지 않았습니다.', 'error');
+      return;
+    }
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      windowDays: lastAiQuality.days,
+      aiQuality: lastAiQuality.data
+    };
+    downloadBlob(
+      new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' }),
+      `makit-ai-quality-${dateStamp()}.json`
+    );
+    window.ui.toast('AI 품질 JSON 내보내기 완료', 'success');
+  }
+
+  function dateStamp() {
+    const d = new Date();
+    const pad = (n) => (n < 10 ? '0' + n : '' + n);
+    return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
+  }
+
+  function exportAiQualityCsv() {
+    if (!lastAiQuality) {
+      window.ui.toast('AI 품질 데이터가 아직 로드되지 않았습니다.', 'error');
+      return;
+    }
+    const { days, data } = lastAiQuality;
+    const lines = [];
+    const fmtRate = (r) => (r == null ? '' : (r * 100).toFixed(2) + '%');
+
+    // Section 1: Summary
+    lines.push(['# Section', 'AI Quality Summary'].map(csvCell).join(','));
+    lines.push(['exportedAt', new Date().toISOString()].map(csvCell).join(','));
+    lines.push(['windowDays', String(days)].map(csvCell).join(','));
+    lines.push(['totalFeedback', String(data.totalFeedback == null ? 0 : data.totalFeedback)].map(csvCell).join(','));
+    lines.push(['helpfulRate', fmtRate(data.helpfulRate)].map(csvCell).join(','));
+    if (data.latency) {
+      lines.push(['askCount', String(data.latency.askCount == null ? 0 : data.latency.askCount)].map(csvCell).join(','));
+      lines.push(['askMeanMs', String(data.latency.askMeanMs == null ? '' : Math.round(data.latency.askMeanMs))].map(csvCell).join(','));
+      lines.push(['actionCount', String(data.latency.actionCount == null ? 0 : data.latency.actionCount)].map(csvCell).join(','));
+      lines.push(['actionMeanMs', String(data.latency.actionMeanMs == null ? '' : Math.round(data.latency.actionMeanMs))].map(csvCell).join(','));
+    }
+    if (Array.isArray(data.alerts) && data.alerts.length > 0) {
+      data.alerts.forEach((msg, i) => {
+        lines.push([`alert_${i + 1}`, msg].map(csvCell).join(','));
+      });
+    }
+    lines.push('');
+
+    // Section 2: Daily helpful / not helpful
+    lines.push(['# Section', 'Daily Feedback'].map(csvCell).join(','));
+    lines.push(['date', 'helpful', 'notHelpful', 'total', 'helpfulRate'].map(csvCell).join(','));
+    (data.daily || []).forEach((d) => {
+      const h = d.helpful || 0;
+      const n = d.notHelpful || 0;
+      const t = h + n;
+      const rate = t === 0 ? '' : ((h / t) * 100).toFixed(2) + '%';
+      lines.push([d.date || '', String(h), String(n), String(t), rate].map(csvCell).join(','));
+    });
+    lines.push('');
+
+    // Section 3: By action
+    lines.push(['# Section', 'Helpful Rate by Action'].map(csvCell).join(','));
+    lines.push(['action', 'helpful', 'notHelpful', 'total', 'helpfulRate'].map(csvCell).join(','));
+    (data.byAction || []).forEach((a) => {
+      const h = a.helpful || 0;
+      const n = a.notHelpful || 0;
+      lines.push([
+        a.action || '',
+        String(h),
+        String(n),
+        String(h + n),
+        fmtRate(a.helpfulRate)
+      ].map(csvCell).join(','));
+    });
+    lines.push('');
+
+    // Section 4: Top documents
+    lines.push(['# Section', 'Top Feedback Documents'].map(csvCell).join(','));
+    lines.push(['rank', 'documentId', 'feedbackCount'].map(csvCell).join(','));
+    (data.topDocuments || []).forEach((d, i) => {
+      lines.push([String(i + 1), d.documentId || '', String(d.count == null ? 0 : d.count)].map(csvCell).join(','));
+    });
+
+    const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    downloadBlob(blob, `makit-ai-quality-${dateStamp()}.csv`);
+    window.ui.toast('AI 품질 CSV 내보내기 완료', 'success');
   }
 
   function csvCell(v) {
@@ -499,6 +595,7 @@
     const alertsEl = document.getElementById('aiq-alerts');
     try {
       const data = await window.api.admin.aiQuality(days, 10);
+      lastAiQuality = { days, data };
 
       // Summary cards
       const fmtPct = (r) => (r * 100).toFixed(1) + '%';
