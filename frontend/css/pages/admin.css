@@ -527,6 +527,27 @@
 .aiq-detail-meta {
   font-size: 0.78rem;
   color: var(--mk-color-text-muted, #6b7280);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.aiq-detail-share { margin-left: auto; }
+.aiq-share-btn {
+  appearance: none;
+  border: 1px solid var(--mk-color-border, #e5e7eb);
+  background: var(--mk-color-bg, #fff);
+  color: var(--mk-color-text, #1f1f1f);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  cursor: pointer;
+  line-height: 1.2;
+}
+.aiq-share-btn:hover,
+.aiq-share-btn:focus-visible {
+  background: var(--mk-color-surface-2, #f3f4f6);
+  outline: none;
 }
 .aiq-detail-section h4 {
   margin: 0 0 0.3rem;

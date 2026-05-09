@@ -82,6 +82,90 @@
     if (aiqCsvBtn) aiqCsvBtn.addEventListener('click', exportAiQualityCsv);
     const aiqJsonBtn = document.getElementById('aiq-export-json');
     if (aiqJsonBtn) aiqJsonBtn.addEventListener('click', exportAiQualityJson);
+
+    // 해시 라우트(#aiq-context/<id>)로 직접 진입 시 contextId 상세 모달을 자동으로 연다.
+    // 슬랙/지라 등에서 링크 한 줄로 공유 가능하게 하기 위함.
+    window.addEventListener('hashchange', handleContextHashRoute);
+    handleContextHashRoute();
+  }
+
+  function parseContextHash() {
+    const h = (window.location.hash || '').replace(/^#/, '');
+    const m = /^aiq-context\/(.+)$/.exec(h);
+    if (!m) return null;
+    try { return decodeURIComponent(m[1]); } catch (_) { return m[1]; }
+  }
+
+  function handleContextHashRoute() {
+    const ctxId = parseContextHash();
+    if (!ctxId) return;
+    openContextDetailModal(ctxId);
+  }
+
+  function buildContextShareUrl(ctxId) {
+    const loc = window.location;
+    return `${loc.origin}${loc.pathname}#aiq-context/${encodeURIComponent(ctxId)}`;
+  }
+
+  async function copyContextShareLink(ctxId) {
+    const url = buildContextShareUrl(ctxId);
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        // 구형 브라우저 fallback — 임시 textarea로 execCommand('copy')
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      window.ui.toast('공유용 링크가 복사되었습니다', 'success');
+    } catch (err) {
+      console.error('Failed to copy share link:', err);
+      window.ui.toast('링크 복사에 실패했습니다. 주소창에서 직접 복사해 주세요: ' + url, 'error');
+    }
+  }
+
+  // 단일 contextId 상세를 모달로 띄운다 (해시 라우트/공유 링크 진입용).
+  // 부모 호출 메타(태그/위치)는 알 수 없으므로 상세만 노출한다.
+  async function openContextDetailModal(ctxId) {
+    const title = `contextId ${ctxId}`;
+    const placeholder = '<div class="aiq-slow-empty">상세를 불러오는 중...</div>';
+    window.makitModal.open({
+      title: title,
+      body: placeholder,
+      actions: [{
+        label: '닫기',
+        type: 'secondary',
+        onClick: () => {
+          window.makitModal.close();
+          // 모달을 닫으면 같은 링크 재진입이 가능하도록 해시를 비운다.
+          if (parseContextHash()) {
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+          }
+        }
+      }]
+    });
+    const bodyEl = document.getElementById('mkModalBody');
+    try {
+      const detail = await window.api.admin.aiSlowDetail(ctxId);
+      if (!bodyEl) return;
+      bodyEl.innerHTML = renderSlowDetail(detail, ctxId);
+      bindSlowDetailHandler(bodyEl);
+    } catch (err) {
+      console.error('Failed to load slow detail:', err);
+      if (!bodyEl) return;
+      const status = err && err.status;
+      const msg = status === 404
+        ? '이 contextId의 응답 본문은 더 이상 보관돼 있지 않습니다 (서버 재시작 또는 보관 한도 초과로 밀려남).'
+        : '응답 본문을 불러오지 못했습니다.';
+      bodyEl.innerHTML = `<div class="aiq-slow-empty">${escapeHtml(msg)}</div>`;
+    }
   }
 
   function wirePeriodChips(containerId, onPick) {
@@ -609,6 +693,14 @@
     if (!bodyEl || bodyEl.__aiqDetailBound) return;
     bodyEl.__aiqDetailBound = true;
     bodyEl.addEventListener('click', async (ev) => {
+      // 공유용 영구 링크 복사 — 상세 패널 안 어디서든 위임 처리.
+      const shareEl = ev.target.closest('.aiq-share-btn');
+      if (shareEl && bodyEl.contains(shareEl)) {
+        ev.preventDefault();
+        const ctx = shareEl.getAttribute('data-share-ctx');
+        if (ctx) await copyContextShareLink(ctx);
+        return;
+      }
       const btn = ev.target.closest('.aiq-ctx-btn');
       if (!btn || !bodyEl.contains(btn)) return;
       ev.preventDefault();
@@ -640,7 +732,8 @@
 
       let html = '';
       if (detailRes.status === 'fulfilled') {
-        html += renderSlowDetail(detailRes.value);
+        // ctxId를 함께 넘겨야 상세 패널 안 "공유용 링크 복사" 버튼이 렌더된다.
+        html += renderSlowDetail(detailRes.value, ctxId);
       } else {
         const err = detailRes.reason;
         console.error('Failed to load slow detail:', err);
@@ -708,9 +801,13 @@
       </div>`;
   }
 
-  function renderSlowDetail(d) {
+  function renderSlowDetail(d, ctxId) {
     if (!d) return '<div class="aiq-slow-empty">응답 본문이 비어 있습니다.</div>';
     const tokens = `<span>입력 ${(d.tokensIn || 0).toLocaleString()} · 출력 ${(d.tokensOut || 0).toLocaleString()} 토큰</span>`;
+    // 공유용 영구 링크 버튼 — 클릭 시 클립보드로 #aiq-context/<id> 링크를 복사한다.
+    const shareBtn = ctxId
+      ? `<button type="button" class="aiq-share-btn" data-share-ctx="${escapeHtml(ctxId)}" title="이 contextId 상세를 여는 영구 링크를 복사합니다">공유용 링크 복사</button>`
+      : '';
     const answer = d.answer && d.answer.length
       ? `<pre class="aiq-detail-answer">${escapeHtml(d.answer)}</pre>`
       : '<div class="aiq-slow-muted">(빈 답변)</div>';
@@ -733,7 +830,7 @@
         }).join('') + '</ol>';
     return `
       <div class="aiq-slow-detail-inner">
-        <div class="aiq-detail-meta">${tokens}</div>
+        <div class="aiq-detail-meta">${tokens}${shareBtn ? ` <span class="aiq-detail-share">${shareBtn}</span>` : ''}</div>
         <div class="aiq-detail-section"><h4>답변</h4>${answer}</div>
         <div class="aiq-detail-section"><h4>인용 문서 (${cits.length})</h4>${citsHtml}</div>
       </div>`;
