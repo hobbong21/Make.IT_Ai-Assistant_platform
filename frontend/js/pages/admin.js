@@ -494,7 +494,7 @@
     }
   }
 
-  function renderTagLatencyRows(tbody, rows, p95Threshold, fmtMs) {
+  function renderTagLatencyRows(tbody, rows, p95Threshold, fmtMs, kind) {
     if (!tbody) return;
     tbody.innerHTML = '';
     if (!rows || rows.length === 0) {
@@ -504,7 +504,19 @@
     rows.forEach((r) => {
       const tr = document.createElement('tr');
       const over = typeof r.p95Ms === 'number' && r.p95Ms > p95Threshold;
-      if (over) tr.classList.add('aiq-tag-row--over');
+      if (over) {
+        tr.classList.add('aiq-tag-row--over');
+        // 클릭으로 최근 호출 샘플 모달을 열 수 있다는 점을 안내한다.
+        tr.setAttribute('role', 'button');
+        tr.setAttribute('tabindex', '0');
+        tr.setAttribute('aria-label', `${kind === 'action' ? '액션' : '컬렉션'} ${r.tag} 의 최근 느린 호출 샘플 보기`);
+        tr.title = '클릭하면 최근 느린 호출 샘플을 봅니다';
+        const open = () => openSlowSamplesModal(kind, r.tag, r);
+        tr.addEventListener('click', open);
+        tr.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); open(); }
+        });
+      }
       tr.innerHTML = `
         <td><code>${escapeHtml(r.tag || '')}</code></td>
         <td class="num">${fmtMs(r.meanMs || 0)}</td>
@@ -514,6 +526,67 @@
       `;
       tbody.appendChild(tr);
     });
+  }
+
+  // ---- 느린 호출 샘플 모달 -----------------------------------------------
+  // p95 임계 초과로 강조된 행을 클릭하면 백엔드 ring buffer에서 최근 호출 메타를
+  // 가져와 latency 내림차순으로 노출. 진단(어떤 질문/문서가 느렸는지)을 한 화면에서
+  // 끝낼 수 있게 contextId·모델·질문 발췌까지 함께 보여준다.
+  async function openSlowSamplesModal(kind, tag, rowStat) {
+    const kindLabel = kind === 'action' ? '액션' : '컬렉션';
+    const title = `${kindLabel} "${tag}" 최근 느린 호출`;
+    const placeholder = '<div class="aiq-slow-empty">최근 호출 샘플을 불러오는 중...</div>';
+    window.makitModal.open({
+      title: title,
+      body: placeholder,
+      actions: [{ label: '닫기', type: 'secondary', onClick: () => window.makitModal.close() }]
+    });
+    const bodyEl = document.getElementById('mkModalBody');
+    try {
+      const samples = await window.api.admin.aiSlow(tag, kind, 10);
+      if (!bodyEl) return;
+      bodyEl.innerHTML = renderSlowSamples(samples, rowStat, kind);
+    } catch (err) {
+      console.error('Failed to load slow samples:', err);
+      if (bodyEl) {
+        bodyEl.innerHTML = '<div class="aiq-slow-empty">최근 호출 샘플을 불러오지 못했습니다.</div>';
+      }
+    }
+  }
+
+  function renderSlowSamples(samples, rowStat, kind) {
+    const fmtMsLocal = (n) => Math.round(n || 0).toLocaleString();
+    const headerBits = [];
+    if (rowStat) {
+      headerBits.push(`평균 ${fmtMsLocal(rowStat.meanMs)}ms`);
+      headerBits.push(`p50 ${fmtMsLocal(rowStat.p50Ms)}ms`);
+      headerBits.push(`p95 ${fmtMsLocal(rowStat.p95Ms)}ms`);
+      headerBits.push(`호출 ${(rowStat.count || 0).toLocaleString()}건`);
+    }
+    const header = headerBits.length
+      ? `<p class="aiq-slow-header">${headerBits.map(escapeHtml).join(' · ')}</p>`
+      : '';
+    if (!samples || samples.length === 0) {
+      return header + '<div class="aiq-slow-empty">아직 기록된 호출 샘플이 없습니다. (서버 재시작 후 첫 호출이 들어오면 채워집니다)</div>';
+    }
+    const items = samples.map((s) => {
+      const when = s.ts ? new Date(s.ts).toLocaleString('ko-KR') : '-';
+      const qLabel = kind === 'action' ? '대상 문서' : '질문';
+      const q = s.question && s.question.length ? escapeHtml(s.question) : '<em class="aiq-slow-muted">(빈 문자열)</em>';
+      return `
+        <li class="aiq-slow-item">
+          <div class="aiq-slow-row1">
+            <span class="aiq-slow-latency">${fmtMsLocal(s.latencyMs)} ms</span>
+            <span class="aiq-slow-when">${escapeHtml(when)}</span>
+          </div>
+          <div class="aiq-slow-q"><strong>${qLabel}:</strong> ${q}</div>
+          <div class="aiq-slow-meta">
+            <span>contextId <code>${escapeHtml(s.contextId || '-')}</code></span>
+            <span>모델 <code>${escapeHtml(s.modelId || '-')}</code></span>
+          </div>
+        </li>`;
+    }).join('');
+    return header + `<ol class="aiq-slow-list">${items}</ol>`;
   }
 
   function formatDate(iso) {
@@ -812,13 +885,15 @@
         document.getElementById('aiq-ask-tag-tbody'),
         (data.latency && data.latency.askByCollection) || [],
         p95Threshold,
-        fmtMs
+        fmtMs,
+        'ask'
       );
       renderTagLatencyRows(
         document.getElementById('aiq-action-tag-tbody'),
         (data.latency && data.latency.actionByAction) || [],
         p95Threshold,
-        fmtMs
+        fmtMs,
+        'action'
       );
 
       // Top docs table

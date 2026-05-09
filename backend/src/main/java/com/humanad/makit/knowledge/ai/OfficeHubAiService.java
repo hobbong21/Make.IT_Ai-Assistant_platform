@@ -63,6 +63,7 @@ public class OfficeHubAiService {
     private final KnowledgeDocumentRepository docRepo;
     private final OfficeHubFeedbackRepository feedbackRepo;
     private final MeterRegistry meters;
+    private final SlowCallSampler slowSampler;
 
     public OfficeHubAiService(BedrockClient bedrock,
                               BedrockProperties props,
@@ -71,7 +72,8 @@ public class OfficeHubAiService {
                               PromptInjectionGuard guard,
                               KnowledgeDocumentRepository docRepo,
                               OfficeHubFeedbackRepository feedbackRepo,
-                              MeterRegistry meters) {
+                              MeterRegistry meters,
+                              SlowCallSampler slowSampler) {
         this.bedrock = bedrock;
         this.props = props;
         this.retriever = retriever;
@@ -80,6 +82,7 @@ public class OfficeHubAiService {
         this.docRepo = docRepo;
         this.feedbackRepo = feedbackRepo;
         this.meters = meters;
+        this.slowSampler = slowSampler;
     }
 
     // ===================================================================== ask
@@ -99,11 +102,15 @@ public class OfficeHubAiService {
         PromptLoader.LoadedPrompt loaded = prompts.loadVersioned(PROMPT_ASK, vars);
         BedrockInvocation inv = invoke(loaded.text());
 
-        sample.stop(Timer.builder("knowledge.ai.ask.latency")
-                .tag("collection", req.collectionId() == null ? "all" : req.collectionId())
+        String collectionTag = req.collectionId() == null ? "all" : req.collectionId();
+        long elapsedNs = sample.stop(Timer.builder("knowledge.ai.ask.latency")
+                .tag("collection", collectionTag)
                 .publishPercentiles(0.5, 0.95)
                 .register(meters));
         meters.counter("knowledge.ai.ask.calls").increment();
+        slowSampler.record("ask", collectionTag,
+                java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(elapsedNs),
+                contextId, req.question(), inv.modelId());
 
         return new AskResponse(
                 contextId,
@@ -187,11 +194,15 @@ public class OfficeHubAiService {
 
         BedrockInvocation inv = invoke(prompts.loadVersioned(promptKey, vars).text());
 
-        sample.stop(Timer.builder("knowledge.ai.action.latency")
+        long elapsedNs = sample.stop(Timer.builder("knowledge.ai.action.latency")
                 .tag("action", action)
                 .publishPercentiles(0.5, 0.95)
                 .register(meters));
         meters.counter("knowledge.ai.action.calls", "action", action).increment();
+        // 액션은 자유 질문이 없으므로 대상 문서 제목을 "질문"으로 간주해 진단을 돕는다.
+        slowSampler.record("action", action,
+                java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(elapsedNs),
+                contextId, docTitle, inv.modelId());
 
         return new AskResponse(
                 contextId,

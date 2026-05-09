@@ -388,10 +388,17 @@
 }
 .aiq-tag-table tbody tr.aiq-tag-row--over {
   background: #fef2f2;
+  cursor: pointer;
 }
 .aiq-tag-table tbody tr.aiq-tag-row--over td {
   color: #991b1b;
   font-weight: 600;
+}
+.aiq-tag-table tbody tr.aiq-tag-row--over:hover,
+.aiq-tag-table tbody tr.aiq-tag-row--over:focus-visible {
+  background: #fde2e2;
+  outline: 2px solid #b91c1c;
+  outline-offset: -2px;
 }
 .aiq-tag-flag {
   margin-left: 0.25rem;
@@ -404,4 +411,75 @@
   .aiq-tag-table tbody tr.aiq-tag-row--over td {
     color: #fecaca;
   }
+  .aiq-tag-table tbody tr.aiq-tag-row--over:hover,
+  .aiq-tag-table tbody tr.aiq-tag-row--over:focus-visible {
+    background: rgba(239, 68, 68, 0.28);
+    outline-color: #fca5a5;
+  }
+}
+
+/* ---- Slow-call samples modal ------------------------------------------- */
+.aiq-slow-header {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  color: var(--mk-color-text-muted, #6b7280);
+}
+.aiq-slow-empty {
+  padding: 1rem;
+  text-align: center;
+  color: var(--mk-color-text-muted, #6b7280);
+  font-size: 0.9rem;
+}
+.aiq-slow-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.aiq-slow-item {
+  border: 1px solid var(--mk-color-border, #e5e7eb);
+  border-radius: var(--mk-radius-md, 12px);
+  padding: 0.625rem 0.75rem;
+  background: var(--mk-color-bg, #fff);
+}
+.aiq-slow-row1 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+.aiq-slow-latency {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #b91c1c;
+}
+.aiq-slow-when {
+  font-size: 0.8rem;
+  color: var(--mk-color-text-muted, #6b7280);
+}
+.aiq-slow-q {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--mk-color-text, #1f1f1f);
+  word-break: break-word;
+  margin-bottom: 0.35rem;
+}
+.aiq-slow-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.78rem;
+  color: var(--mk-color-text-muted, #6b7280);
+}
+.aiq-slow-meta code {
+  font-size: 0.78rem;
+}
+.aiq-slow-muted {
+  color: var(--mk-color-text-muted, #6b7280);
+}
+@media (prefers-color-scheme: dark) {
+  .aiq-slow-latency { color: #fca5a5; }
 }

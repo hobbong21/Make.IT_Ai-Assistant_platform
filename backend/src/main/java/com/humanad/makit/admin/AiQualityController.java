@@ -2,6 +2,7 @@ package com.humanad.makit.admin;
 
 import com.humanad.makit.knowledge.CurrentUser;
 import com.humanad.makit.knowledge.ai.OfficeHubFeedbackRepository;
+import com.humanad.makit.knowledge.ai.SlowCallSampler;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,6 +45,7 @@ public class AiQualityController {
     private final OfficeHubFeedbackRepository feedbackRepo;
     private final MeterRegistry meters;
     private final AiQualityThresholdsService thresholdsService;
+    private final SlowCallSampler slowSampler;
 
     @Operation(summary = "AI 답변 품질 대시보드 데이터 (최근 N일)")
     @GetMapping("/quality")
@@ -171,6 +173,19 @@ public class AiQualityController {
     public java.util.List<AiQualityThresholdsService.HistoryEntry> thresholdsHistory(
             @RequestParam(name = "limit", defaultValue = "20") int limit) {
         return thresholdsService.history(limit);
+    }
+
+    @Operation(summary = "특정 컬렉션·액션 태그의 최근 호출 샘플 (느린 행 진단용)")
+    @GetMapping("/slow")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<SlowCallSampler.Sample> slow(
+            @RequestParam(name = "tag") String tag,
+            @RequestParam(name = "kind", defaultValue = "ask") String kind,
+            @RequestParam(name = "limit", defaultValue = "10") int limit) {
+        // kind는 "ask"/"action" 중 하나여야 함. 그 외 값은 빈 배열로 안전하게 응답.
+        if (!"ask".equals(kind) && !"action".equals(kind)) return List.of();
+        int n = Math.min(50, Math.max(1, limit));
+        return slowSampler.recent(kind, tag, n);
     }
 
     // -------------------------------------------------------------------- helpers

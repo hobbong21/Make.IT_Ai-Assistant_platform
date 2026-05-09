@@ -75,7 +75,8 @@ class OfficeHubAiServiceTest {
     @BeforeEach
     void setUp() {
         service = new OfficeHubAiService(
-                bedrock, props, retriever, prompts, guard, docRepo, feedbackRepo, meters);
+                bedrock, props, retriever, prompts, guard, docRepo, feedbackRepo, meters,
+                new com.humanad.makit.knowledge.ai.SlowCallSampler());
     }
 
     // -------------------------------------------------------------------- ask

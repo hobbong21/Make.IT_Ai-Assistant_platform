@@ -495,6 +495,14 @@
       // GET /api/admin/ai/thresholds/history?limit=20 — 변경 이력
       aiThresholdsHistory: function (limit) {
         return request('/admin/ai/thresholds/history?limit=' + (limit || 20));
+      },
+      // GET /api/admin/ai/slow?tag=...&kind=ask|action&limit=10
+      // → List<{kind, tag, latencyMs, contextId, question, modelId, ts}>
+      aiSlow: function (tag, kind, limit) {
+        const k = kind || 'ask';
+        const n = limit || 10;
+        return request('/admin/ai/slow?tag=' + encodeURIComponent(tag)
+          + '&kind=' + encodeURIComponent(k) + '&limit=' + n);
       }
     }
   };
