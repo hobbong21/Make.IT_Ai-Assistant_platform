@@ -8,8 +8,10 @@
  *   #search?q=<term>          → 전체 검색 결과
  *   #trash | #mine | #favorites → 보조 뷰
  *
- * Backend integration is intentionally deferred to Phase 2/3.
- * All data lives in MOCK below; AI actions return deterministic stub text.
+ * Phase 3 (Task #14): AI 입력바와 4개 액션(요약/연관/태그/초안)이
+ * `/api/knowledge/ai/*` RAG 백엔드를 호출합니다. SSE 스트리밍 + 인용 +
+ * 👍/👎 피드백 지원. 백엔드가 없으면 (현 Replit 정적 환경) 자동으로
+ * 결정론적 mock 응답으로 폴백합니다.
  */
 (function () {
   'use strict';
@@ -118,6 +120,241 @@
   }
 
   // -------------------------------------------------------------------------
+  // RAG bridge — calls /api/knowledge/ai/* with SSE streaming, falls back to
+  // a deterministic mock when the backend is unreachable so the page stays
+  // demoable in the static frontend-only Replit environment.
+  // -------------------------------------------------------------------------
+  var AI = {
+    /**
+     * Stream an `ask` (free-form) or `action` (summarize/related/tags/draft)
+     * request. Calls `handlers.onCitation`, `onDelta`, `onDone`, `onError`.
+     * Returns a Promise that resolves once the stream terminates.
+     */
+    stream: function (kind, action, payload, handlers) {
+      handlers = handlers || {};
+      if (!window.api || !window.api.knowledge) {
+        return Promise.resolve(AI._mockStream(kind, action, payload, handlers));
+      }
+      var p = (kind === 'ask')
+        ? window.api.knowledge.askStream(payload)
+        : window.api.knowledge.actionStream(action, payload);
+
+      return p.then(function (resp) {
+        if (!resp || !resp.ok || !resp.body) {
+          return AI._mockStream(kind, action, payload, handlers);
+        }
+        return AI._consumeSSE(resp, handlers);
+      }).catch(function (_err) {
+        return AI._mockStream(kind, action, payload, handlers);
+      });
+    },
+
+    _consumeSSE: function (resp, handlers) {
+      var reader = resp.body.getReader();
+      var decoder = new TextDecoder('utf-8');
+      var buf = '';
+      function flushEvent(rawBlock) {
+        // SSE event = lines separated by \n; fields: event:, data:
+        var ev = 'message';
+        var dataLines = [];
+        rawBlock.split('\n').forEach(function (ln) {
+          if (ln.indexOf('event:') === 0) ev = ln.slice(6).trim();
+          else if (ln.indexOf('data:') === 0) dataLines.push(ln.slice(5).trim());
+        });
+        var data = dataLines.join('\n');
+        if (ev === 'delta') { handlers.onDelta && handlers.onDelta(data); return; }
+        if (ev === 'citation') {
+          var c = null; try { c = JSON.parse(data); } catch (_) { /* ignore */ }
+          if (c && handlers.onCitation) handlers.onCitation(c);
+          return;
+        }
+        if (ev === 'done') {
+          var d = {}; try { d = JSON.parse(data || '{}'); } catch (_) { d = {}; }
+          handlers.onDone && handlers.onDone(d);
+          return;
+        }
+        if (ev === 'error') { handlers.onError && handlers.onError(data); return; }
+        // 'ping' and unknowns: noop
+      }
+      function pump() {
+        return reader.read().then(function (chunk) {
+          if (chunk.done) {
+            if (buf.trim()) flushEvent(buf);
+            return;
+          }
+          buf += decoder.decode(chunk.value, { stream: true });
+          var idx;
+          while ((idx = buf.indexOf('\n\n')) !== -1) {
+            var block = buf.slice(0, idx);
+            buf = buf.slice(idx + 2);
+            if (block.trim()) flushEvent(block);
+          }
+          return pump();
+        });
+      }
+      return pump();
+    },
+
+    /** Mock streaming used when backend is unavailable. */
+    _mockStream: function (kind, action, payload, handlers) {
+      var msg = '';
+      var citations = [];
+      if (kind === 'ask') {
+        var q = (payload && payload.question) || '';
+        var hits = MOCK.docs.filter(function (d) {
+          var t = q.toLowerCase();
+          return d.title.toLowerCase().indexOf(t) !== -1
+              || d.body.toLowerCase().indexOf(t) !== -1
+              || d.tags.join(' ').toLowerCase().indexOf(t) !== -1;
+        }).slice(0, 3);
+        if (hits.length) {
+          msg = '"' + q + '"에 대해 사내 문서 ' + hits.length + '건을 참고했어요.\n\n'
+              + hits.map(function (d, i) { return '• ' + d.title + ' [#' + (i + 1) + ']'; }).join('\n');
+          citations = hits.map(function (d, i) {
+            return { documentId: d.id, title: d.title, chunkIndex: 0, score: 0.7 - i * 0.05,
+                     snippet: d.body.replace(/\s+/g, ' ').slice(0, 120) };
+          });
+        } else {
+          msg = '관련 문서를 찾지 못했어요. 컬렉션에 자료를 추가하거나 검색어를 바꿔 다시 시도해 보세요.';
+        }
+      } else {
+        var doc = (payload && getDoc(payload.documentId)) || null;
+        switch (action) {
+          case 'summarize':
+            msg = doc
+              ? '• ' + doc.title + ' 핵심을 3줄로 정리합니다.\n• 본문 키워드: ' + doc.tags.join(', ') + '\n• 다음 행동 추천: 같은 컬렉션 내 관련 문서 함께 보기'
+              : '문서를 찾지 못했어요.';
+            break;
+          case 'related':
+            var others = doc ? MOCK.docs.filter(function (d) { return d.id !== doc.id && d.cid === doc.cid; }).slice(0, 3) : [];
+            if (others.length) {
+              msg = others.map(function (d, i) { return '📎 ' + d.title + ' — 같은 컬렉션의 후속 자료 [#' + (i + 1) + ']'; }).join('\n');
+              citations = others.map(function (d, i) {
+                return { documentId: d.id, title: d.title, chunkIndex: 0, score: 0.6 - i * 0.05,
+                         snippet: d.body.replace(/\s+/g, ' ').slice(0, 120) };
+              });
+            } else {
+              msg = '같은 주제의 다른 문서를 아직 찾지 못했어요.';
+            }
+            break;
+          case 'tags':
+            msg = doc ? ('#' + doc.tags.join(' #') + ' #자동추천') : '#자동추천';
+            break;
+          case 'draft':
+            msg = doc
+              ? '# ' + doc.title + ' — 후속 가이드\n\n도입부 한 문장으로 배경을 정리합니다.\n\n## 본문\n- 섹션 1: 현황 정리\n- 섹션 2: 개선 포인트\n- 섹션 3: 적용 사례\n\n## 결론\n다음 분기 운영에 즉시 반영 가능한 권고를 제시합니다.\n\n## 다음 액션\n- [ ] 담당자 지정\n- [ ] 리뷰 일정 잡기'
+              : '초안을 작성할 문서를 찾지 못했어요.';
+            break;
+          default:
+            msg = '지원하지 않는 작업입니다.';
+        }
+      }
+      // Replay as if streamed.
+      citations.forEach(function (c) { handlers.onCitation && handlers.onCitation(c); });
+      var step = 32;
+      for (var i = 0; i < msg.length; i += step) {
+        handlers.onDelta && handlers.onDelta(msg.slice(i, i + step));
+      }
+      handlers.onDone && handlers.onDone({ contextId: 'mock-' + Date.now(), mock: true });
+    },
+
+    sendFeedback: function (payload) {
+      if (!window.api || !window.api.knowledge) return Promise.resolve();
+      return window.api.knowledge.feedback(payload).catch(function (_) { /* swallow */ });
+    }
+  };
+
+  /**
+   * Render a streaming AI panel into `host`. Returns nothing.
+   * - `payload`: request body sent to AI.stream
+   * - `kind`: 'ask' | 'action'
+   * - `action`: only used when kind === 'action'
+   * - `documentId`: for the feedback payload (optional)
+   */
+  function renderAIStream(host, kind, action, payload, documentId) {
+    if (!host) return;
+    host.innerHTML =
+      '<div class="hub-ai-citations" hidden></div>' +
+      '<div class="hub-ai-answer">AI 응답 생성 중<span class="hub-ai-dots">…</span></div>' +
+      '<div class="hub-ai-feedback" hidden>' +
+        '<span>이 답변이 도움이 되었나요?</span>' +
+        '<button type="button" class="hub-fb hub-fb-up"   aria-label="도움이 됨">👍</button>' +
+        '<button type="button" class="hub-fb hub-fb-down" aria-label="도움이 안 됨">👎</button>' +
+        '<span class="hub-fb-thanks" hidden>피드백 감사합니다 🙏</span>' +
+      '</div>';
+    var citesEl = host.querySelector('.hub-ai-citations');
+    var answerEl = host.querySelector('.hub-ai-answer');
+    var fbEl = host.querySelector('.hub-ai-feedback');
+    var answerText = '';
+    var citations = [];
+    var contextId = null;
+    var firstDelta = true;
+
+    AI.stream(kind, action, payload, {
+      onCitation: function (c) {
+        citations.push(c);
+        renderCitations(citesEl, citations);
+      },
+      onDelta: function (t) {
+        if (firstDelta) { answerEl.textContent = ''; firstDelta = false; }
+        answerText += t;
+        // Render citation-aware markdown: convert [#N] tokens into clickable spans.
+        answerEl.innerHTML = renderAnswerWithCitations(answerText, citations);
+      },
+      onDone: function (info) {
+        contextId = info && info.contextId;
+        if (firstDelta) { answerEl.textContent = '(빈 응답)'; }
+        fbEl.hidden = false;
+      },
+      onError: function (msg) {
+        answerEl.textContent = msg || 'AI 응답 생성 중 오류가 발생했어요.';
+      }
+    });
+
+    fbEl.addEventListener('click', function (e) {
+      var up   = e.target.closest('.hub-fb-up');
+      var down = e.target.closest('.hub-fb-down');
+      if (!up && !down) return;
+      var helpful = !!up;
+      AI.sendFeedback({
+        contextId: contextId || ('local-' + Date.now()),
+        documentId: documentId || null,
+        action: kind === 'ask' ? 'ask' : action,
+        helpful: helpful
+      });
+      fbEl.querySelector('.hub-fb-up').disabled = true;
+      fbEl.querySelector('.hub-fb-down').disabled = true;
+      fbEl.querySelector('.hub-fb-thanks').hidden = false;
+    });
+  }
+
+  function renderCitations(host, citations) {
+    if (!host) return;
+    if (!citations.length) { host.hidden = true; host.innerHTML = ''; return; }
+    host.hidden = false;
+    host.innerHTML = '<div class="cite-label">출처</div>' + citations.map(function (c, i) {
+      var title = c.title || ('문서 ' + c.documentId);
+      var score = (typeof c.score === 'number') ? (Math.round(c.score * 100) + '%') : '';
+      return '<a class="hub-cite" href="#doc/' + escapeHtml(c.documentId) + '" title="' + escapeHtml(c.snippet || '') + '">' +
+        '<span class="cite-num">[#' + (i + 1) + ']</span>' +
+        '<span class="cite-title">' + escapeHtml(title) + '</span>' +
+        (score ? '<span class="cite-score">' + escapeHtml(score) + '</span>' : '') +
+      '</a>';
+    }).join('');
+  }
+
+  /** Convert plaintext answer with `[#N]` markers into HTML with clickable inline citations. */
+  function renderAnswerWithCitations(text, citations) {
+    var safe = escapeHtml(text);
+    return safe.replace(/\[#(\d+)]/g, function (_m, n) {
+      var idx = parseInt(n, 10) - 1;
+      var c = citations[idx];
+      if (!c) return '<sup class="cite-ref cite-ref-missing">[#' + n + ']</sup>';
+      return '<a class="cite-ref" href="#doc/' + escapeHtml(c.documentId) + '" title="' + escapeHtml(c.title || '') + '">[#' + n + ']</a>';
+    }).replace(/\n/g, '<br>');
+  }
+
+  // -------------------------------------------------------------------------
   // Sidebar (collection list, active state)
   // -------------------------------------------------------------------------
   function renderSidebarCollections() {
@@ -166,6 +403,7 @@
           '<input type="text" id="hubAIInput" placeholder="어떤 작업을 도와드릴까요?  (예: Q4 회고 요약해줘)">' +
           '<button type="submit" class="hub-aibar-send">전송</button>' +
         '</div>' +
+        '<div class="hub-aibar-answer" id="hubAIAnswer" hidden></div>' +
       '</form>' +
       '<div class="hub-quickchips">' +
         '<button type="button" class="hub-quickchip" data-q="문서관리 가이드">#문서관리 가이드</button>' +
@@ -190,12 +428,19 @@
         e.preventDefault();
         var q = ($('#hubAIInput').value || '').trim();
         if (!q) return;
-        location.hash = '#search?q=' + encodeURIComponent(q);
+        var ans = $('#hubAIAnswer');
+        if (ans) {
+          ans.hidden = false;
+          renderAIStream(ans, 'ask', null, { question: q }, null);
+        }
       });
     }
     document.querySelectorAll('.hub-quickchip').forEach(function (b) {
       b.addEventListener('click', function () {
-        location.hash = '#search?q=' + encodeURIComponent(b.dataset.q || '');
+        var inp = $('#hubAIInput');
+        if (inp) inp.value = b.dataset.q || '';
+        var f = $('#hubAIBar');
+        if (f) f.dispatchEvent(new Event('submit', { cancelable: true }));
       });
     });
   }
@@ -292,7 +537,7 @@
               '<button type="button" class="hub-ai-btn" data-act="tags">태그 추천</button>' +
               '<button type="button" class="hub-ai-btn" data-act="draft">초안 작성</button>' +
             '</div>' +
-            '<div class="hub-ai-output" id="hubAIOut">버튼을 눌러 AI 도움을 받아보세요.\n(Phase 2에서 RAG 백엔드와 연결 예정)</div>' +
+            '<div class="hub-ai-output" id="hubAIOut">버튼을 눌러 AI 도움을 받아보세요.</div>' +
           '</div>' +
           '<div class="hub-aipanel">' +
             '<h3 style="margin-bottom:0.5rem;">기본 정보</h3>' +
@@ -313,27 +558,14 @@
   function runAI(act, doc) {
     var out = $('#hubAIOut');
     if (!out) return;
-    out.textContent = 'AI 응답 생성 중…';
-    setTimeout(function () {
-      var msg;
-      switch (act) {
-        case 'summarize':
-          msg = '요약 (mock):\n• ' + doc.title + '의 핵심을 3줄로 정리합니다.\n• 본문에서 가장 자주 등장하는 키워드는 [' + doc.tags.join(', ') + '] 입니다.\n• 다음 단계로 ' + (getCollection(doc.cid) || {}).name + ' 내 다른 문서도 참고해보세요.';
-          break;
-        case 'related':
-          var others = MOCK.docs.filter(function (d) { return d.id !== doc.id && d.cid === doc.cid; }).slice(0, 3);
-          msg = '연관 문서 (mock):\n' + (others.length ? others.map(function (d) { return '• ' + d.emoji + ' ' + d.title; }).join('\n') : '• 같은 컬렉션 내 다른 문서가 없습니다.');
-          break;
-        case 'tags':
-          msg = '태그 추천 (mock):\n#' + doc.tags.join('  #') + '  #자동추천';
-          break;
-        case 'draft':
-          msg = '초안 (mock):\n"' + doc.title + '"의 후속 문서 초안 — 도입부 / 본문 3섹션 / 결론 / 다음 액션 으로 구성을 제안합니다.';
-          break;
-        default: msg = '지원하지 않는 작업입니다.';
-      }
-      out.textContent = msg + '\n\n※ 본 응답은 mock 입니다 — Phase 2에서 Bedrock + RAG 백엔드와 연결됩니다.';
-    }, 350);
+    var payload = {
+      documentId: doc.id,
+      title: doc.title,
+      body: doc.body,
+      tags: doc.tags || [],
+      collectionId: doc.cid
+    };
+    renderAIStream(out, 'action', act, payload, doc.id);
   }
 
   function viewSearch(q) {

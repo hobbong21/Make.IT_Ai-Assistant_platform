@@ -369,6 +369,33 @@
       }
     },
 
+    // AX Office Hub RAG (Task #14, Phase 3)
+    knowledge: {
+      // POST /api/knowledge/ai/ask — { question, contextId?, collectionId?, topK? }
+      ask: function (payload) {
+        return request('/knowledge/ai/ask', { method: 'POST', body: payload });
+      },
+      // SSE: returns raw Response so the page can read the stream.
+      askStream: function (payload) {
+        return rawFetch('/knowledge/ai/ask/stream', { method: 'POST', body: payload });
+      },
+      // POST /api/knowledge/ai/actions/{action} — summarize|related|tags|draft
+      action: function (action, payload) {
+        return request('/knowledge/ai/actions/' + encodeURIComponent(action), {
+          method: 'POST', body: payload
+        });
+      },
+      actionStream: function (action, payload) {
+        return rawFetch('/knowledge/ai/actions/' + encodeURIComponent(action) + '/stream', {
+          method: 'POST', body: payload
+        });
+      },
+      // POST /api/knowledge/ai/feedback — { contextId, documentId?, action, helpful, comment? }
+      feedback: function (payload) {
+        return request('/knowledge/ai/feedback', { method: 'POST', body: payload });
+      }
+    },
+
     admin: {
       // GET /api/admin/stats/overview — AdminOverviewDto
       overview: function () {
