@@ -6,7 +6,7 @@
  *  - HTML: network-first with fallback to cache
  */
 
-const CACHE_VERSION = 'makit-v10';
+const CACHE_VERSION = 'makit-v11';
 const SHELL_ASSETS = [
   '/index.html',
   '/css/core/tokens.css',
