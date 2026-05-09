@@ -6,7 +6,7 @@
  *  - HTML: network-first with fallback to cache
  */
 
-const CACHE_VERSION = 'makit-v17';
+const CACHE_VERSION = 'makit-v18';
 const SHELL_ASSETS = [
   '/index.html',
   '/services/nlp-analyze.html',
@@ -21,6 +21,9 @@ const SHELL_ASSETS = [
   '/services/url-analyze.html',
   '/js/pages/url-analyze.js',
   '/services/youtube-keyword-search.html',
+  '/js/pages/youtube-keyword-search.js',
+  '/services/review-analysis.html',
+  '/js/pages/review-analysis.js',
   '/services/feed-generate.html',
   '/services/remove-bg.html',
   '/services/modelshot.html',
