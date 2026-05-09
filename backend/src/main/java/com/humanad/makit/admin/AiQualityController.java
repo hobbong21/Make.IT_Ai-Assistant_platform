@@ -266,6 +266,38 @@ public class AiQualityController {
         return new SlowFeedbackSummary(helpful, notHelpful, recent);
     }
 
+    /**
+     * 여러 contextId에 대한 helpful/notHelpful 카운트를 한 번에 돌려준다.
+     * 느린 호출 목록 화면이 행마다 "👎가 달렸는지"를 즉시 표시할 수 있게 하는 배치 조회.
+     * 응답 키는 입력으로 들어온 contextId 그대로이며, 피드백이 한 건도 없는 항목은
+     * helpful=notHelpful=0으로 채워서 돌려준다(프런트에서 missing 처리 분기를 줄이기 위함).
+     * contextIds가 비었거나 모두 공백이면 빈 맵을 돌려준다.
+     */
+    @Operation(summary = "여러 contextId 호출의 사용자 피드백 카운트 배치 조회 (목록 표시용)")
+    @GetMapping("/slow/feedback-batch")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Map<String, FeedbackCount> slowFeedbackBatch(
+            @RequestParam(name = "contextIds", required = false) List<String> contextIds) {
+        Map<String, FeedbackCount> out = new LinkedHashMap<>();
+        if (contextIds == null || contextIds.isEmpty()) return out;
+        List<String> clean = new ArrayList<>();
+        for (String c : contextIds) {
+            if (c != null && !c.isBlank()) clean.add(c);
+        }
+        if (clean.isEmpty()) return out;
+        // 입력 순서를 유지하면서 0으로 시드
+        for (String c : clean) out.put(c, new FeedbackCount(0L, 0L));
+        for (Object[] r : feedbackRepo.countByContextIds(clean)) {
+            String ctx = (String) r[0];
+            long h = r[1] == null ? 0L : ((Number) r[1]).longValue();
+            long n = r[2] == null ? 0L : ((Number) r[2]).longValue();
+            out.put(ctx, new FeedbackCount(h, n));
+        }
+        return out;
+    }
+
+    public record FeedbackCount(long helpful, long notHelpful) {}
+
     public record SlowFeedbackSummary(
             long helpful,
             long notHelpful,

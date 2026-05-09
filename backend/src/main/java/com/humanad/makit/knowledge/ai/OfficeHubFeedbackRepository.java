@@ -79,4 +79,20 @@ public interface OfficeHubFeedbackRepository extends JpaRepository<OfficeHubFeed
             ORDER BY f.createdAt DESC
            """)
     List<OfficeHubFeedback> findByContextId(@Param("contextId") String contextId, Pageable pageable);
+
+    /**
+     * 여러 contextId에 대한 helpful/notHelpful 카운트를 한 번에 집계한다.
+     * 결과: {@code [String contextId, Long helpful, Long notHelpful]} 행들.
+     * 느린 호출 목록 화면에서 행마다 "👎가 달렸는지"를 한눈에 보여주기 위한 배치 조회.
+     * 피드백이 한 건도 없는 contextId는 결과에 포함되지 않으므로 호출 측에서 0으로 처리한다.
+     */
+    @Query("""
+           SELECT f.contextId,
+                  SUM(CASE WHEN f.helpful = TRUE  THEN 1 ELSE 0 END),
+                  SUM(CASE WHEN f.helpful = FALSE THEN 1 ELSE 0 END)
+             FROM OfficeHubFeedback f
+            WHERE f.contextId IN :contextIds
+            GROUP BY f.contextId
+           """)
+    List<Object[]> countByContextIds(@Param("contextIds") List<String> contextIds);
 }

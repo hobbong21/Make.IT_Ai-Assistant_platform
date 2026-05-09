@@ -21,6 +21,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
@@ -147,6 +148,35 @@ class AiQualityControllerTest {
         assertThat(dto.latency().askCount()).isEqualTo(8L);
         // 전역 actionCount는 4 + 2.
         assertThat(dto.latency().actionCount()).isEqualTo(6L);
+    }
+
+    @Test
+    void slowFeedbackBatch_zeroFillsMissingAndPreservesOrder() {
+        // 입력 순서를 유지하고, 피드백이 없는 contextId도 helpful=notHelpful=0으로
+        // 채워서 돌려주는지 검증. 프런트가 분기 없이 행마다 뱃지를 칠할 수 있어야 함.
+        when(feedbackRepo.countByContextIds(anyList())).thenReturn(List.of(
+                new Object[]{"ctx-b", 0L, 3L},   // 도움 안 됨 3
+                new Object[]{"ctx-c", 5L, 1L}    // 도움됨 5, 도움 안 됨 1
+                // ctx-a 행은 일부러 누락 → 0/0으로 시드돼야 한다.
+        ));
+
+        Map<String, AiQualityController.FeedbackCount> out =
+                controller.slowFeedbackBatch(List.of("ctx-a", "ctx-b", "", "ctx-c"));
+
+        // 빈 문자열은 제외되고, 입력 순서는 유지됨.
+        assertThat(out.keySet()).containsExactly("ctx-a", "ctx-b", "ctx-c");
+        assertThat(out.get("ctx-a").helpful()).isEqualTo(0L);
+        assertThat(out.get("ctx-a").notHelpful()).isEqualTo(0L);
+        assertThat(out.get("ctx-b").notHelpful()).isEqualTo(3L);
+        assertThat(out.get("ctx-c").helpful()).isEqualTo(5L);
+        assertThat(out.get("ctx-c").notHelpful()).isEqualTo(1L);
+    }
+
+    @Test
+    void slowFeedbackBatch_returnsEmptyForBlankInput() {
+        // null / 빈 리스트 / 모두 공백인 경우엔 DB를 건드리지 않고 빈 맵.
+        assertThat(controller.slowFeedbackBatch(List.of())).isEmpty();
+        assertThat(controller.slowFeedbackBatch(List.of("", "  "))).isEmpty();
     }
 
     @Test

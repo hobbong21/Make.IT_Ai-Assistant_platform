@@ -490,6 +490,63 @@
   .aiq-slow-latency { color: #fca5a5; }
 }
 
+/* row1 안에 latency / 뱃지 / 시각이 한 줄로 들어가도록 뱃지 컨테이너는 가운데로 밀어둔다. */
+.aiq-slow-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-right: auto;
+  margin-left: 0.5rem;
+}
+.aiq-slow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid var(--mk-color-border, #e5e7eb);
+  background: var(--mk-color-bg-muted, #f9fafb);
+  color: var(--mk-color-text, #1f1f1f);
+  line-height: 1.3;
+}
+.aiq-slow-badge--down {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #b91c1c;
+}
+.aiq-slow-badge--up {
+  background: rgba(34, 197, 94, 0.14);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #15803d;
+}
+@media (prefers-color-scheme: dark) {
+  .aiq-slow-badge--down { color: #fca5a5; }
+  .aiq-slow-badge--up   { color: #86efac; }
+}
+
+/* "도움 안 됨만 보기" 필터 바 */
+.aiq-slow-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.6rem;
+  font-size: 0.82rem;
+  color: var(--mk-color-text, #1f1f1f);
+}
+.aiq-slow-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+}
+.aiq-slow-filter-input { cursor: pointer; }
+.aiq-slow-filter-count {
+  color: var(--mk-color-text-muted, #6b7280);
+  font-size: 0.78rem;
+}
+
 /* ---- contextId 토글 + 호출 상세 (답변/인용/토큰) ----------------------- */
 .aiq-ctx-btn {
   display: inline-flex;

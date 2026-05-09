@@ -632,8 +632,20 @@
     try {
       const samples = await window.api.admin.aiSlow(tag, kind, 10);
       if (!bodyEl) return;
-      bodyEl.innerHTML = renderSlowSamples(samples, rowStat, kind);
+      // 샘플 메타와 별개로, 각 contextId에 달린 helpful/notHelpful 카운트를
+      // 배치 조회해 목록 행에 👎 뱃지를 미리 보여준다. 실패해도 목록은
+      // 그대로 보여주고 뱃지만 숨긴다 (조회 실패가 진단 흐름을 끊지 않게).
+      const ids = (samples || []).map(function (s) { return s && s.contextId; }).filter(Boolean);
+      let feedbackById = {};
+      try {
+        feedbackById = await window.api.admin.aiSlowFeedbackBatch(ids);
+      } catch (e) {
+        console.warn('Failed to load slow feedback batch:', e);
+        feedbackById = {};
+      }
+      bodyEl.innerHTML = renderSlowSamples(samples, rowStat, kind, feedbackById);
       bindSlowDetailHandler(bodyEl);
+      bindSlowFilterHandler(bodyEl);
     } catch (err) {
       console.error('Failed to load slow samples:', err);
       if (bodyEl) {
@@ -642,8 +654,9 @@
     }
   }
 
-  function renderSlowSamples(samples, rowStat, kind) {
+  function renderSlowSamples(samples, rowStat, kind, feedbackById) {
     const fmtMsLocal = (n) => Math.round(n || 0).toLocaleString();
+    const fb = feedbackById || {};
     const headerBits = [];
     if (rowStat) {
       headerBits.push(`평균 ${fmtMsLocal(rowStat.meanMs)}ms`);
@@ -657,6 +670,20 @@
     if (!samples || samples.length === 0) {
       return header + '<div class="aiq-slow-empty">아직 기록된 호출 샘플이 없습니다. (서버 재시작 후 첫 호출이 들어오면 채워집니다)</div>';
     }
+    // "도움 안 됨" 행만 보기 토글. 상태는 체크박스 자체가 들고 있고, 필터 적용은
+    // bindSlowFilterHandler가 li[data-not-helpful="0"]에 hidden 속성을 토글해 처리.
+    const negativeCount = samples.reduce(function (acc, s) {
+      const c = s && s.contextId && fb[s.contextId];
+      return acc + (c && Number(c.notHelpful) > 0 ? 1 : 0);
+    }, 0);
+    const filterBar = `
+      <div class="aiq-slow-filter">
+        <label class="aiq-slow-filter-toggle">
+          <input type="checkbox" class="aiq-slow-filter-input" />
+          <span>👎 도움 안 됨 피드백이 달린 호출만 보기</span>
+        </label>
+        <span class="aiq-slow-filter-count">(${negativeCount}건)</span>
+      </div>`;
     const items = samples.map((s) => {
       const when = s.ts ? new Date(s.ts).toLocaleString('ko-KR') : '-';
       const qLabel = kind === 'action' ? '대상 문서' : '질문';
@@ -670,10 +697,24 @@
              <span class="aiq-ctx-caret" aria-hidden="true">▸</span>
            </button>`
         : '<code>-</code>';
+      // 피드백 뱃지: notHelpful이 1건 이상이면 빨간 👎 뱃지를 latency 옆에 띄워
+      // 펼치기 전에도 "느리고 도움 안 됨"을 식별할 수 있게 한다.
+      const counts = ctx ? fb[ctx] : null;
+      const helpful    = counts ? Number(counts.helpful || 0) : 0;
+      const notHelpful = counts ? Number(counts.notHelpful || 0) : 0;
+      const badges = [];
+      if (notHelpful > 0) {
+        badges.push(`<span class="aiq-slow-badge aiq-slow-badge--down" title="이 호출에 달린 도움 안 됨 피드백 ${notHelpful}건">👎 ${notHelpful}</span>`);
+      }
+      if (helpful > 0) {
+        badges.push(`<span class="aiq-slow-badge aiq-slow-badge--up" title="이 호출에 달린 도움됨 피드백 ${helpful}건">👍 ${helpful}</span>`);
+      }
+      const badgesHtml = badges.length ? `<span class="aiq-slow-badges">${badges.join('')}</span>` : '';
       return `
-        <li class="aiq-slow-item">
+        <li class="aiq-slow-item" data-not-helpful="${notHelpful > 0 ? '1' : '0'}">
           <div class="aiq-slow-row1">
             <span class="aiq-slow-latency">${fmtMsLocal(s.latencyMs)} ms</span>
+            ${badgesHtml}
             <span class="aiq-slow-when">${escapeHtml(when)}</span>
           </div>
           <div class="aiq-slow-q"><strong>${qLabel}:</strong> ${q}</div>
@@ -684,7 +725,25 @@
           <div class="aiq-slow-detail" hidden></div>
         </li>`;
     }).join('');
-    return header + `<ol class="aiq-slow-list">${items}</ol>`;
+    return header + filterBar + `<ol class="aiq-slow-list">${items}</ol>`;
+  }
+
+  // "도움 안 됨 피드백이 달린 호출만 보기" 체크박스 핸들러.
+  // 모달 안에서만 동작하면 되므로 bodyEl 스코프로 위임 등록한다.
+  function bindSlowFilterHandler(bodyEl) {
+    if (!bodyEl || bodyEl.__aiqFilterBound) return;
+    bodyEl.__aiqFilterBound = true;
+    bodyEl.addEventListener('change', (ev) => {
+      const input = ev.target.closest('.aiq-slow-filter-input');
+      if (!input || !bodyEl.contains(input)) return;
+      const onlyNegative = !!input.checked;
+      const list = bodyEl.querySelector('.aiq-slow-list');
+      if (!list) return;
+      list.querySelectorAll('.aiq-slow-item').forEach((li) => {
+        const has = li.getAttribute('data-not-helpful') === '1';
+        li.hidden = onlyNegative && !has;
+      });
+    });
   }
 
   // contextId 토글: 클릭 시 백엔드 LRU에서 답변/인용/토큰을 받아와 펼친다.

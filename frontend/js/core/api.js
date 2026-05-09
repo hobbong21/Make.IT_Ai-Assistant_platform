@@ -515,6 +515,15 @@
       // 응답 본문 LRU와 무관하게 DB에 영구 저장된 피드백을 조회한다.
       aiSlowDetailFeedback: function (contextId) {
         return request('/admin/ai/slow/detail/feedback?contextId=' + encodeURIComponent(contextId));
+      },
+      // GET /api/admin/ai/slow/feedback-batch?contextIds=a&contextIds=b...
+      // → { [contextId]: { helpful, notHelpful } } (입력 순서 유지, 피드백 없는 항목도 0으로 포함)
+      // 느린 호출 목록 행에 👎 뱃지를 미리 보여주기 위한 배치 조회.
+      aiSlowFeedbackBatch: function (contextIds) {
+        const ids = (contextIds || []).filter(function (c) { return c && c.length; });
+        if (ids.length === 0) return Promise.resolve({});
+        const qs = ids.map(function (c) { return 'contextIds=' + encodeURIComponent(c); }).join('&');
+        return request('/admin/ai/slow/feedback-batch?' + qs);
       }
     }
   };
