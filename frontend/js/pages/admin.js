@@ -8,6 +8,9 @@
   let lastUsersPage = null;
   let usageDays = 30;
   let notifDays = 7;
+  let aiqDays = 7;
+  let aiqDailyChart = null;
+  let aiqActionChart = null;
 
   async function init() {
     // Check if user is admin
@@ -31,6 +34,7 @@
     loadOverview();
     loadUsage(usageDays);
     loadNotificationBreakdown(notifDays);
+    loadAiQuality(aiqDays);
     loadUsers(0);
     loadFeatures();
 
@@ -54,6 +58,12 @@
       const t = document.getElementById('notif-title');
       if (t) t.textContent = `알림 분석 (최근 ${days}일)`;
       loadNotificationBreakdown(days);
+    });
+    wirePeriodChips('aiq-period-chips', (days) => {
+      aiqDays = days;
+      const t = document.getElementById('aiq-title');
+      if (t) t.textContent = `AI 답변 품질 (최근 ${days}일)`;
+      loadAiQuality(days);
     });
 
     const exportJsonBtn = document.getElementById('overview-export-json');
@@ -482,6 +492,129 @@
     } catch (err) {
       console.error('Failed to load feature detail:', err);
       window.ui.toast('기능 상세 정보 로드 실패', 'error');
+    }
+  }
+
+  async function loadAiQuality(days) {
+    const alertsEl = document.getElementById('aiq-alerts');
+    try {
+      const data = await window.api.admin.aiQuality(days, 10);
+
+      // Summary cards
+      const fmtPct = (r) => (r * 100).toFixed(1) + '%';
+      const fmtMs  = (n) => Math.round(n).toLocaleString();
+      document.getElementById('aiq-helpful-rate').textContent =
+        data.totalFeedback === 0 ? '데이터 없음' : fmtPct(data.helpfulRate);
+      document.getElementById('aiq-total-feedback').textContent = data.totalFeedback.toLocaleString();
+      document.getElementById('aiq-ask-mean').textContent =
+        (data.latency.askCount === 0) ? '--' : fmtMs(data.latency.askMeanMs);
+      document.getElementById('aiq-action-mean').textContent =
+        (data.latency.actionCount === 0) ? '--' : fmtMs(data.latency.actionMeanMs);
+
+      // Alerts banner
+      if (alertsEl) {
+        alertsEl.innerHTML = '';
+        if (data.alerts && data.alerts.length > 0) {
+          data.alerts.forEach((msg) => {
+            const div = document.createElement('div');
+            div.className = 'aiq-alert';
+            div.textContent = msg;
+            alertsEl.appendChild(div);
+          });
+          alertsEl.hidden = false;
+        } else {
+          alertsEl.hidden = true;
+        }
+      }
+
+      // Daily stacked bar chart
+      const dates = data.daily.map(d => d.date);
+      const helpful = data.daily.map(d => d.helpful);
+      const notHelpful = data.daily.map(d => d.notHelpful);
+      if (aiqDailyChart) aiqDailyChart.destroy();
+      const dailyCtx = document.getElementById('aiqDailyChart').getContext('2d');
+      aiqDailyChart = new Chart(dailyCtx, {
+        type: 'bar',
+        data: {
+          labels: dates,
+          datasets: [
+            { label: '👍 도움됨',   data: helpful,    backgroundColor: '#10b981' },
+            { label: '👎 도움 안됨', data: notHelpful, backgroundColor: '#ef4444' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: { legend: { position: 'top' } },
+          scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } }
+          }
+        }
+      });
+
+      // Action breakdown horizontal bar (helpful rate %)
+      const actions = data.byAction.map(a => a.action);
+      const rates = data.byAction.map(a => +(a.helpfulRate * 100).toFixed(1));
+      const totals = data.byAction.map(a => a.helpful + a.notHelpful);
+      if (aiqActionChart) aiqActionChart.destroy();
+      const actionCtx = document.getElementById('aiqActionChart').getContext('2d');
+      aiqActionChart = new Chart(actionCtx, {
+        type: 'bar',
+        data: {
+          labels: actions,
+          datasets: [{
+            label: '도움됨 비율 (%)',
+            data: rates,
+            backgroundColor: rates.map(r => r < 70 ? '#ef4444' : r < 85 ? '#f59e0b' : '#10b981')
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const i = ctx.dataIndex;
+                  return `${ctx.parsed.x}% (n=${totals[i]})`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }
+          }
+        }
+      });
+
+      // Top docs table
+      const tbody = document.getElementById('aiq-top-docs');
+      const topTitle = document.getElementById('aiq-top-docs-title');
+      if (topTitle) topTitle.textContent = `피드백 상위 문서 (Top ${(data.topDocuments || []).length || 10})`;
+      tbody.innerHTML = '';
+      if (!data.topDocuments || data.topDocuments.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:16px;">기간 내 피드백이 없습니다.</td></tr>';
+      } else {
+        data.topDocuments.forEach((d, i) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${i + 1}</td>
+            <td><code>${escapeHtml(d.documentId)}</code></td>
+            <td>${d.count.toLocaleString()}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+    } catch (err) {
+      console.error('Failed to load AI quality:', err);
+      window.ui.toast('AI 품질 데이터 로드 실패', 'error');
+      if (alertsEl) {
+        alertsEl.hidden = false;
+        alertsEl.innerHTML = '<div class="aiq-alert">AI 품질 데이터를 불러오지 못했습니다.</div>';
+      }
     }
   }
 

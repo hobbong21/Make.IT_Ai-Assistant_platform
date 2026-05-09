@@ -129,6 +129,79 @@
                     </div>
                 </section>
 
+                <!-- AI 답변 품질 -->
+                <section class="admin-section" id="ai-quality" aria-label="AI 답변 품질">
+                    <div class="section-head" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                        <h2 class="section-title" id="aiq-title">AI 답변 품질 (최근 7일)</h2>
+                        <div class="an-presets" id="aiq-period-chips" role="tablist" aria-label="AI 품질 기간 선택">
+                            <button type="button" class="an-chip" data-days="1" role="tab" aria-selected="false">1일</button>
+                            <button type="button" class="an-chip is-active" data-days="7" role="tab" aria-selected="true">7일</button>
+                            <button type="button" class="an-chip" data-days="30" role="tab" aria-selected="false">30일</button>
+                        </div>
+                    </div>
+                    <p class="section-desc">Office Hub AI 피드백(👍/👎)과 응답 시간 메트릭으로 답변 품질을 추적합니다.</p>
+
+                    <div id="aiq-alerts" class="aiq-alerts" role="alert" aria-live="polite" hidden></div>
+
+                    <div class="admin-stats-grid" aria-label="AI 품질 요약">
+                        <div class="admin-stat-card">
+                            <div class="stat-icon">👍</div>
+                            <div class="stat-content">
+                                <div class="stat-label">도움됨 비율</div>
+                                <div class="stat-value" id="aiq-helpful-rate">--</div>
+                            </div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="stat-icon">📝</div>
+                            <div class="stat-content">
+                                <div class="stat-label">총 피드백</div>
+                                <div class="stat-value" id="aiq-total-feedback">--</div>
+                            </div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-content">
+                                <div class="stat-label">ask 평균 응답 (ms)</div>
+                                <div class="stat-value" id="aiq-ask-mean">--</div>
+                            </div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="stat-icon">⚙️</div>
+                            <div class="stat-content">
+                                <div class="stat-label">action 평균 응답 (ms)</div>
+                                <div class="stat-value" id="aiq-action-mean">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="aiq-charts-grid">
+                        <div class="aiq-chart-card">
+                            <h3 class="aiq-chart-title">일별 피드백 추세</h3>
+                            <div class="chart-wrap"><canvas id="aiqDailyChart"></canvas></div>
+                        </div>
+                        <div class="aiq-chart-card">
+                            <h3 class="aiq-chart-title">액션별 도움됨 비율</h3>
+                            <div class="chart-wrap"><canvas id="aiqActionChart"></canvas></div>
+                        </div>
+                    </div>
+
+                    <div class="table-wrap" style="margin-top:1rem;">
+                        <h3 class="aiq-chart-title" id="aiq-top-docs-title">피드백 상위 문서</h3>
+                        <table class="admin-user-table" role="grid" aria-label="피드백 상위 문서">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">문서 ID</th>
+                                    <th scope="col">피드백 수</th>
+                                </tr>
+                            </thead>
+                            <tbody id="aiq-top-docs">
+                                <tr><td colspan="3" class="mk-loading-cell">로딩 중...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
                 <!-- 사용량 차트 -->
                 <section class="admin-section" aria-label="사용량 추이">
                     <div class="section-head" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">

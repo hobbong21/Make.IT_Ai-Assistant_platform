@@ -477,6 +477,12 @@
           method: 'PATCH',
           body: { status: status }
         });
+      },
+      // GET /api/admin/ai/quality?days=7 — AiQualityDto (피드백 추세/액션 비율/응답 시간/Top 문서)
+      aiQuality: function (days, topDocsLimit) {
+        const d = days || 7;
+        const n = topDocsLimit || 10;
+        return request('/admin/ai/quality?days=' + d + '&topDocsLimit=' + n);
       }
     }
   };

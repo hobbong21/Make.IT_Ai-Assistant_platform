@@ -271,3 +271,53 @@
     transition: none !important;
   }
 }
+
+/* ===== AI 답변 품질 대시보드 (Task #17) ===== */
+.aiq-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+.aiq-alert {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  border-radius: var(--mk-radius-md, 12px);
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.aiq-alert::before {
+  content: "⚠️ ";
+  margin-right: 0.25rem;
+}
+@media (prefers-color-scheme: dark) {
+  .aiq-alert {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #fecaca;
+  }
+}
+
+.aiq-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+@media (min-width: 900px) {
+  .aiq-charts-grid { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+}
+.aiq-chart-card {
+  background: var(--mk-color-bg, #fff);
+  border: 1px solid var(--mk-color-border, #e5e7eb);
+  border-radius: var(--mk-radius-md, 12px);
+  padding: 1rem;
+}
+.aiq-chart-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: var(--mk-color-text, #1f1f1f);
+}
