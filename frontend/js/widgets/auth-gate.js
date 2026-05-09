@@ -4,11 +4,12 @@
 // 로그인 성공 시 원래 클릭한 URL로 이동한다.
 //
 // 게이팅 대상: service-detail / marketing-playbook(s) / history / settings / admin
+// 주의: index.html은 비로그인 자유 접근이므로 게이팅하지 않음 (replit.md 정책).
 // 의존: window.makitModal, window.auth, window.api
 (function () {
   if (window.makitAuthGate) return;
 
-  var GATED_PATTERN = /^(index|service-detail|marketing-playbook|marketing-playbooks|history|settings|admin)\.html(\?|$|#)/;
+  var GATED_PATTERN = /^(service-detail|marketing-playbook|marketing-playbooks|history|settings|admin)\.html(\?|$|#)/;
 
   function isGatedHref(href) {
     if (!href) return false;
