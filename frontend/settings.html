@@ -177,16 +177,16 @@
             </div>
 
             <div style="margin-top: var(--mk-space-4); padding-top: var(--mk-space-3); border-top: 1px dashed var(--mk-color-border);">
-                <label style="display:flex; align-items:flex-start; gap: var(--mk-space-2); cursor: pointer;">
-                    <input type="checkbox" id="lowConfWarnCheck" checked style="margin-top: 3px;">
-                    <span>
-                        <strong data-i18n="settings.ai-confidence-warn">약한 근거 답변 경고 표시</strong>
-                        <br>
-                        <span style="color: var(--mk-color-text-muted); font-size: var(--mk-font-size-sm);" data-i18n="settings.ai-confidence-warn-desc">
-                            임계치 미달 답변에 토스트 알림과 본문 흐림 오버레이("그래도 보기" 버튼)를 표시합니다.
-                        </span>
-                    </span>
-                </label>
+                <strong data-i18n="settings.ai-confidence-warn">약한 근거 답변 경고 강도</strong>
+                <p style="color: var(--mk-color-text-muted); font-size: var(--mk-font-size-sm); margin: 4px 0 var(--mk-space-3);" data-i18n="settings.ai-confidence-warn-desc">
+                    경고가 자주 떠 부담스러우면 강도를 낮추세요. 같은 세션에서 토스트가 반복되면 자동으로 줄어듭니다(배지·오버레이는 유지).
+                </p>
+                <div id="lowConfModeOptions" class="theme-options" role="radiogroup" aria-label="약한 근거 경고 강도">
+                    <button type="button" class="theme-opt" data-mode="strong" role="radio">강<br><span style="font-size: var(--mk-font-size-xs); color: var(--mk-color-text-muted); font-weight:400;">토스트+흐림</span></button>
+                    <button type="button" class="theme-opt" data-mode="medium" role="radio">중<br><span style="font-size: var(--mk-font-size-xs); color: var(--mk-color-text-muted); font-weight:400;">토스트만</span></button>
+                    <button type="button" class="theme-opt" data-mode="light" role="radio">약<br><span style="font-size: var(--mk-font-size-xs); color: var(--mk-color-text-muted); font-weight:400;">배지만</span></button>
+                    <button type="button" class="theme-opt" data-mode="off" role="radio">끔<br><span style="font-size: var(--mk-font-size-xs); color: var(--mk-color-text-muted); font-weight:400;">표시 안 함</span></button>
+                </div>
             </div>
             <div id="confMessage" role="status" aria-live="polite" style="margin-top: var(--mk-space-3);"></div>
         </section>

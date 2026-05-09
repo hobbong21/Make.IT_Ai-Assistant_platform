@@ -76,15 +76,16 @@
       });
     }
 
-    // 테마 토글
+    // 테마 토글 — `.theme-opt[data-theme]`로 스코프 제한 (다른 라디오 그룹과 분리)
     var current = (window.makitTheme && makitTheme.get()) || 'auto';
-    document.querySelectorAll('.theme-opt').forEach(function (b) {
+    var themeBtns = document.querySelectorAll('.theme-opt[data-theme]');
+    themeBtns.forEach(function (b) {
       if (b.dataset.theme === current) b.classList.add('active');
       b.setAttribute('aria-checked', b.dataset.theme === current ? 'true' : 'false');
       b.addEventListener('click', function () {
         var t = b.dataset.theme;
         if (window.makitTheme) makitTheme.set(t);
-        document.querySelectorAll('.theme-opt').forEach(function (x) {
+        themeBtns.forEach(function (x) {
           x.classList.toggle('active', x === b);
           x.setAttribute('aria-checked', x === b ? 'true' : 'false');
         });
@@ -134,20 +135,50 @@
       }
     }
 
-    // 약한 근거 답변 경고 토글 (Task #37)
-    var WARN_KEY = 'mk:axhub:lowConfWarn';
-    var warnCheck = byId('lowConfWarnCheck');
-    if (warnCheck) {
-      var savedWarn = null;
-      try { savedWarn = localStorage.getItem(WARN_KEY); } catch (_) {}
-      warnCheck.checked = savedWarn !== 'false'; // 기본 ON
-      warnCheck.addEventListener('change', function () {
-        try { localStorage.setItem(WARN_KEY, warnCheck.checked ? 'true' : 'false'); } catch (_) {}
-        showMsg('confMessage',
-          warnCheck.checked
-            ? '약한 근거 경고가 켜졌습니다. AX Office Hub에 즉시 반영됩니다.'
-            : '약한 근거 경고가 꺼졌습니다. 토스트와 흐림 오버레이가 표시되지 않습니다.',
-          true);
+    // 약한 근거 답변 경고 강도 (Task #45 — Task #37 boolean을 4단계로 확장)
+    var MODE_KEY = 'mk:axhub:lowConfMode';
+    var LEGACY_WARN_KEY = 'mk:axhub:lowConfWarn';
+    var VALID_MODES = ['strong', 'medium', 'light', 'off'];
+    var MODE_LABEL = {
+      strong: '강 (토스트+흐림)',
+      medium: '중 (토스트만)',
+      light:  '약 (배지만)',
+      off:    '끔 (표시 안 함)'
+    };
+    function readMode() {
+      try {
+        var v = localStorage.getItem(MODE_KEY);
+        if (v && VALID_MODES.indexOf(v) !== -1) return v;
+        // legacy 호환: lowConfWarn 'true' → strong, 'false' → light
+        var legacy = localStorage.getItem(LEGACY_WARN_KEY);
+        if (legacy === 'false') return 'light';
+        return 'strong';
+      } catch (_) { return 'strong'; }
+    }
+    var modeHost = byId('lowConfModeOptions');
+    if (modeHost) {
+      var current = readMode();
+      var btns = modeHost.querySelectorAll('.theme-opt');
+      function paint(mode) {
+        btns.forEach(function (b) {
+          var on = b.dataset.mode === mode;
+          b.classList.toggle('active', on);
+          b.setAttribute('aria-checked', on ? 'true' : 'false');
+        });
+      }
+      paint(current);
+      btns.forEach(function (b) {
+        b.addEventListener('click', function () {
+          var mode = b.dataset.mode;
+          if (VALID_MODES.indexOf(mode) === -1) return;
+          try { localStorage.setItem(MODE_KEY, mode); } catch (_) {}
+          // legacy 키도 동기화 (다른 코드에서 참조해도 일관되게)
+          try { localStorage.setItem(LEGACY_WARN_KEY, (mode === 'off' || mode === 'light') ? 'false' : 'true'); } catch (_) {}
+          paint(mode);
+          showMsg('confMessage',
+            '경고 강도를 "' + MODE_LABEL[mode] + '"(으)로 설정했습니다. AX Office Hub에 즉시 반영됩니다.',
+            true);
+        });
       });
     }
 

@@ -44,6 +44,10 @@
   var CONF_THRESHOLD_KEY = 'mk:axhub:confThreshold';
   var DEFAULT_CONF_THRESHOLD = 0.5;
   var LOW_CONF_WARN_KEY = 'mk:axhub:lowConfWarn';
+  var LOW_CONF_MODE_KEY = 'mk:axhub:lowConfMode';
+  var LOW_CONF_TOAST_COUNT_KEY = 'mk:axhub:lowConfToastCount';
+  // 같은 세션에서 N번째 이후 토스트는 자동 억제 (배지/오버레이는 강도에 따라 유지)
+  var LOW_CONF_TOAST_MAX = 3;
   function getGlobalConfThreshold() {
     try {
       var raw = localStorage.getItem(CONF_THRESHOLD_KEY);
@@ -74,10 +78,33 @@
       return raw !== 'false';
     } catch (_) { return true; }
   }
+  // Task #45: 경고 강도 — 'strong'(토스트+흐림) | 'medium'(토스트만) | 'light'(배지만) | 'off'
+  // legacy `lowConfWarn` (true/false)도 호환: true→strong, false→light
+  var VALID_LOW_CONF_MODES = ['strong', 'medium', 'light', 'off'];
+  function getLowConfMode() {
+    try {
+      var v = localStorage.getItem(LOW_CONF_MODE_KEY);
+      if (v && VALID_LOW_CONF_MODES.indexOf(v) !== -1) return v;
+      var legacy = localStorage.getItem(LOW_CONF_WARN_KEY);
+      if (legacy === 'false') return 'light';
+      return 'strong';
+    } catch (_) { return 'strong'; }
+  }
+  function getLowConfToastCount() {
+    try {
+      var n = parseInt(sessionStorage.getItem(LOW_CONF_TOAST_COUNT_KEY) || '0', 10);
+      return isFinite(n) && n > 0 ? n : 0;
+    } catch (_) { return 0; }
+  }
+  function bumpLowConfToastCount() {
+    try {
+      sessionStorage.setItem(LOW_CONF_TOAST_COUNT_KEY, String(getLowConfToastCount() + 1));
+    } catch (_) {}
+  }
   // 다른 탭(설정 화면)에서 임계치/경고 옵션을 바꾸면 즉시 반영
   window.addEventListener('storage', function (e) {
     if (!e) return;
-    if (e.key === CONF_THRESHOLD_KEY || e.key === LOW_CONF_WARN_KEY) {
+    if (e.key === CONF_THRESHOLD_KEY || e.key === LOW_CONF_WARN_KEY || e.key === LOW_CONF_MODE_KEY) {
       document.querySelectorAll('.hub-ai-confidence').forEach(function (host) {
         var raw = host.getAttribute('data-citations');
         if (raw == null) return;
@@ -530,7 +557,7 @@
     if (!host || !status) return;
     var overlay = host.querySelector('.hub-ai-low-overlay');
     var sub = host.querySelector('.hub-ai-low-sub');
-    var warnEnabled = getLowConfWarn();
+    var mode = getLowConfMode(); // 'strong' | 'medium' | 'light' | 'off'
     var isLow = status.level === 'weak' || status.level === 'none';
     var alreadyRevealed = host.classList.contains('hub-ai-stream--revealed');
 
@@ -538,25 +565,40 @@
     host.classList.toggle('hub-ai-stream--low-none', status.level === 'none');
     host.classList.toggle('hub-ai-stream--low-weak', status.level === 'weak');
 
-    if (!isLow || !warnEnabled || alreadyRevealed) {
+    var showOverlay = isLow && mode === 'strong' && !alreadyRevealed;
+    var showToast = isLow && (mode === 'strong' || mode === 'medium');
+    // 'light' → 배지(renderConfidence)만 유지, 'off' → 배지도 숨김
+    if (isLow && mode === 'off') {
+      host.classList.remove('hub-ai-stream--low', 'hub-ai-stream--low-none', 'hub-ai-stream--low-weak');
+      var confEl = host.querySelector('.hub-ai-confidence');
+      if (confEl) { confEl.hidden = true; confEl.innerHTML = ''; }
+    }
+
+    if (showOverlay) {
+      if (overlay) {
+        overlay.hidden = false;
+        if (sub) sub.textContent = status.detail || '';
+      }
+      host.classList.add('hub-ai-stream--blurred');
+    } else {
       if (overlay) overlay.hidden = true;
       host.classList.remove('hub-ai-stream--blurred');
-      return;
     }
 
-    if (overlay) {
-      overlay.hidden = false;
-      if (sub) sub.textContent = status.detail || '';
-    }
-    host.classList.add('hub-ai-stream--blurred');
-
-    // 토스트는 한 답변당 1회만 노출
-    if (!host.dataset.lowConfToasted && window.ui && typeof ui.toast === 'function') {
-      var msg = status.level === 'none'
-        ? '⚠️ 근거 문서 없이 생성된 답변입니다 — 사실 확인이 필요합니다.'
-        : '⚠️ 신뢰도 낮은 답변입니다 — 인용 출처를 함께 확인하세요.';
-      ui.toast(msg, 'warn');
+    // 토스트는 답변당 1회 + 같은 세션에서 LOW_CONF_TOAST_MAX 회까지만 노출
+    if (showToast && !host.dataset.lowConfToasted && window.ui && typeof ui.toast === 'function') {
       host.dataset.lowConfToasted = '1';
+      var shown = getLowConfToastCount();
+      if (shown < LOW_CONF_TOAST_MAX) {
+        var msg = status.level === 'none'
+          ? '⚠️ 근거 문서 없이 생성된 답변입니다 — 사실 확인이 필요합니다.'
+          : '⚠️ 신뢰도 낮은 답변입니다 — 인용 출처를 함께 확인하세요.';
+        if (shown === LOW_CONF_TOAST_MAX - 1) {
+          msg += ' (이번 세션의 추가 토스트는 자동으로 숨겨져요. 배지·오버레이는 유지됩니다.)';
+        }
+        ui.toast(msg, 'warn');
+        bumpLowConfToastCount();
+      }
     }
   }
 
