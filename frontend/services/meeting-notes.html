@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="/css/core/app-shell.css">
     <link rel="stylesheet" href="/css/pages/service-detail-styles.css">
     <link rel="stylesheet" href="/css/pages/meeting-notes.css">
+    <link rel="stylesheet" href="/css/pages/analytics-shared.css">
 </head>
 <body data-service="meeting-notes">
     <a href="#main-content" class="mk-skip-link">메인 콘텐츠로 건너뛰기</a>
@@ -155,8 +156,26 @@
 
                         <div id="mnAudioOutput" class="mn-audio-output" style="display:none;"></div>
 
+                        <div style="margin-top:0.875rem;">
+                            <div style="font-size:0.75rem; font-weight:600; color:var(--mk-color-text); margin-bottom:0.35rem;">요약 톤</div>
+                            <div class="an-presets" id="mnTonePresets" role="radiogroup" aria-label="요약 톤 선택">
+                                <button type="button" class="an-chip" data-tone="brief" role="radio" aria-checked="false">간결</button>
+                                <button type="button" class="an-chip is-active" data-tone="standard" role="radio" aria-checked="true">표준</button>
+                                <button type="button" class="an-chip" data-tone="detailed" role="radio" aria-checked="false">상세</button>
+                                <button type="button" class="an-chip" data-tone="action" role="radio" aria-checked="false">액션 중심</button>
+                            </div>
+                        </div>
+
                         <div class="mn-action-row">
                             <button type="button" id="mnSummarizeBtn" class="mn-btn is-primary">AI로 회의록 정리</button>
+                        </div>
+
+                        <div id="mnHistoryWrap" style="margin-top:1.25rem; display:none;">
+                            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.4rem;">
+                                <div style="font-size:0.8125rem; font-weight:600; color:var(--mk-color-text);">최근 회의록 (최대 10개)</div>
+                                <button type="button" id="mnHistoryClearBtn" class="mn-btn" style="padding:0.25rem 0.6rem; font-size:0.75rem;">모두 삭제</button>
+                            </div>
+                            <ol id="mnHistoryList" style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.35rem;"></ol>
                         </div>
                     </section>
 
@@ -174,6 +193,9 @@
                             </button>
                             <button type="button" id="mnDownloadMdBtn" class="mn-btn">
                                 Markdown 다운로드
+                            </button>
+                            <button type="button" id="mnDownloadJsonBtn" class="mn-btn">
+                                JSON 다운로드
                             </button>
                             <button type="button" id="mnPrintBtn" class="mn-btn">
                                 PDF로 저장 (인쇄)

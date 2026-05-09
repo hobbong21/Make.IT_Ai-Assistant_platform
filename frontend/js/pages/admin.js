@@ -4,6 +4,10 @@
   const pageSize = 20;
   let usageChart = null;
   let notifTypeChart = null;
+  let lastOverview = null;
+  let lastUsersPage = null;
+  let usageDays = 30;
+  let notifDays = 7;
 
   async function init() {
     // Check if user is admin
@@ -25,8 +29,8 @@
 
     // Load admin data
     loadOverview();
-    loadUsage(30);
-    loadNotificationBreakdown(7);
+    loadUsage(usageDays);
+    loadNotificationBreakdown(notifDays);
     loadUsers(0);
     loadFeatures();
 
@@ -38,6 +42,118 @@
     document.getElementById('next-page').addEventListener('click', () => {
       loadUsers(currentPage + 1);
     });
+
+    wirePeriodChips('usage-period-chips', (days) => {
+      usageDays = days;
+      const t = document.getElementById('usage-title');
+      if (t) t.textContent = `사용량 추이 (최근 ${days}일)`;
+      loadUsage(days);
+    });
+    wirePeriodChips('notif-period-chips', (days) => {
+      notifDays = days;
+      const t = document.getElementById('notif-title');
+      if (t) t.textContent = `알림 분석 (최근 ${days}일)`;
+      loadNotificationBreakdown(days);
+    });
+
+    const exportJsonBtn = document.getElementById('overview-export-json');
+    if (exportJsonBtn) exportJsonBtn.addEventListener('click', exportOverviewJson);
+    const exportCsvBtn = document.getElementById('users-export-csv');
+    if (exportCsvBtn) exportCsvBtn.addEventListener('click', exportAllUsersCsv);
+  }
+
+  function wirePeriodChips(containerId, onPick) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.addEventListener('click', (ev) => {
+      const chip = ev.target.closest('.an-chip[data-days]');
+      if (!chip) return;
+      const days = parseInt(chip.getAttribute('data-days'), 10);
+      if (!Number.isFinite(days)) return;
+      container.querySelectorAll('.an-chip').forEach((c) => {
+        const active = c === chip;
+        c.classList.toggle('is-active', active);
+        c.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      try { onPick(days); } catch (e) { console.error('[admin] period chip handler failed', e); }
+    });
+  }
+
+  function exportOverviewJson() {
+    if (!lastOverview) {
+      window.ui.toast('통계가 아직 로드되지 않았습니다.', 'error');
+      return;
+    }
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      overview: lastOverview,
+      windowDays: { usage: usageDays, notifications: notifDays }
+    };
+    downloadBlob(
+      new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' }),
+      `makit-admin-overview-${todayStamp()}.json`
+    );
+  }
+
+  async function exportAllUsersCsv() {
+    const btn = document.getElementById('users-export-csv');
+    if (btn) { btn.disabled = true; btn.textContent = '내보내는 중...'; }
+    const rows = [];
+    const header = ['email', 'name', 'role', 'createdAt', 'lastLoginAt', 'requestCount'];
+    rows.push(header.map(csvCell).join(','));
+    try {
+      const PAGE = 100;
+      let page = 0;
+      let total = Infinity;
+      while (page * PAGE < total) {
+        const data = await window.api.admin.users(page, PAGE);
+        const items = (data && data.content) || [];
+        items.forEach((u) => {
+          rows.push([
+            u.email || '',
+            u.name || '',
+            u.role || '',
+            u.createdAt || '',
+            u.lastLoginAt || '',
+            String(u.requestCount == null ? 0 : u.requestCount)
+          ].map(csvCell).join(','));
+        });
+        if (data && typeof data.totalElements === 'number') total = data.totalElements;
+        else if (items.length < PAGE) break;
+        page++;
+        if (page > 200) break; // hard safety: max 20,000 rows
+      }
+      // BOM for Excel UTF-8 detection
+      const blob = new Blob(['\uFEFF' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+      downloadBlob(blob, `makit-users-${todayStamp()}.csv`);
+      window.ui.toast(`사용자 ${rows.length - 1}명 내보내기 완료`, 'success');
+    } catch (err) {
+      console.error('[admin] export users CSV failed', err);
+      window.ui.toast('CSV 내보내기 실패: ' + (err && err.message || ''), 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '사용자 전체 CSV 내보내기'; }
+    }
+  }
+
+  function csvCell(v) {
+    let s = String(v == null ? '' : v);
+    // Formula Injection 방어 (Excel/Sheets/LibreOffice): 시작 문자가 = + - @ 탭 캐리지리턴이면 ' prefix
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+  function todayStamp() {
+    const d = new Date();
+    const pad = (n) => (n < 10 ? '0' + n : '' + n);
+    return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) +
+      '-' + pad(d.getHours()) + pad(d.getMinutes());
+  }
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
   }
 
   async function loadOverview() {
@@ -60,6 +176,7 @@
       );
 
       const data = await window.api.admin.overview();
+      lastOverview = data;
       document.getElementById('stat-total-users').textContent = data.totalUsers.toLocaleString();
       document.getElementById('stat-active-users').textContent = data.activeUsersLast7Days.toLocaleString();
       document.getElementById('stat-requests').textContent = data.totalRequestsLast7Days.toLocaleString();
@@ -195,6 +312,7 @@
     try {
       currentPage = page;
       const data = await window.api.admin.users(page, pageSize);
+      lastUsersPage = data;
 
       const tbody = document.getElementById('users-tbody');
       tbody.innerHTML = '';

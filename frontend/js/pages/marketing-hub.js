@@ -29,6 +29,23 @@
     'ads': '#EA4335'
   };
 
+  // 캐시 — CSV export 및 새로고침에 사용
+  var lastCampaigns = [];
+  var lastContents = [];
+  var channelDays = 30;
+  // Chart.js 인스턴스 — 메모리 누수 방지
+  var channelChartInstances = [];
+
+  function destroyChannelCharts() {
+    channelChartInstances.forEach(function (c) { try { c.destroy(); } catch (_) {} });
+    channelChartInstances = [];
+  }
+
+  function toastErr(msg) {
+    if (window.ui && ui.toast) ui.toast(msg, 'error');
+    else console.warn('[marketing-hub] ' + msg);
+  }
+
   // ========== 요약 카드 렌더 ==========
   function renderSummaryCards(data) {
     var grid = document.getElementById('summaryGrid');
@@ -56,9 +73,12 @@
     });
 
     if (campaigns && Array.isArray(campaigns)) {
+      lastCampaigns = campaigns.slice();
       campaigns.forEach(function (c) {
         if (grouped[c.status]) grouped[c.status].push(c);
       });
+    } else {
+      lastCampaigns = [];
     }
 
     // 각 컬럼 렌더
@@ -102,9 +122,11 @@
     grid.innerHTML = '';
 
     if (!contents || contents.length === 0) {
+      lastContents = [];
       grid.innerHTML = '<div class="content-empty">아직 생성된 콘텐츠가 없습니다</div>';
       return;
     }
+    lastContents = contents.slice();
 
     contents.slice(0, 6).forEach(function (c) {
       var card = document.createElement('div');
@@ -225,6 +247,7 @@
     var channels = ['instagram', 'youtube', 'seo', 'ads'];
     channelTabs.innerHTML = '';
     channelContent.innerHTML = '';
+    destroyChannelCharts();
 
     channels.forEach(function (ch, idx) {
       // 탭
@@ -296,7 +319,7 @@
         if (window.Chart && chartContainer.offsetParent !== null) {
           var ctx = chartContainer.querySelector('canvas') || document.createElement('canvas');
           if (!chartContainer.querySelector('canvas')) chartContainer.appendChild(ctx);
-          new window.Chart(ctx, {
+          var chartInstance = new window.Chart(ctx, {
             type: 'line',
             data: {
               labels: labels,
@@ -326,6 +349,7 @@
               scales: { y: { beginAtZero: true } }
             }
           });
+          channelChartInstances.push(chartInstance);
         }
       }, 100);
 
@@ -399,6 +423,115 @@
         refreshInsights();
       }
     });
+
+    // 채널 성과 기간 칩
+    var chips = document.getElementById('channelPeriodChips');
+    if (chips) {
+      chips.addEventListener('click', function (ev) {
+        var chip = ev.target.closest('.an-chip[data-days]');
+        if (!chip) return;
+        var days = parseInt(chip.getAttribute('data-days'), 10);
+        if (!Number.isFinite(days) || days === channelDays) return;
+        channelDays = days;
+        chips.querySelectorAll('.an-chip').forEach(function (c) {
+          var active = c === chip;
+          c.classList.toggle('is-active', active);
+          c.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        var label = document.getElementById('channelPeriodLabel');
+        if (label) label.textContent = '(최근 ' + days + '일)';
+        refreshChannelPerformance();
+      });
+    }
+
+    // CSV export 버튼
+    var campCsv = document.getElementById('campaignsExportCsv');
+    if (campCsv) campCsv.addEventListener('click', exportCampaignsCsv);
+    var contCsv = document.getElementById('contentsExportCsv');
+    if (contCsv) contCsv.addEventListener('click', exportContentsCsv);
+  }
+
+  async function refreshChannelPerformance() {
+    try {
+      var channelData = await api.marketing.channelPerformance(channelDays);
+      var channelsObj = {};
+      if (channelData && channelData.channels) {
+        channelData.channels.forEach(function (ch) { channelsObj[ch.channel] = ch; });
+      }
+      renderChannelPerformance(channelsObj);
+    } catch (e) {
+      console.warn('Channel performance fetch failed:', e);
+      toastErr('채널 성과 로드 실패');
+      renderChannelPerformance({});
+    }
+  }
+
+  // ========== CSV 내보내기 ==========
+  function csvCell(v) {
+    var s = String(v == null ? '' : v);
+    // Formula Injection 방어 (Excel/Sheets/LibreOffice): 시작 문자가 = + - @ 탭 캐리지리턴이면 ' prefix
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+  function downloadCsv(filename, rows) {
+    var blob = new Blob(['\uFEFF' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+  }
+  function todayStamp() {
+    var d = new Date();
+    var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+    return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) +
+      '-' + pad(d.getHours()) + pad(d.getMinutes());
+  }
+
+  function exportCampaignsCsv() {
+    if (!lastCampaigns.length) {
+      toastErr('내보낼 캠페인이 없습니다.');
+      return;
+    }
+    var header = ['id', 'name', 'status', 'channel', 'channels', 'budget', 'startDate', 'endDate', 'createdAt'];
+    var rows = [header.map(csvCell).join(',')];
+    lastCampaigns.forEach(function (c) {
+      rows.push([
+        c.id || '',
+        c.name || '',
+        c.status || '',
+        c.channel || '',
+        Array.isArray(c.channels) ? c.channels.join('|') : '',
+        c.budget == null ? '' : String(c.budget),
+        c.startDate || '',
+        c.endDate || '',
+        c.createdAt || ''
+      ].map(csvCell).join(','));
+    });
+    downloadCsv('makit-campaigns-' + todayStamp() + '.csv', rows);
+    if (window.ui && ui.toast) ui.toast('캠페인 ' + lastCampaigns.length + '건 내보내기 완료', 'success');
+  }
+
+  function exportContentsCsv() {
+    if (!lastContents.length) {
+      toastErr('내보낼 콘텐츠가 없습니다.');
+      return;
+    }
+    var header = ['id', 'title', 'contentType', 'serviceKey', 'thumbnailUrl', 'createdAt'];
+    var rows = [header.map(csvCell).join(',')];
+    lastContents.forEach(function (c) {
+      rows.push([
+        c.id || '',
+        c.title || '',
+        c.contentType || c.type || '',
+        c.serviceKey || '',
+        c.thumbnailUrl || '',
+        c.createdAt || ''
+      ].map(csvCell).join(','));
+    });
+    downloadCsv('makit-contents-' + todayStamp() + '.csv', rows);
+    if (window.ui && ui.toast) ui.toast('콘텐츠 ' + lastContents.length + '건 내보내기 완료', 'success');
   }
 
   // ========== 초기화 ==========
@@ -463,20 +596,7 @@
     // 인사이트 (자동 로드)
     window.marketingHub.refreshInsights();
 
-    try {
-      // 채널 성과
-      var channelData = await api.marketing.channelPerformance(30);
-      var channelsObj = {};
-      if (channelData && channelData.channels) {
-        channelData.channels.forEach(function (ch) {
-          channelsObj[ch.channel] = ch;
-        });
-      }
-      renderChannelPerformance(channelsObj);
-    } catch (e) {
-      console.warn('Channel performance fetch failed:', e);
-      renderChannelPerformance({});
-    }
+    await refreshChannelPerformance();
   }
 
   // Skeleton loading for marketing hub sections

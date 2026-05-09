@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="css/core/app-shell.css">
     <link rel="stylesheet" href="css/pages/styles.css">
     <link rel="stylesheet" href="css/pages/admin.css">
+    <link rel="stylesheet" href="css/pages/analytics-shared.css">
 </head>
 
 <body>
@@ -91,6 +92,9 @@
                 </div>
 
                 <!-- 통계 카드 섹션 -->
+                <div class="admin-toolbar" style="display:flex; justify-content:flex-end; margin-bottom:0.75rem;">
+                    <button type="button" id="overview-export-json" class="btn btn-secondary" style="font-size:0.8125rem;">통계 JSON 내보내기</button>
+                </div>
                 <section class="admin-stats-grid" aria-label="주요 통계">
                     <div class="admin-stat-card">
                         <div class="stat-icon">👥</div>
@@ -126,8 +130,15 @@
                 </section>
 
                 <!-- 사용량 차트 -->
-                <section class="admin-section" aria-label="30일 사용량 추이">
-                    <h2 class="section-title">30일 사용량 추이</h2>
+                <section class="admin-section" aria-label="사용량 추이">
+                    <div class="section-head" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                        <h2 class="section-title" id="usage-title">사용량 추이 (최근 30일)</h2>
+                        <div class="an-presets" id="usage-period-chips" role="tablist" aria-label="사용량 기간 선택">
+                            <button type="button" class="an-chip" data-days="7" role="tab" aria-selected="false">7일</button>
+                            <button type="button" class="an-chip is-active" data-days="30" role="tab" aria-selected="true">30일</button>
+                            <button type="button" class="an-chip" data-days="90" role="tab" aria-selected="false">90일</button>
+                        </div>
+                    </div>
                     <div class="chart-wrap">
                         <canvas id="usageChart"></canvas>
                     </div>
@@ -135,7 +146,14 @@
 
                 <!-- 알림 분류 -->
                 <section class="admin-section" aria-label="알림 분석">
-                    <h2 class="section-title">알림 분석 (최근 7일)</h2>
+                    <div class="section-head" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                        <h2 class="section-title" id="notif-title">알림 분석 (최근 7일)</h2>
+                        <div class="an-presets" id="notif-period-chips" role="tablist" aria-label="알림 기간 선택">
+                            <button type="button" class="an-chip" data-days="1" role="tab" aria-selected="false">1일</button>
+                            <button type="button" class="an-chip is-active" data-days="7" role="tab" aria-selected="true">7일</button>
+                            <button type="button" class="an-chip" data-days="30" role="tab" aria-selected="false">30일</button>
+                        </div>
+                    </div>
                     <div class="admin-notif-grid">
                         <div class="notif-breakdown">
                             <div class="notif-stat">
@@ -159,7 +177,10 @@
 
                 <!-- 사용자 목록 -->
                 <section class="admin-section" aria-label="사용자 목록">
-                    <h2 class="section-title">사용자 목록</h2>
+                    <div class="section-head" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                        <h2 class="section-title">사용자 목록</h2>
+                        <button type="button" id="users-export-csv" class="btn btn-secondary" style="font-size:0.8125rem;">사용자 전체 CSV 내보내기</button>
+                    </div>
                     <div class="table-wrap">
                         <table class="admin-user-table" role="grid" aria-label="사용자 목록 테이블">
                             <thead>
@@ -201,9 +222,52 @@
                         <div class="feature-status-card">
                             <div class="status-count" id="status-beta">0</div>
                             <div class="status-label">베타</div>
-                
+                        </div>
+                        <div class="feature-status-card">
+                            <div class="status-count" id="status-stable">0</div>
+                            <div class="status-label">정식</div>
+                        </div>
+                        <div class="feature-status-card">
+                            <div class="status-count" id="status-deprecated">0</div>
+                            <div class="status-label">지원 중단</div>
+                        </div>
+                    </div>
+
+                    <div class="table-wrap" style="margin-top:1rem;">
+                        <table class="admin-user-table" role="grid" aria-label="기능 목록 테이블">
+                            <thead>
+                                <tr>
+                                    <th scope="col">이름</th>
+                                    <th scope="col">카테고리</th>
+                                    <th scope="col">상태</th>
+                                    <th scope="col">엔드포인트</th>
+                                    <th scope="col">파일 수</th>
+                                    <th scope="col">최근 라운드</th>
+                                </tr>
+                            </thead>
+                            <tbody id="featuresTableBody">
+                                <tr class="skeleton-row">
+                                    <td colspan="6" class="mk-loading-cell">로딩 중...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="user-menu-mount"></div>
 
     <script src="js/core/config.js"></script>
+    <script src="js/core/api.js"></script>
     <script src="js/core/auth.js"></script>
+    <script src="js/core/ui.js"></script>
+    <script src="js/core/modal.js"></script>
+    <script src="js/widgets/skeleton.js"></script>
     <script src="js/widgets/settings-menu.js"></script>
     <script src="js/widgets/user-menu.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js"></script>
+    <script src="js/pages/admin.js"></script>
+</body>
+</html>

@@ -8,12 +8,16 @@
 (function () {
   'use strict';
 
+  var HISTORY_KEY = 'makit_meeting_notes_history_v1';
+  var HISTORY_MAX = 10;
+
   var state = {
     recognition: null,
     isRecording: false,
     finalText: '',     // 확정된 받아쓰기 텍스트
     interimText: '',   // 임시(미확정) 받아쓰기 텍스트
     summary: null,     // 백엔드에서 받은 정리 결과
+    tone: 'standard',  // 요약 톤 프리셋: brief | standard | detailed | action
     // --- 원본 오디오 녹음 (MediaRecorder) ---
     mediaRecorder: null,
     audioStream: null,
@@ -286,9 +290,11 @@
         meetingAt: meta.meetingAt,
         attendees: meta.attendees,
         transcript: transcript,
+        tone: state.tone,
       });
       state.summary = normalizeSummary(res, transcript, meta);
       renderPreview();
+      saveToHistory(state.summary);
       toast('회의록 정리를 완료했습니다.', 'success');
     } catch (err) {
       console.error('[meeting-notes] summarize failed', err);
@@ -497,6 +503,168 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
 
+  function downloadJson() {
+    if (!state.summary) { toast('먼저 회의록을 정리해주세요.', 'error'); return; }
+    syncPreviewToState();
+    var payload = {
+      exportedAt: new Date().toISOString(),
+      tone: state.tone,
+      summary: state.summary,
+    };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = (state.summary.title || '회의록').replace(/[\\/:*?"<>|]/g, '_') + '.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  // ---------- 이력 (localStorage 최대 10건) ----------
+  function loadHistory() {
+    try {
+      var raw = localStorage.getItem(HISTORY_KEY);
+      if (!raw) return [];
+      var arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+      console.warn('[meeting-notes] history parse failed', e);
+      return [];
+    }
+  }
+
+  function persistHistory(arr) {
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
+      return true;
+    } catch (e) {
+      // quota exceeded — try aggressive trim then retry once
+      try {
+        var trimmed = arr.slice(0, Math.max(1, Math.floor(arr.length / 2)));
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
+        toast('저장 공간이 부족해 이력을 ' + trimmed.length + '건으로 축소했습니다.', 'info');
+        return true;
+      } catch (e2) {
+        console.warn('[meeting-notes] history persist failed', e2);
+        toast('이력 저장에 실패했습니다 (브라우저 저장 공간 부족).', 'error');
+        return false;
+      }
+    }
+  }
+
+  // localStorage quota 보호용: 항목 1건의 큰 텍스트 필드 길이 cap
+  var HISTORY_TRANSCRIPT_CAP = 8000;   // ~8KB
+  var HISTORY_SUMMARY_CAP    = 4000;
+  var HISTORY_FIELD_CAP      = 2000;   // decisions/actions/risks/keypoints 각 항목
+
+  function capStr(s, n) {
+    if (typeof s !== 'string') return s;
+    return s.length > n ? s.slice(0, n) + '…' : s;
+  }
+  function capArr(arr, n) {
+    if (!Array.isArray(arr)) return arr;
+    return arr.map(function (v) { return typeof v === 'string' ? capStr(v, n) : v; });
+  }
+  function trimSummaryForStorage(summary) {
+    if (!summary) return summary;
+    var out = {};
+    Object.keys(summary).forEach(function (k) { out[k] = summary[k]; });
+    if (out.transcript) out.transcript = capStr(out.transcript, HISTORY_TRANSCRIPT_CAP);
+    if (out.summary)    out.summary    = capStr(out.summary, HISTORY_SUMMARY_CAP);
+    ['decisions', 'actions', 'risks', 'keypoints', 'agenda'].forEach(function (k) {
+      if (out[k]) out[k] = capArr(out[k], HISTORY_FIELD_CAP);
+    });
+    return out;
+  }
+
+  function saveToHistory(summary) {
+    if (!summary) return;
+    var entry = {
+      id: 'mn-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+      savedAt: new Date().toISOString(),
+      tone: state.tone,
+      title: summary.title || '회의록',
+      meetingAt: summary.meetingAt || '',
+      summaryPreview: (summary.summary || '').slice(0, 120),
+      summary: trimSummaryForStorage(summary),
+    };
+    var arr = loadHistory();
+    arr.unshift(entry);
+    if (arr.length > HISTORY_MAX) arr = arr.slice(0, HISTORY_MAX);
+    if (persistHistory(arr)) renderHistory();
+  }
+
+  function renderHistory() {
+    var wrap = $('mnHistoryWrap');
+    var list = $('mnHistoryList');
+    if (!wrap || !list) return;
+    var arr = loadHistory();
+    if (!arr.length) {
+      wrap.style.display = 'none';
+      list.innerHTML = '';
+      return;
+    }
+    wrap.style.display = 'block';
+    var html = '';
+    arr.forEach(function (item) {
+      var when = '';
+      try { when = new Date(item.savedAt).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }); } catch (_) {}
+      html += '<li style="border:1px solid var(--mk-color-border); border-radius:10px; padding:0.5rem 0.625rem; background:var(--mk-color-bg-subtle);">' +
+        '<div style="display:flex; gap:0.5rem; align-items:flex-start; justify-content:space-between;">' +
+        '<button type="button" class="mn-history-restore" data-id="' + escapeHtml(item.id) + '" style="background:none; border:none; padding:0; text-align:left; cursor:pointer; flex:1; font:inherit; color:var(--mk-color-text);">' +
+        '<div style="font-size:0.8125rem; font-weight:600;">' + escapeHtml(item.title) + '</div>' +
+        '<div style="font-size:0.7rem; color:var(--mk-color-text-muted); margin-top:0.15rem;">' + escapeHtml(when) + ' · ' + escapeHtml(item.tone || 'standard') + '</div>' +
+        (item.summaryPreview ? '<div style="font-size:0.75rem; color:var(--mk-color-text-muted); margin-top:0.25rem; line-height:1.4;">' + escapeHtml(item.summaryPreview) + (item.summaryPreview.length >= 120 ? '...' : '') + '</div>' : '') +
+        '</button>' +
+        '<button type="button" class="mn-history-del" data-id="' + escapeHtml(item.id) + '" aria-label="삭제" title="삭제" style="background:none; border:none; cursor:pointer; padding:0.25rem; color:var(--mk-color-text-muted); font-size:0.85rem;">×</button>' +
+        '</div>' +
+        '</li>';
+    });
+    list.innerHTML = html;
+  }
+
+  function restoreHistory(id) {
+    var arr = loadHistory();
+    var item = arr.find(function (x) { return x.id === id; });
+    if (!item || !item.summary) { toast('이력을 찾을 수 없습니다.', 'error'); return; }
+    state.summary = item.summary;
+    state.tone = item.tone || 'standard';
+    syncToneChips();
+    // 입력 필드도 동기화 (사용자가 비교/편집 가능)
+    if (item.summary.title) $('mnTitle').value = item.summary.title;
+    if (item.summary.meetingAt) $('mnMeetingAt').value = item.summary.meetingAt;
+    if (item.summary.attendees && item.summary.attendees.length) $('mnAttendees').value = item.summary.attendees.join(', ');
+    if (item.summary.transcript) {
+      state.finalText = item.summary.transcript;
+      state.interimText = '';
+      renderTranscript();
+    }
+    renderPreview();
+    toast('이력에서 복원했습니다.', 'success');
+  }
+
+  function deleteHistory(id) {
+    var arr = loadHistory().filter(function (x) { return x.id !== id; });
+    persistHistory(arr);
+    renderHistory();
+  }
+
+  function clearAllHistory() {
+    try { localStorage.removeItem(HISTORY_KEY); } catch (_) {}
+    renderHistory();
+    toast('이력을 모두 삭제했습니다.', 'info');
+  }
+
+  function syncToneChips() {
+    var presets = document.getElementById('mnTonePresets');
+    if (!presets) return;
+    presets.querySelectorAll('.an-chip').forEach(function (chip) {
+      var active = chip.getAttribute('data-tone') === state.tone;
+      chip.classList.toggle('is-active', active);
+      chip.setAttribute('aria-checked', active ? 'true' : 'false');
+    });
+  }
+
   function printAsPdf() {
     if (!state.summary) { toast('먼저 회의록을 정리해주세요.', 'error'); return; }
     syncPreviewToState();
@@ -569,12 +737,43 @@
     });
     $('mnSummarizeBtn').addEventListener('click', summarize);
     $('mnDownloadMdBtn').addEventListener('click', downloadMarkdown);
+    var jsonBtn = $('mnDownloadJsonBtn');
+    if (jsonBtn) jsonBtn.addEventListener('click', downloadJson);
     $('mnPrintBtn').addEventListener('click', printAsPdf);
     $('mnMailtoBtn').addEventListener('click', buildMailto);
+
+    // 톤 프리셋 칩
+    var presets = document.getElementById('mnTonePresets');
+    if (presets) {
+      presets.addEventListener('click', function (ev) {
+        var chip = ev.target.closest('.an-chip[data-tone]');
+        if (!chip) return;
+        state.tone = chip.getAttribute('data-tone') || 'standard';
+        syncToneChips();
+      });
+    }
+
+    // 이력 패널: 복원 / 삭제 / 전체 삭제 (event delegation)
+    var historyList = document.getElementById('mnHistoryList');
+    if (historyList) {
+      historyList.addEventListener('click', function (ev) {
+        var del = ev.target.closest('.mn-history-del');
+        if (del) {
+          ev.stopPropagation();
+          deleteHistory(del.getAttribute('data-id'));
+          return;
+        }
+        var restore = ev.target.closest('.mn-history-restore');
+        if (restore) restoreHistory(restore.getAttribute('data-id'));
+      });
+    }
+    var clearBtn = document.getElementById('mnHistoryClearBtn');
+    if (clearBtn) clearBtn.addEventListener('click', clearAllHistory);
 
     updateRecorderUi();
     renderPreview();
     renderAudioOutput();
+    renderHistory();
 
     // 페이지 이탈 시 진행 중인 녹음과 Blob URL 해제 (메모리 누수 방지)
     window.addEventListener('pagehide', cleanupAudioResources);

@@ -8,6 +8,11 @@
     });
   }
 
+  function toastErr(msg) {
+    if (window.ui && ui.toast) ui.toast(msg, 'error');
+    else console.warn('[marketing-hub-content] ' + msg);
+  }
+
   var TYPE_OPTIONS = [
     { value: 'TEXT', label: '텍스트' },
     { value: 'IMAGE', label: '이미지' },
@@ -60,11 +65,11 @@
         { label: '취소', type: 'secondary' },
         { label: '등록', type: 'primary', onClick: function (ctx) {
           var payload = collectForm(ctx.body);
-          if (!payload.title) { alert('제목을 입력해주세요.'); return false; }
+          if (!payload.title) { toastErr('제목을 입력해주세요.'); return false; }
           api.marketing.contentCreate(payload).then(function () {
             if (window.ui && ui.toast) ui.toast('콘텐츠가 등록되었습니다.', 'success');
             refresh();
-          }).catch(function (err) { alert('등록 실패: ' + (err && err.message || '')); });
+          }).catch(function (err) { toastErr('등록 실패: ' + (err && err.message || '')); });
         }}
       ]
     });
@@ -84,7 +89,7 @@
           api.marketing.contentDelete(content.id).then(function () {
             if (window.ui && ui.toast) ui.toast('삭제되었습니다.', 'success');
             refresh();
-          }).catch(function (err) { alert('삭제 실패: ' + (err && err.message || '')); });
+          }).catch(function (err) { toastErr('삭제 실패: ' + (err && err.message || '')); });
         }},
         { label: '취소', type: 'secondary' },
         { label: '저장', type: 'primary', onClick: function (ctx) {
@@ -92,7 +97,7 @@
           api.marketing.contentUpdate(content.id, payload).then(function () {
             if (window.ui && ui.toast) ui.toast('저장되었습니다.', 'success');
             refresh();
-          }).catch(function (err) { alert('저장 실패: ' + (err && err.message || '')); });
+          }).catch(function (err) { toastErr('저장 실패: ' + (err && err.message || '')); });
         }}
       ]
     });
@@ -104,7 +109,7 @@
     if (!card) return;
     var id = card.dataset.contentId;
     api.marketing.contentGet(id).then(openEdit).catch(function (err) {
-      alert('콘텐츠를 불러올 수 없습니다: ' + (err && err.message || ''));
+      toastErr('콘텐츠를 불러올 수 없습니다: ' + (err && err.message || ''));
     });
   });
 

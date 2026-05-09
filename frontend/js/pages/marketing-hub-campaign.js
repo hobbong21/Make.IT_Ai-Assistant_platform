@@ -9,6 +9,11 @@
     });
   }
 
+  function toastErr(msg) {
+    if (window.ui && ui.toast) ui.toast(msg, 'error');
+    else console.warn('[marketing-hub-campaign] ' + msg);
+  }
+
   function toLocalInput(iso) {
     if (!iso) return '';
     try {
@@ -84,7 +89,7 @@
   }
 
   function openCreateModal() {
-    if (!window.makitModal) { alert('모달 컴포넌트 로드 실패'); return; }
+    if (!window.makitModal) { toastErr('모달 컴포넌트 로드 실패'); return; }
     makitModal.open({
       title: '신규 캠페인 만들기',
       body: buildFormHtml({}),
@@ -92,13 +97,13 @@
         { label: '취소', type: 'secondary' },
         { label: '만들기', type: 'primary', onClick: function (ctx) {
           var payload = collectForm(ctx.body);
-          if (!payload.name) { alert('캠페인 이름을 입력해주세요.'); return false; }
-          if (!payload.channel) { alert('채널을 선택해주세요.'); return false; }
+          if (!payload.name) { toastErr('캠페인 이름을 입력해주세요.'); return false; }
+          if (!payload.channel) { toastErr('채널을 선택해주세요.'); return false; }
           api.marketing.campaignCreate(payload).then(function () {
             if (window.ui && ui.toast) ui.toast('캠페인이 생성되었습니다.', 'success');
             refreshBoardSafe();
           }).catch(function (err) {
-            alert('생성 실패: ' + (err && err.message || ''));
+            toastErr('생성 실패: ' + (err && err.message || ''));
           });
         }}
       ]
@@ -125,7 +130,7 @@
             if (window.ui && ui.toast) ui.toast('삭제되었습니다.', 'success');
             refreshBoardSafe();
           }).catch(function (err) {
-            alert('삭제 실패: ' + (err && err.message || ''));
+            toastErr('삭제 실패: ' + (err && err.message || ''));
           });
           return; // close confirm only; main close also fired
         }},
@@ -143,7 +148,7 @@
             if (window.ui && ui.toast) ui.toast('저장되었습니다.', 'success');
             refreshBoardSafe();
           }).catch(function (err) {
-            alert('저장 실패: ' + (err && err.message || ''));
+            toastErr('저장 실패: ' + (err && err.message || ''));
           });
         }}
       ]
@@ -157,7 +162,7 @@
     var id = card.dataset.campaignId;
     if (!id) return;
     api.marketing.campaignGet(id).then(openEditModal).catch(function (err) {
-      alert('캠페인을 불러올 수 없습니다: ' + (err && err.message || ''));
+      toastErr('캠페인을 불러올 수 없습니다: ' + (err && err.message || ''));
     });
   });
 

@@ -39,6 +39,7 @@
     <link rel="stylesheet" href="css/core/common.css">
     <link rel="stylesheet" href="css/core/app-shell.css">
     <link rel="stylesheet" href="css/pages/marketing-hub.css">
+    <link rel="stylesheet" href="css/pages/analytics-shared.css">
     <!-- Marketing Hub page styles moved to css/pages/marketing-hub.css -->
 </head>
 
@@ -185,7 +186,10 @@
                             <span aria-hidden="true">📋</span>
                             <span data-i18n="hub.section.campaigns">캠페인 보드</span>
                         </div>
-                        <button type="button" class="section-action" data-action="new-campaign" data-i18n="hub.new-campaign">새 캠페인</button>
+                        <div style="display:flex; gap:0.5rem; align-items:center;">
+                            <button type="button" id="campaignsExportCsv" class="section-action" style="background:var(--mk-color-bg-subtle); color:var(--mk-color-text);">CSV 내보내기</button>
+                            <button type="button" class="section-action" data-action="new-campaign" data-i18n="hub.new-campaign">새 캠페인</button>
+                        </div>
                     </div>
                     <div class="campaign-board" id="campaignBoard">
                         <!-- 동적으로 렌더됨 -->
@@ -199,7 +203,10 @@
                             <span aria-hidden="true">🎨</span>
                             <span data-i18n="hub.section.contents">콘텐츠 라이브러리</span>
                         </div>
-                        <button type="button" class="section-action" data-action="more-contents" data-i18n="common.more">더보기</button>
+                        <div style="display:flex; gap:0.5rem; align-items:center;">
+                            <button type="button" id="contentsExportCsv" class="section-action" style="background:var(--mk-color-bg-subtle); color:var(--mk-color-text);">CSV 내보내기</button>
+                            <button type="button" class="section-action" data-action="more-contents" data-i18n="common.more">더보기</button>
+                        </div>
                     </div>
                     <div class="content-grid" id="contentLibrary">
                         <!-- 동적으로 렌더됨 -->
@@ -241,7 +248,12 @@
                     <div class="section-header">
                         <div class="section-title">
                             <span aria-hidden="true">📊</span>
-                            <span data-i18n="hub.section.channels">채널별 성과</span>
+                            <span data-i18n="hub.section.channels">채널별 성과 <span id="channelPeriodLabel" style="font-weight:400; color:var(--mk-color-text-muted); font-size:0.9rem;">(최근 30일)</span></span>
+                        </div>
+                        <div class="an-presets" id="channelPeriodChips" role="tablist" aria-label="채널 성과 기간 선택">
+                            <button type="button" class="an-chip" data-days="7" role="tab" aria-selected="false">7일</button>
+                            <button type="button" class="an-chip is-active" data-days="30" role="tab" aria-selected="true">30일</button>
+                            <button type="button" class="an-chip" data-days="90" role="tab" aria-selected="false">90일</button>
                         </div>
                     </div>
                     <div class="channel-tabs" id="channelTabs">
