@@ -129,9 +129,26 @@
     bind(btn, panel);
   }
 
+  // 알림 버튼 핸들러 — 백엔드 미연동, 안내 토스트만 표시
+  function mountAlertBtn() {
+    var btn = document.getElementById('navAlertBtn');
+    if (!btn || btn.__mkAlertBound) return;
+    btn.__mkAlertBound = true;
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (window.ui && typeof ui.toast === 'function') {
+        ui.toast('알림 기능은 준비중입니다.', 'info');
+      } else {
+        alert('알림 기능은 준비중입니다.');
+      }
+    });
+  }
+
+  function mountAll() { mount(); mountAlertBtn(); }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', mount);
+    document.addEventListener('DOMContentLoaded', mountAll);
   } else {
-    mount();
+    mountAll();
   }
 })();

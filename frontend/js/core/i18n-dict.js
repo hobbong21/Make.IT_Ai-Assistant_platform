@@ -7,7 +7,7 @@ window.makitI18nDict = {
     // 네비게이션
     'nav.home': '홈',
     'nav.overview': '개요',
-    'nav.services': '백오피스',
+    'nav.services': '서비스 체험',
     'nav.marketing-hub': '마케팅 허브',
     'nav.history': '활동 이력',
     'nav.settings': '설정',
@@ -182,7 +182,7 @@ window.makitI18nDict = {
     // Navigation
     'nav.home': 'Home',
     'nav.overview': 'Overview',
-    'nav.services': 'Backoffice',
+    'nav.services': 'Try Services',
     'nav.marketing-hub': 'Marketing Hub',
     'nav.history': 'Activity History',
     'nav.settings': 'Settings',
@@ -357,7 +357,7 @@ window.makitI18nDict = {
     // ナビゲーション
     'nav.home': 'ホーム',
     'nav.overview': '概要',
-    'nav.services': 'バックオフィス',
+    'nav.services': 'サービス体験',
     'nav.marketing-hub': 'マーケティングハブ',
     'nav.history': 'アクティビティ履歴',
     'nav.settings': '設定',
