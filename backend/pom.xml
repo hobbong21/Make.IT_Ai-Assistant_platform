@@ -174,6 +174,15 @@
             <version>7.4</version>
         </dependency>
 
+        <!-- OWASP Java HTML Sanitizer (Task #16: server-side document body sanitization,
+             defense-in-depth alongside frontend DOMPurify in ax-office-hub.js).
+             See docs/DOCUMENT_SANITIZATION_POLICY.md for the policy and frontend sync notes. -->
+        <dependency>
+            <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+            <artifactId>owasp-java-html-sanitizer</artifactId>
+            <version>20240325.1</version>
+        </dependency>
+
         <!-- Lombok + MapStruct -->
         <dependency>
             <groupId>org.projectlombok</groupId>
